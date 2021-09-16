@@ -30,8 +30,6 @@ const loadPlayground = ({
     basePath: LIQ_PLAYGROUND_PATH
   });
   
-  console.log('orgDirs: ', orgDirs) // DEBUG
-  
   for (const orgDir of orgDirs) {
     const orgName = orgDir.name
     console.log(`Processing org: ${orgName}...`)
