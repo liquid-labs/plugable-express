@@ -1,3 +1,5 @@
+// TODO: make this a small project
+
 const bindConfigSources = (sources) => {
   // TODO: if not defined in options, look in env. Otherwise, look at defaults'
   const getConfigurableValue = (name) => {
