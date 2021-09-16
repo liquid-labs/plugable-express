@@ -1,5 +1,5 @@
 const verb = 'unbind'
-const path = `/quit`
+const path = '/quit'
 
 const func = (liqModel) => (req, res) => {
   res.send('Shutting down...')

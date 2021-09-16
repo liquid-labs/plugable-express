@@ -1,14 +1,14 @@
 const reporter = {
-  configure: ({ SILENT }) => {
+  configure : ({ SILENT }) => {
     reporter.silent = SILENT
   },
-  error: (...args) => console.log(...args),
-  log: (...args) => {
+  error : (...args) => console.log(...args),
+  log   : (...args) => {
     if (!reporter.silent) {
       console.log(...args)
     }
   },
-  silent: false,
+  silent : false
 }
 
 export { reporter }

@@ -10,10 +10,10 @@ const initializeConfiguration = (sources) => {
     }
     return undefined
   }
-    
+
   return {
-    get: (name) => get(name)
+    get : (name) => get(name)
   }
 }
-   
+
 export { initializeConfiguration }
