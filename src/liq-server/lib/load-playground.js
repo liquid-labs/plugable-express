@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-const filterLiqCotents = ({ files, basePath }) =>
+const filterLiqCotents = ({ files, basePath, reporter = console }) =>
   files.filter((file) => {
     // silently ignore non-dirs and hidden stuff
     if (file.name.startsWith('.') || !file.isDirectory()) return false
@@ -8,7 +8,7 @@ const filterLiqCotents = ({ files, basePath }) =>
     const candidate = `${basePath}/${file.name}`
     // ignore marked dirs with note
     if (fs.existsSync(`${candidate}/.liq-ignore`)) {
-      console.log(`Ignoring '${file.name}' due to '.liq-ignore marker.'`)
+      reporter.log(`Ignoring '${file.name}' due to '.liq-ignore marker.'`)
       return false
     }
     
@@ -16,10 +16,11 @@ const filterLiqCotents = ({ files, basePath }) =>
   })
 
 const loadPlayground = ({
-  LIQ_PLAYGROUND_PATH=`${process.env.HOME}/.liq/playground`
+  LIQ_PLAYGROUND_PATH=`${process.env.HOME}/.liq/playground`,
+  reporter = console
 }) => {
   
-  console.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)
+  reporter.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)
   
   const playground = {
     projects: {},
@@ -27,19 +28,20 @@ const loadPlayground = ({
   
   const orgDirs = filterLiqCotents({
     files: fs.readdirSync(LIQ_PLAYGROUND_PATH, { withFileTypes: true }),
-    basePath: LIQ_PLAYGROUND_PATH
+    basePath: LIQ_PLAYGROUND_PATH,
+    reporter
   });
   
   for (const orgDir of orgDirs) {
     const orgName = orgDir.name
-    console.log(`Processing org: ${orgName}...`)
+    reporter.log(`Processing org: ${orgName}...`)
     const basePath = `${LIQ_PLAYGROUND_PATH}/${orgName}`
     const projectDirs = filterLiqCotents({
         files: fs.readdirSync(basePath, { withFileTypes: true }),
         basePath
       })
     
-    console.log(`Loading ${projectDirs.length} projects...`)
+    reporter.log(`Loading ${projectDirs.length} projects...`)
     for (const projectDir of projectDirs) {
       const projectName = projectDir.name
       const projectPath = `${basePath}/${projectName}`
@@ -53,7 +55,7 @@ const loadPlayground = ({
     }
   }
   
-  console.log('Indexing data...')
+  reporter.log('Indexing data...')
   indexPlayground(playground)
   return playground
 }

@@ -11,7 +11,7 @@ const model = {
     model.refreshPlayground = () => {
       model.playground = loadPlayground(options)
       
-      return playground
+      return model.playground
     }
 
     return model
