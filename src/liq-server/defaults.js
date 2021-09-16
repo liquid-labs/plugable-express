@@ -1,6 +1,6 @@
 const DEFAULT_PORT=32600 // this number are the ASCII codes for 'l', 'i', and 'q' summed and multiplied by 100. :)
 
-// option canstant
+// option constant
 const LIQ_PORT='LIQ_PORT'
 
 const defaults = {
