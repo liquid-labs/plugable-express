@@ -1,8 +1,9 @@
-import asyncHandler from 'express-async-handler'
+// import asyncHandler from 'express-async-handler'
 import express from 'express'
 
 import { defaults, LIQ_PORT } from './defaults'
 import { bindConfigSources } from './lib/configurables'
+import { loadPlayground } from './lib/load-playground'
 
 const startServer = (config) => {
   const PORT = config.getConfigurableValue(LIQ_PORT)
@@ -22,6 +23,8 @@ const startServer = (config) => {
 const startLiqServer = (options = {}) => {
   const config = bindConfigSources([options, defaults])
   
+  const playground = loadPlayground(config)
+  console.log('playground: ', playground)
   startServer(config)
 }
 
