@@ -1,0 +1,17 @@
+- startTimestamp: 2021-09-16T00:34:16.738Z
+  startEpochMillis: 1631752456738
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/1
+  branch: 2021.09.15-zane@liquid-labs.com-kick_off_node_server
+  branchFrom: 226a79fc763ba5d9287d8277ae1458d21e386c83
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Kick off node server
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
+  contributors:
+    - Zane Rockenbaugh <zane@liquid-labs.com>
