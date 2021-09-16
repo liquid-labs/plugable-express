@@ -11,8 +11,8 @@ const startServer = (config) => {
   const app = express()
   
   for (const handler of handlers) {
-    console.log(`registering handler for path: ${handler.path}`)
-    app.get(handler.path, handler.func(config.innerState))
+    console.log(`registering handler for path: ${handler.verb.toUpperCase()}:${handler.path}`)
+    app[handler.verb](handler.path, handler.func(config.innerState))
   }
   
   app.listen(PORT, (err) => {

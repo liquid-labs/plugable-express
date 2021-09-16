@@ -1,4 +1,4 @@
-const command = 'GET'
+const verb = 'get'
 const preOrg = '/playground/orgs/'
 const preProject = '/projects/'
 const postProject = '/packageJSON'
@@ -14,4 +14,4 @@ const func = (innerState) => (req, res) => {
   res.json(innerState.playground.orgs[orgName].projects[projectName].packageJSON)
 }
 
-export { func, path, command }
+export { func, path, verb }
