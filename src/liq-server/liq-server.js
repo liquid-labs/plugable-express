@@ -4,11 +4,8 @@ import express from 'express'
 import { defaults, LIQ_PORT } from './defaults'
 import { bindConfigSources } from './lib/configurables'
 
-const startLiqServer = (options = {}) => {
-  const config = bindConfigSources([options, defaults])
-  
+const startServer = (config) => {
   const PORT = config.getConfigurableValue(LIQ_PORT)
-  
   const app = express()
   
   app.listen(PORT, (err) => {
@@ -20,6 +17,12 @@ const startLiqServer = (options = {}) => {
     console.log(`liq server listening on ${PORT}`)
     console.log('Press Ctrl+C to quit.')
   })
+}
+
+const startLiqServer = (options = {}) => {
+  const config = bindConfigSources([options, defaults])
+  
+  startServer(config)
 }
 
 export { startLiqServer }
