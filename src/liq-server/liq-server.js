@@ -15,7 +15,7 @@ const startServer = (config) => {
     app[handler.verb](handler.path, handler.func(config.liqModel))
   }
   
-  app.listen(PORT, (err) => {
+  const server = app.listen(PORT, (err) => {
     if (err) {
       console.error(`Error while starting server.\n${err}`)
       return
@@ -23,6 +23,12 @@ const startServer = (config) => {
     
     console.log(`liq server listening on ${PORT}`)
     console.log('Press Ctrl+C to quit.')
+  })
+  
+  process.on('SIGTERM', () => {
+    server.close(() => {
+      console.log('Server shut down.')
+    })
   })
 }
 
