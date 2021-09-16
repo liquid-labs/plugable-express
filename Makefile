@@ -26,6 +26,12 @@ $(LIQ_SERVER_TEST_BUILT_DATA): test-staging/%: $(LIQ_SERVER_SRC)%
 test: $(LIQ_SERVER_TEST_BUILT_FILES) $(LIQ_SERVER_TEST_BUILT_DATA)
 	JS_SRC=test-staging $(CATALYST_SCRIPTS) test
 
+lint:
+	JS_SRC=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) lint
+
+lint-fix:
+	JS_SRC=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) lint-fix
+
 default: all
 
-.PHONY: all test foo
+.PHONY: all test lint lint-fix
