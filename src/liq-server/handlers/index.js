@@ -1,7 +1,3 @@
-import * as getPackage from './get-package'
-
-const handlers = [
-  getPackage
-]
+import { handlers } from './playground'
 
 export { handlers }
