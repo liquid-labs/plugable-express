@@ -5,9 +5,9 @@ import { handlers } from './handlers'
 
 const app = express()
 
-app.initialize = ({ model }) => {
+app.initialize = ({ model, reporter }) => {
   for (const handler of handlers) {
-    console.log(`registering handler for path: ${handler.verb.toUpperCase()}:${handler.path}`)
+    reporter.log(`registering handler for path: ${handler.verb.toUpperCase()}:${handler.path}`)
     app[handler.verb](handler.path, handler.func(model))
   }
   
