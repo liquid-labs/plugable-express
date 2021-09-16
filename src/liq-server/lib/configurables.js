@@ -1,8 +1,8 @@
 // TODO: make this a small project
 
-const bindConfigSources = (sources) => {
+const initializeConfiguration = (sources) => {
   // TODO: if not defined in options, look in env. Otherwise, look at defaults'
-  const getConfigurableValue = (name) => {
+  const get = (name) => {
     for (const source of sources) {
       if (source[name]) {
         return source[name]
@@ -12,8 +12,8 @@ const bindConfigSources = (sources) => {
   }
     
   return {
-    getConfigurableValue: (name) => getConfigurableValue(name)
+    get: (name) => get(name)
   }
 }
    
-export { bindConfigSources }
+export { initializeConfiguration }

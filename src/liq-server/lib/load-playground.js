@@ -15,22 +15,27 @@ const filterLiqCotents = ({ files, basePath }) =>
     return true
   })
 
-const loadPlayground = (liqModel) => {
+const loadPlayground = ({
+  LIQ_PLAYGROUND_PATH=`${process.env.HOME}/.liq/playground`
+}) => {
+  
+  console.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)
+  
   const playground = {
     projects: {},
   }
-  liqModel.playground = playground
   
-  const PLAYGROUND_PATH = `${process.env.HOME}/.liq/playground`
   const orgDirs = filterLiqCotents({
-    files: fs.readdirSync(PLAYGROUND_PATH, { withFileTypes: true }),
-    basePath: PLAYGROUND_PATH
+    files: fs.readdirSync(LIQ_PLAYGROUND_PATH, { withFileTypes: true }),
+    basePath: LIQ_PLAYGROUND_PATH
   });
+  
+  console.log('orgDirs: ', orgDirs) // DEBUG
   
   for (const orgDir of orgDirs) {
     const orgName = orgDir.name
     console.log(`Processing org: ${orgName}...`)
-    const basePath = `${PLAYGROUND_PATH}/${orgName}`
+    const basePath = `${LIQ_PLAYGROUND_PATH}/${orgName}`
     const projectDirs = filterLiqCotents({
         files: fs.readdirSync(basePath, { withFileTypes: true }),
         basePath

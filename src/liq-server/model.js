@@ -1,11 +1,21 @@
 import { loadPlayground } from './lib/load-playground'
 
-const model = {}
+const model = {
+  /**
+  * Initializes the model by loading the playground.
+  */
+  initialize : (options) => {
+    model.playground = loadPlayground(options)
 
-loadPlayground(model)
+    // bind the original options to refreshPlayground
+    model.refreshPlayground = () => {
+      model.playground = loadPlayground(options)
+      
+      return playground
+    }
 
-model.refreshPlayground = () => {
-  loadPlayground(config)
+    return model
+  }
 }
 
 export { model }

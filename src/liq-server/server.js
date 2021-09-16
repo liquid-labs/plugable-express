@@ -1,12 +1,5 @@
-import { app } from './app'
-import { defaults, LIQ_PORT } from './defaults'
-import { bindConfigSources } from './lib/configurables'
-
-const start = (options = {}) => {
-  const config = bindConfigSources([options, defaults])
-  
-  const PORT = config.getConfigurableValue(LIQ_PORT)
-
+const start = ( { app, options }) => {
+  const { PORT } = options
   const server = app.listen(PORT, (err) => {
     if (err) {
       console.error(`Error while starting server.\n${err}`)
