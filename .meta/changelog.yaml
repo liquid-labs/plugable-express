@@ -30,3 +30,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-16T05:19:28.855Z
+  startEpochMillis: 1631769568855
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/5
+  branch: 2021.09.16-zane@liquid-labs.com-remove_unecessary_http_import
+  branchFrom: 5d37727f0d2746fde039138510c61e49dfaf67c1
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Remove unecessary http import
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
