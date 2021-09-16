@@ -2,11 +2,7 @@
 import * as fs from 'fs'
 
 import { model } from '../model'
-import { reporter } from '../lib/reporter'
-
-reporter.configure({ SILENT: true })
-
-const simplePlaygroundPath = `${__dirname}/data/playground-simple`
+import { reporter, simplePlaygroundPath } from './test-utils'
 
 describe('model', () => {
   describe('initialize', () => {
@@ -36,16 +32,35 @@ describe('model', () => {
   })
   
   describe('refreshPlayground', () => {
-    test('picks up new projects', () => {
+    beforeAll(() => {
       model.initialize({
         LIQ_PLAYGROUND_PATH: simplePlaygroundPath,
         reporter
       })
-      fs.mkdirSync(`${simplePlaygroundPath}/orgA/projectA03`)
+    })
+    
+    test('produces an equivalent model with no changes', () => {
+      const playgroundA = model.playground
       model.refreshPlayground()
+      expect(model.playground).not.toBe(playgroundA)
+      expect(model.playground).toEqual(playgroundA)
+    })
+    
+    describe('with new project OrgA/projectA03', () => {
+      beforeAll(() => {
+        fs.mkdirSync(newProjectPath)
+        model.refreshPlayground()
+      })
+      const newProjectPath = `${simplePlaygroundPath}/orgA/projectA03`
       
-      expect(Object.keys(model.playground.projects).length).toBe(4)
-      expect(model.playground.projects['orgA/projectA03']).toBeTruthy()
+      afterAll(() => {
+        fs.rmSync(newProjectPath, { recursive: true });
+      })
+      
+      test('picks up new projects', () => {
+        expect(Object.keys(model.playground.projects).length).toBe(4)
+        expect(model.playground.projects['orgA/projectA03']).toBeTruthy()
+      })
     })
   })
 })
