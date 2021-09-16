@@ -25,6 +25,7 @@ const loadPlayground = () => {
     files: fs.readdirSync(PLAYGROUND_PATH, { withFileTypes: true }),
     basePath: PLAYGROUND_PATH
   });
+  
   for (const orgDir of orgDirs) {
     const orgName = orgDir.name
     console.log(`Processing org: ${orgName}...`)
@@ -34,23 +35,23 @@ const loadPlayground = () => {
         basePath
       })
     
+    console.log(`Loading ${projectDirs.length} projects...`)
     for (const projectDir of projectDirs) {
       const projectName = projectDir.name
       const projectPath = `${basePath}/${projectName}`
       const project = loadPlaygroundProject({
         projectName,
         projectPath,
-        orgName, projectName: projectDir.name
+        orgName
       })
       
       playground.projects[project.fullName] = project
     }
-    
-    indexPlayground(playground)
-    
-    console.log(`Org processed: ${orgName}`)
-    return playground
   }
+  
+  console.log('Indexing data...')
+  indexPlayground(playground)
+  return playground
 }
 
 // TODO: make this a micro-package
@@ -77,20 +78,50 @@ const readPackageJSON = (basePath) => {
 }
 
 const loadPlaygroundProject = ({ projectPath, projectName, orgName }) => {
-  console.log(`Loading project ${orgName}/${projectName}...`)
-  
   const packageJSON = readPackageJSON(projectPath)
   
   return {
     fullName: `${orgName}/${projectName}`,
     name: projectName,
+    orgName,
     packageJSON
   }
 }
 
 const indexPlayground = (playground) => {
   const projects = Object.values(playground.projects)
-  // for (const project of )
+  const projectsAlphaList = []
+  const orgs = {}
+  const orgsAlphaList = []
+  
+  for (const project of projects) {
+    const { fullName, name, orgName } = project
+    
+    if (orgs[orgName] === undefined) {
+      orgs[orgName] = {
+        projectsAlphaList : [],
+        projects : {}
+      }
+      orgsAlphaList.push(orgName)
+    }
+    
+    const org = orgs[orgName]
+    org.projects[name] = project
+    org.projectsAlphaList.push(name)
+    
+    projectsAlphaList.push(fullName)
+  }
+  
+  // now to sort all the names
+  projectsAlphaList.sort()
+  orgsAlphaList.sort()
+  for (const orgName of orgsAlphaList) {
+    orgs[orgName].projectsAlphaList.sort()
+  }
+  
+  playground.projectsAlphaList = projectsAlphaList
+  playground.orgs = orgs
+  playground.orgsAlphaList = orgsAlphaList
 }
 
 export { loadPlayground }

@@ -24,7 +24,7 @@ const startLiqServer = (options = {}) => {
   const config = bindConfigSources([options, defaults])
   
   const playground = loadPlayground(config)
-  console.log('playground: ', playground)
+  
   startServer(config)
 }
 
