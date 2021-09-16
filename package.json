@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "make",
-    "test": "JS_SRC=src/lib catalyst-scripts test",
+    "test": "make test",
     "postversion": "git push upstream v${npm_package_version}"
   },
   "keywords": [],
@@ -23,7 +23,8 @@
     "orgBase": "git@github.com:Liquid-Labs/Liquid-Labs.git"
   },
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.44"
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.44",
+    "supertest": "^6.1.6"
   },
   "dependencies": {
     "express": "^4.17.1",
