@@ -1,3 +1,5 @@
+import * as http from 'http'
+
 // import asyncHandler from 'express-async-handler'
 import express from 'express'
 
@@ -12,7 +14,7 @@ const startServer = (config) => {
   
   for (const handler of handlers) {
     console.log(`registering handler for path: ${handler.verb.toUpperCase()}:${handler.path}`)
-    app[handler.verb](handler.path, handler.func(config.innerState))
+    app[handler.verb](handler.path, handler.func(config.liqModel))
   }
   
   app.listen(PORT, (err) => {
@@ -29,10 +31,14 @@ const startServer = (config) => {
 const startLiqServer = (options = {}) => {
   const config = bindConfigSources([options, defaults])
   
-  const playground = loadPlayground(config)
+  const liqModel = {
+    refreshPlayground: () => {
+      loadPlayground(config)
+    }
+  }
+  config.liqModel = liqModel
   
-  const innerState = { playground }
-  config.innerState = innerState
+  loadPlayground(config)
   
   startServer(config)
 }
