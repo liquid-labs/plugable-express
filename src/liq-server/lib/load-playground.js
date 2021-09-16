@@ -15,11 +15,11 @@ const filterLiqCotents = ({ files, basePath }) =>
     return true
   })
 
-const loadPlayground = (config) => {
+const loadPlayground = (liqModel) => {
   const playground = {
     projects: {},
   }
-  config.liqModel.playground = playground
+  liqModel.playground = playground
   
   const PLAYGROUND_PATH = `${process.env.HOME}/.liq/playground`
   const orgDirs = filterLiqCotents({
