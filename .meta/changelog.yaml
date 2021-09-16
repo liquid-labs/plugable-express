@@ -15,3 +15,18 @@
   backoutNotes: []
   contributors:
     - Zane Rockenbaugh <zane@liquid-labs.com>
+- startTimestamp: 2021-09-16T05:15:43.464Z
+  startEpochMillis: 1631769343464
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/3
+  branch: 2021.09.16-zane@liquid-labs.com-flesh_out_package_scripts
+  branchFrom: 3260f47e638845fc8cd1bf4c8627dd9d69931415
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Flesh out package scripts
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
