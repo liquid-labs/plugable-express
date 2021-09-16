@@ -1,5 +1,3 @@
-import * as http from 'http'
-
 // import asyncHandler from 'express-async-handler'
 import express from 'express'
 
