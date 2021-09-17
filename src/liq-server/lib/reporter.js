@@ -1,14 +1,28 @@
-const reporter = {
-  configure : ({ SILENT }) => {
-    reporter.silent = SILENT
+const outputMethodNames = [
+  'debug',
+  'error',
+  'info',
+  'log',
+  'table',
+  'warn'
+]
+
+const reporter = Object.assign(
+  {
+    configure : ({ SILENT }) => {
+      reporter.configuration.silent = SILENT
+    },
+    configuration : { silent: false }
   },
-  error : (...args) => console.log(...args),
-  log   : (...args) => {
-    if (!reporter.silent) {
-      console.log(...args)
+  console
+)
+
+for (const methodName of outputMethodNames) {
+  reporter[methodName] = (...msgs) => {
+    if (!reporter.configuration.silent) {
+      console[methodName](...msgs)
     }
-  },
-  silent : false
+  }
 }
 
 export { reporter }

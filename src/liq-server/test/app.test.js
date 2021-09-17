@@ -36,7 +36,10 @@ describe('app', () => {
 
     test('describes registered paths', () => {
       expect(logs.filter((msg) =>
-        msg.match(/registering handler.+[A-Z]+:\/[a-zA-Z0-9/-]*$/)).length)
+        // re: '[A-Z]:' matches the verb  v      v always start with a slash
+        //                                          v regular path elements with optional ':', indicating it's a param
+        //                                                            v or it's an RE as indicated by a closing '/'
+        msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
         .toBe(6)
     })
 

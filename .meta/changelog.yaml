@@ -90,3 +90,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-17T16:45:39.023Z
+  startEpochMillis: 1631897139023
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/12
+  branch: 2021.09.17-zane@liquid-labs.com-complete_reporter_interface
+  branchFrom: d999b8e58e7b1473ee23a0afbd0fdae0fd713754
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Complete reporter interface
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
