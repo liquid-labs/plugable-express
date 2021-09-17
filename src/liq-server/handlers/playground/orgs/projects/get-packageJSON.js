@@ -1,17 +1,8 @@
-const verb = 'get'
-const preOrg = '/playground/orgs/'
-const preProject = '/projects/'
-const postProject = '/packageJSON'
-const path = `${preOrg}*${preProject}*${postProject}`
+import { getPackageJSON } from '../../_shared/get-packageJSON'
 
-const func = (liqModel) => (req, res) => {
-  const path = req.path
-  const midBitLength = path.length - preOrg.length - postProject.length
-  const midBit = path.substr(preOrg.length, midBitLength)
-  const orgName = midBit.replace(/\/.+$/, '')
-  const projectName = midBit.replace(/^.+\//, '')
-  
-  res.json(liqModel.playground.orgs[orgName].projects[projectName].packageJSON)
-}
+const verb = 'get'
+const path = '/playground/orgs/:orgName([a-zA-Z][a-zA-Z0-9-]{0,})/projects/:projectName([a-zA-Z][a-zA-Z0-9-]{0,})/packageJSON'
+
+const func = (model) => (req, res) => getPackageJSON({ req, res, model })
 
 export { func, path, verb }
