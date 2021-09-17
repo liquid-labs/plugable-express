@@ -1,4 +1,4 @@
-/* global beforeAll describe expect test */
+/* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
 import { app } from '../app'
@@ -20,7 +20,7 @@ describe('app', () => {
   describe('default setup provides useful info', () => {
     const consoleLog = console.log
     const logs = []
-    
+
     beforeAll(() => {
       model.initialize({
         LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
@@ -29,20 +29,20 @@ describe('app', () => {
       console.log = jest.fn((msg) => { logs.push(msg) })
       app.initialize({ model })
     })
-    
+
     afterAll(() => {
       console.log = consoleLog
     })
-    
+
     test('describes registered paths', () => {
       expect(logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/[a-zA-Z0-9/-]*$/)).length)
         .toBe(6)
     })
-    
+
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
-  
+
   describe('response testing', () => {
     beforeAll(() => {
       model.initialize({
