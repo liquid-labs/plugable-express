@@ -75,3 +75,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-17T06:49:31.708Z
+  startEpochMillis: 1631861371708
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/11
+  branch: 2021.09.17-zane@liquid-labs.com-test_startup
+  branchFrom: 791f9fd528963aa0e90516520715a9436163d163
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Test startup
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
