@@ -60,3 +60,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-17T03:51:29.810Z
+  startEpochMillis: 1631850689810
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/8
+  branch: 2021.09.16-zane@liquid-labs.com-improve_route_spec
+  branchFrom: 57d4d4b7a718f0d1800e17c12e752bfd50a1583e
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Improve route spec
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
