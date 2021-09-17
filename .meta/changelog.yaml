@@ -45,3 +45,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-16T12:01:55.904Z
+  startEpochMillis: 1631793715904
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/4
+  branch: 2021.09.16-zane@liquid-labs.com-set_up_basic_unit
+  branchFrom: 19285facd4e18fee474b21327445cca70ee4756f
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Set up basic unit testing
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []

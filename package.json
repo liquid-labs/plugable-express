@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "make",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "make lint",
+    "lint:fix": "make lint-fix",
+    "test": "make test",
+    "preversion": "make test && make lint",
     "postversion": "git push upstream v${npm_package_version}"
   },
   "keywords": [],
@@ -23,7 +26,8 @@
     "orgBase": "git@github.com:Liquid-Labs/Liquid-Labs.git"
   },
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.44"
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.44",
+    "supertest": "^6.1.6"
   },
   "dependencies": {
     "express": "^4.17.1",
