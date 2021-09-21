@@ -5,7 +5,7 @@ import { app } from '../app'
 import { model } from '../model'
 import { reporter, simplePlaygroundPath } from './test-utils'
 
-const COMMAND_COUNT=6
+const COMMAND_COUNT=7
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
