@@ -3,7 +3,7 @@ import http from 'http'
 const verb = 'get'
 const path = '/listMethods'
 
-const func = (liqModel) => (req, res) => {
+const func = () => (req, res) => {
   res.json(http.METHODS)
 }
 
