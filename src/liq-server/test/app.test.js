@@ -5,6 +5,8 @@ import { app } from '../app'
 import { model } from '../model'
 import { reporter, simplePlaygroundPath } from './test-utils'
 
+const COMMAND_COUNT=6
+
 const projectA01Package = {
   name        : '@orgA/projectA01',
   version     : '1.0.0',
@@ -40,7 +42,7 @@ describe('app', () => {
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBe(6)
+        .toBe(COMMAND_COUNT)
     })
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
