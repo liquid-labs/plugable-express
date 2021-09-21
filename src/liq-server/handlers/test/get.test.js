@@ -1,9 +1,7 @@
 /* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
-import { app, model, initApp } from '../../test/lib/init-app'
-
-const CURR_VER='1.0.0-alpha.0'
+import { app, model, initApp, CURR_VER } from '../../test/lib/init-app'
 
 describe('GET:/', () => {
   beforeAll(initApp)
@@ -25,7 +23,7 @@ describe('GET:/', () => {
 
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/text\/plain/)
-    expect(text).toMatch(new RegExp(CURR_VER))
+    expect(text).toMatch(new RegExp(`liq-server: ${CURR_VER}`))
   })
   
   test("results in a 406 with unsupported accept types", async() => {

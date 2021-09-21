@@ -1,3 +1,6 @@
+import * as fs from 'fs'
+import * as path from 'path'
+
 import { app } from '../../app'
 import { model } from '../../model'
 import { reporter, simplePlaygroundPath } from './test-utils'
@@ -12,4 +15,8 @@ const initApp = ({ force=false, playgroundPath=simplePlaygroundPath } = {}) => {
   }
 }
 
-export { app, model, initApp }
+const bits = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.json'))
+const packageJSON = JSON.parse(bits)
+const CURR_VER=packageJSON.version
+
+export { app, model, initApp, CURR_VER }
