@@ -3,13 +3,16 @@
 import strict
 import echoerr
 import echofmt
+import options
 
 source ./globals.sh
 source ./actions/inc.sh
 
 usage() {
-  echofmt "liq-server [start|stop|status]"
+  echofmt "liq-server [--quiet|-q] [start|stop|status]"
 }
+
+eval "$(setSimpleOptions --script QUIET -- "$@")"
 
 ACTION="${1:-}"
 

@@ -1,3 +1,3 @@
 liq-server-stop() {
-  echofmt "Stopping..."
+  [[ -n "${QUIET}" ]] || echofmt "Stopping..."
 }

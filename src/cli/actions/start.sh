@@ -1,5 +1,5 @@
 liq-server-start() {
-  echofmt "Starting..."
+  [[ -n "${QUIET}" ]] || echofmt "Starting..."
   
   local MY_DIR NODE_SCRIPT
   MY_DIR="$(dirname "${0}")"
@@ -14,5 +14,5 @@ liq-server-start() {
     echoerrandexit "Server failed to start. See above for any error messages."
   }
   
-  echofmt "\nServer running (${SERVER_PID})."
+  [[ -n "${QUIET}" ]] || echofmt "\nServer running (${SERVER_PID})."
 }
