@@ -105,3 +105,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-21T17:59:34.541Z
+  startEpochMillis: 1632247174541
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/16
+  branch: 2021.09.21-zane@liquid-labs.com-add_root_pingstatus_check
+  branchFrom: 0851a0b999efa25eb09feb76782aae2c418fc446
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Add root ping/status check
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
