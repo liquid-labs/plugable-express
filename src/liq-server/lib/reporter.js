@@ -12,7 +12,7 @@ const reporter = Object.assign(
     configure : ({ SILENT }) => {
       reporter.configuration.silent = SILENT
     },
-    configuration : { silent: false }
+    configuration : { silent : false }
   },
   console
 )

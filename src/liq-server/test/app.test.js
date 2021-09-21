@@ -4,7 +4,7 @@ import request from 'supertest'
 import { app, model, initApp } from './lib/init-app'
 import { reporter, simplePlaygroundPath } from './lib/test-utils'
 
-const COMMAND_COUNT=7
+const COMMAND_COUNT = 7
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
@@ -21,7 +21,7 @@ describe('app', () => {
   describe('default setup provides useful info', () => {
     const consoleLog = console.log
     const logs = []
-    let appInitialized = undefined
+    let appInitialized
 
     beforeAll(() => {
       appInitialized = app.initialized
@@ -36,9 +36,9 @@ describe('app', () => {
     // Need to clean up a few things.
     afterAll(() => {
       console.log = consoleLog
-      
+
       if (appInitialized) { // then we need to reset it
-        initApp({ force: true })
+        initApp({ force : true })
       }
     })
 
@@ -53,7 +53,7 @@ describe('app', () => {
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
-  
+
   // TODO: this should move (which will break it up, but OK) to the individual handler dirs to keep tests near the target.
   describe('response testing', () => {
     beforeAll(initApp)
