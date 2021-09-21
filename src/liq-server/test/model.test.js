@@ -2,7 +2,7 @@
 import * as fs from 'fs'
 
 import { model } from '../model'
-import { reporter, simplePlaygroundPath } from './test-utils'
+import { reporter, simplePlaygroundPath } from './lib/test-utils'
 
 describe('model', () => {
   describe('initialize', () => {

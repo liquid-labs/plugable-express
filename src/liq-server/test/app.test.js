@@ -1,9 +1,8 @@
 /* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
-import { app } from '../app'
-import { model } from '../model'
-import { reporter, simplePlaygroundPath } from './test-utils'
+import { app, model, initApp } from './lib/init-app'
+import { reporter, simplePlaygroundPath } from './lib/test-utils'
 
 const COMMAND_COUNT=7
 
@@ -22,8 +21,10 @@ describe('app', () => {
   describe('default setup provides useful info', () => {
     const consoleLog = console.log
     const logs = []
+    let appInitialized = undefined
 
     beforeAll(() => {
+      appInitialized = app.initialized
       model.initialize({
         LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
         reporter
@@ -32,8 +33,13 @@ describe('app', () => {
       app.initialize({ model })
     })
 
+    // Need to clean up a few things.
     afterAll(() => {
       console.log = consoleLog
+      
+      if (appInitialized) { // then we need to reset it
+        initApp({ force: true })
+      }
     })
 
     test('describes registered paths', () => {
@@ -47,15 +53,10 @@ describe('app', () => {
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
-
+  
+  // TODO: this should move (which will break it up, but OK) to the individual handler dirs to keep tests near the target.
   describe('response testing', () => {
-    beforeAll(() => {
-      model.initialize({
-        LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
-        reporter
-      })
-      app.initialize({ model, reporter })
-    })
+    beforeAll(initApp)
 
     test.each`
     path | result
