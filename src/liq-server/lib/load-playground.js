@@ -129,4 +129,4 @@ const indexPlayground = (playground) => {
   playground.orgsAlphaList = orgsAlphaList
 }
 
-export { loadPlayground }
+export { loadPlayground, safeJSONParse }

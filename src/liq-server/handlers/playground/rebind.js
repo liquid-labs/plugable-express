@@ -1,8 +1,8 @@
 const verb = 'rebind'
 const path = `/playground`
 
-const func = (liqModel) => (req, res) => {
-  liqModel.refreshPlayground()
+const func = () => (req, res) => {
+  model.refreshPlayground()
   res.json(true)
 }
 

@@ -1,8 +1,8 @@
 const verb = 'get'
 const path = `/playground`
 
-const func = (liqModel) => (req, res) => {
-  res.json(liqModel.playground)
+const func = ({ model }) => (req, res) => {
+  res.json(model.playground)
 }
 
 export { func, path, verb }
