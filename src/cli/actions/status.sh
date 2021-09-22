@@ -12,7 +12,6 @@ liq-server-status() {
         && { [[ -n "${QUIET}" ]] || echo running; return ${LIQ_SERVER_STATUS_RUNNING}; } \
         || { [[ -n "${QUIET}" ]] || echo starting; return ${LIQ_SERVER_STATUS_WORKING}; }
     else # PID file, but not running
-      rm "${LIQ_SERVER_PID_FILE}"
       [[ -n "${QUIET}" ]] || echo stopped
       return ${LIQ_SERVER_STATUS_STOPPED}
     fi

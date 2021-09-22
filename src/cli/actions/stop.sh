@@ -1,20 +1,25 @@
 liq-server-stop() {
-  [[ -n "${QUIET}" ]] || echofmt "Stopping..."
+  set +e
   liq-server-status > /dev/null
   local STATUS=$?
+  set -e
   
   if (( ${STATUS} == ${LIQ_SERVER_STATUS_STOPPED} )); then
     [[ -n "${QUIET}" ]] || echofmt "Server already stopped."
     return 0
   fi
   
+  [[ -n "${QUIET}" ]] || echofmt "Stopping..."
+  
   if (( ${STATUS} == ${LIQ_SERVER_STATUS_RECOVERABLE} )) || \
     (( ${STATUS} == ${LIQ_SERVER_STATUS_RUNNING} )); then
     local RESULT
     RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/)"
     sleep 1
+    set +e
     liq-server-status > /dev/null
     STATUS=$?
+    set -e
     if (( ${RESULT} == 200 )); then
       if (( ${STATUS} != ${LIQ_SERVER_STATUS_STOPPED} )); then
         echoerr "Server repsonded that it would stop, but it appears to still be running."
