@@ -120,3 +120,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-09-21T21:25:32.140Z
+  startEpochMillis: 1632259532140
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/15
+  branch: 2021.09.21-zane@liquid-labs.com-add_script_to_manage
+  branchFrom: 830c42a5a68efe2e43934687ab1cff7af040fac1
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Add script to manage running the serever
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
