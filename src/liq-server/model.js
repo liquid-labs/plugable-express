@@ -1,4 +1,4 @@
-import { loadPlayground } from './lib/load-playground'
+import { loadPlayground, loadOrgs } from './lib'
 
 const model = {
   /**
@@ -6,6 +6,8 @@ const model = {
   */
   initialize : (options) => {
     model.playground = loadPlayground(options)
+    const orgsOptions = Object.assign({ playground: model.playground }, options)
+    model.orgs = loadOrgs(orgsOptions)
 
     // bind the original options to refreshPlayground
     model.refreshPlayground = () => {
