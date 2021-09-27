@@ -43,10 +43,10 @@ const loadPlayground = ({
     reporter.log(`Loading ${projectDirs.length} projects...`)
     for (const projectDir of projectDirs) {
       const projectName = projectDir.name
-      const projectPath = `${basePath}/${projectName}`
+      const localProjectPath = `${basePath}/${projectName}`
       const project = loadPlaygroundProject({
         projectName,
-        projectPath,
+        localProjectPath,
         orgName
       })
 
@@ -82,13 +82,14 @@ const readPackageJSON = (basePath) => {
   return safeJSONParse(packageJSONPath)
 }
 
-const loadPlaygroundProject = ({ projectPath, projectName, orgName }) => {
-  const packageJSON = readPackageJSON(projectPath)
+const loadPlaygroundProject = ({ localProjectPath, projectName, orgName }) => {
+  const packageJSON = readPackageJSON(localProjectPath)
 
   return {
     fullName : `${orgName}/${projectName}`,
     name     : projectName,
     orgName,
+    localProjectPath,
     packageJSON
   }
 }
