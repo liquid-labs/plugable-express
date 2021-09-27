@@ -22,7 +22,9 @@ import { loadPlayground, loadOrgs } from './lib'
 *         projectsAlphaList: [ alpha sorted list of project base names ] // TODO: same as above
 *     },
 *     orgsAlphaList: [ alpha sorted list of org names ]
-*   }
+*   },
+*  orgs: { <org name>: <org definition> },
+*  // TODO: orgsAlphaList
 * }
 * ```
 */
@@ -33,7 +35,7 @@ const model = {
   initialize : (options) => {
     model.playground = loadPlayground(options)
     const orgsOptions = Object.assign({ playground: model.playground }, options)
-    model.orgs = loadOrgs(orgsOptions)
+    Object.assign(model, loadOrgs(orgsOptions))
 
     // bind the original options to refreshPlayground
     model.refreshPlayground = () => {

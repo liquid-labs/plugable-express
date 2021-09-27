@@ -1,10 +1,27 @@
-const loadOrg = ({ projectModel, reporter }) => {
+import { Organization } from '@liquid-labs/orgs-model'
+
+const loadOrg = ({ playground, projectModel, reporter }) => {
   reporter.log(`Found org definition project: ${projectModel.fullName}`)
-  reporter.log(projectModel.localProjectPath)
+  
+  // At some point, we'll probably support loading staff-less orgs.
+  const staffProjectName = projectModel.packageJSON?.liq?.org?.staffProject
+  if (staffProjectName === undefined) {
+    reporter.error(`Staff data project not defnied in '${projectModel.fullName}' package definition; add '.liq.org.staffProject'.`)
+    return
+  }
+  const staffDataProject = playground.projects[staffProjectName]
+  if (staffDataProject === undefined) {
+    reporter.error(`Could not locate staff data project in local playground, skipping org loading.`)
+    return
+  }
+  
+  const staffJSONPath = `${staffDataProject.localProjectPath}/staff.json`
+  return new Organization(`${projectModel.localProjectPath}/data`, staffJSONPath)
 }
 
 const loadOrgs = ({ playground, reporter = console }) => {
   reporter.log('Loading organization data...')
+  const data = { orgs: {} }
   
   for (const orgName of playground.orgsAlphaList) {
     const orgTypeRe = /(^|[|])org([|]|$)/
@@ -18,9 +35,15 @@ const loadOrgs = ({ playground, reporter = console }) => {
       reporter.error(`Skipping org '${orgName}' due to multiple, ambiguous definitions: ${orgProjects}`)
     }
     else {
-      loadOrg({ projectModel: orgProjects[0], reporter })
+      const orgProject = orgProjects[0]
+      const org = loadOrg({ playground, projectModel: orgProject, reporter })
+      if (org !== undefined) {
+        data.orgs[orgProject.orgName] = org
+      }
     }
   }
+  
+  return data
 }
 
 export { loadOrgs }
