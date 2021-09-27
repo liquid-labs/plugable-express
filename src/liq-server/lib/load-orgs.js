@@ -21,7 +21,7 @@ const loadOrg = ({ playground, projectModel, reporter }) => {
 
 const loadOrgs = ({ playground, reporter = console }) => {
   reporter.log('Loading organization data...')
-  const data = { orgs: {} }
+  const orgs = {}
   
   for (const orgName of playground.orgsAlphaList) {
     const orgTypeRe = /(^|[|])org([|]|$)/
@@ -38,12 +38,12 @@ const loadOrgs = ({ playground, reporter = console }) => {
       const orgProject = orgProjects[0]
       const org = loadOrg({ playground, projectModel: orgProject, reporter })
       if (org !== undefined) {
-        data.orgs[orgProject.orgName] = org
+        orgs[orgProject.orgName] = org
       }
     }
   }
   
-  return data
+  return orgs
 }
 
 export { loadOrgs }

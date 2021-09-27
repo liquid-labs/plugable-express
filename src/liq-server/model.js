@@ -21,10 +21,10 @@ import { loadPlayground, loadOrgs } from './lib'
 *         projects: { <project base name>: <refs to projects data>... },
 *         projectsAlphaList: [ alpha sorted list of project base names ] // TODO: same as above
 *     },
-*     orgsAlphaList: [ alpha sorted list of org names ]
+*     orgsAlphaList: [ alpha sorted list of org names with at least one project ]
 *   },
 *  orgs: { <org name>: <org definition> },
-*  // TODO: orgsAlphaList
+*  orgsAlphaList: [ <alhpa sorted list of modeled org names> ]
 * }
 * ```
 */
@@ -34,8 +34,10 @@ const model = {
   */
   initialize : (options) => {
     model.playground = loadPlayground(options)
+    
     const orgsOptions = Object.assign({ playground: model.playground }, options)
-    Object.assign(model, loadOrgs(orgsOptions))
+    model.orgs = loadOrgs(orgsOptions)
+    model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
 
     // bind the original options to refreshPlayground
     model.refreshPlayground = () => {
