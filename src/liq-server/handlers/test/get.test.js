@@ -1,10 +1,16 @@
 /* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
-import { app, model, initApp, CURR_VER } from '../../test/lib/init-app'
+import { appInit } from '../../app'
+import { model } from '../../model'
+import { CURR_VER, defaultTestOptions } from '../../test/lib/test-utils'
 
 describe('GET:/', () => {
-  beforeAll(initApp)
+  let app
+  beforeAll(() => {
+    model.initialize(defaultTestOptions)
+    app = appInit(Object.assign({ model }, defaultTestOptions))
+  })
   
   test("processes JSON requests", async() => {
     const { status, body, headers } = await request(app)
