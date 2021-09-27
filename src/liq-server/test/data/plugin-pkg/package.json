@@ -1,0 +1,7 @@
+{
+  "name": "@foobar/plugin-test",
+  "main": "index.js",
+  "liq": {
+    "packageType": "plugin:liq-core"
+  }
+}

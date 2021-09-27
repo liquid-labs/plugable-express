@@ -2,15 +2,12 @@
 import * as fs from 'fs'
 
 import { model } from '../model'
-import { reporter, simplePlaygroundPath } from './lib/test-utils'
+import { defaultTestOptions, reporter } from './lib/test-utils'
 
 describe('model', () => {
   describe('playground', () => {
     describe('initialization', () => {
-      beforeAll(() => model.initialize({
-        LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
-        reporter
-      }))
+      beforeAll(() => model.initialize(defaultTestOptions))
 
       test('is part of the model', () => {
         expect(model.playground).toBeTruthy()
@@ -33,12 +30,7 @@ describe('model', () => {
     })
 
     describe('refreshPlayground', () => {
-      beforeAll(() => {
-        model.initialize({
-          LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
-          reporter
-        })
-      })
+      beforeAll(() => { model.initialize(defaultTestOptions) })
 
       test('produces an equivalent model with no changes', () => {
         const playgroundA = model.playground
@@ -52,7 +44,7 @@ describe('model', () => {
           fs.mkdirSync(newProjectPath)
           model.refreshPlayground()
         })
-        const newProjectPath = `${simplePlaygroundPath}/orgA/projectA03`
+        const newProjectPath = `${defaultTestOptions.LIQ_PLAYGROUND_PATH}/orgA/projectA03`
 
         afterAll(() => {
           fs.rmSync(newProjectPath, { recursive : true })

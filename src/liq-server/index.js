@@ -1,4 +1,4 @@
-import { app } from './app'
+import { appInit } from './app'
 import { defaults, LIQ_PORT } from './defaults'
 import { initializeConfiguration } from './lib/configurables'
 import { model } from './model'
@@ -9,7 +9,7 @@ const config = initializeConfiguration([/* options, */ defaults])
 
 model.initialize(config)
 
-app.initialize({ model })
+const app = appInit(Object.assign({ model }, config))
 
 const serverOptions = {
   PORT : config.get(LIQ_PORT)

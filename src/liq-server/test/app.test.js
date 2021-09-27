@@ -1,8 +1,10 @@
 /* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
-import { app, model, initApp } from './lib/init-app'
-import { reporter, simplePlaygroundPath } from './lib/test-utils'
+import { appInit } from '../app'
+import { model } from '../model'
+import { defaultTestOptions, reporter } from './lib/test-utils'
+import { fooOutput } from './data/plugin-pkg'
 
 const COMMAND_COUNT = 7
 
@@ -17,30 +19,25 @@ const projectA01Package = {
   license : 'UNLICENSED'
 }
 
+let origLog = defaultTestOptions.reporter.log
+const logs = []
+const mockLog = () => {
+  logs.length = 0
+  defaultTestOptions.reporter.log = jest.fn((msg) => { logs.push(msg) }) }
+const unmockLog = () => { defaultTestOptions.reporter.log = origLog }
+
 describe('app', () => {
   describe('default setup provides useful info', () => {
-    const consoleLog = console.log
-    const logs = []
-    let appInitialized
+    let app
 
     beforeAll(() => {
-      appInitialized = app.initialized
-      model.initialize({
-        LIQ_PLAYGROUND_PATH : simplePlaygroundPath,
-        reporter
-      })
-      console.log = jest.fn((msg) => { logs.push(msg) })
-      app.initialize({ model })
+      mockLog()
+      model.initialize(defaultTestOptions)
+      app = appInit(Object.assign({ model }, defaultTestOptions))
     })
 
     // Need to clean up a few things.
-    afterAll(() => {
-      console.log = consoleLog
-
-      if (appInitialized) { // then we need to reset it
-        initApp({ force : true })
-      }
-    })
+    afterAll(unmockLog)
 
     test('describes registered paths', () => {
       expect(logs.filter((msg) =>
@@ -53,10 +50,46 @@ describe('app', () => {
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
+  
+  describe('plugins', () => {
+    let app
+    beforeAll(() => {
+      mockLog()
+      model.initialize(defaultTestOptions)
+      app = appInit(Object.assign({}, defaultTestOptions,
+        {
+          model,
+          force: true,
+          pluginOptions: {
+            // Note, 'findPlugins' starts looking at directories under the dir and doesn't look in dir itself
+            dir: `${__dirname}/data/`,
+            scanAllDirs: true },
+          skipPlugins: false
+        })
+      )
+    })
+    afterAll(unmockLog)
+    
+    test('registers the new plugin', () => {
+      expect(logs.filter((msg) =>
+        msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
+        .toBe(COMMAND_COUNT + 1)
+    })
+    
+    test('can be loaded dynamically', async () => {
+      const { status, body } = await request(app).get('/foo')
+      expect(status).toBe(200)
+      expect(body).toEqual(fooOutput)
+    })
+  })
 
   // TODO: this should move (which will break it up, but OK) to the individual handler dirs to keep tests near the target.
   describe('response testing', () => {
-    beforeAll(initApp)
+    let app
+    beforeAll(() => {
+      model.initialize(defaultTestOptions)
+      app = appInit(Object.assign({ model }, defaultTestOptions))
+    })
 
     test.each`
     path | result

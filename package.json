@@ -33,7 +33,13 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
+    "@liquid-labs/liq-audits": "file:.yalc/@liquid-labs/liq-audits",
     "express": "^4.17.1",
-    "express-async-handler": "^1.1.4"
+    "express-async-handler": "^1.1.4",
+    "find-plugins": "^1.1.7",
+    "resolve": "^1.20.0"
+  },
+  "optionalDependencies": {
+    "@liquid-labs/liq-audits": "file:.yalc/@liquid-labs/liq-audits"
   }
 }
