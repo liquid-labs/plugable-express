@@ -7,10 +7,11 @@ import { loadPlayground, loadOrgs } from './lib'
 *   playground: {
 *     projects: {
 *       <project full name>: {
-*         fullName    : <string>,
-*         name        : <string>,
-*         orgName     : <string,
-*         packageJSON : <local package.json contents>
+*         fullName         : <string>,
+*         name             : <string>,
+*         orgName          : <string>,
+*         localProjectPath : <string>,
+*         packageJSON      : <local package.json contents>
 *       },
 *       ...
 *     },
