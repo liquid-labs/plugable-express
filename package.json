@@ -28,12 +28,11 @@
   "devDependencies": {
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.44",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.50",
     "@liquid-labs/orgs-model": "^1.0.0-beta.48",
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/liq-audits": "file:.yalc/@liquid-labs/liq-audits",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "find-plugins": "^1.1.7",
