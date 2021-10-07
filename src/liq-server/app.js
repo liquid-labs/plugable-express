@@ -6,9 +6,8 @@ import { handlers } from './handlers'
 
 const appInit = ({ model, reporter = console, pluginOptions = {}, skipPlugins }) => {
   const app = express()
+  
   const cache = new WeakMap()
-
-  app.initialized = false
 
   const registerHandlers = ({ name, handlers, model, reporter }) => {
     for (const handler of handlers) {
