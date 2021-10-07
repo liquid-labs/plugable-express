@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/Liquid-Labs/liq-core#readme",
   "liq": {
-    "orgBase": "git@github.com:Liquid-Labs/Liquid-Labs.git"
+    "orgBase": "git@github.com:Liquid-Labs/Liquid-Labs.git",
+    "packageType": "node|server"
   },
   "devDependencies": {
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
@@ -35,6 +36,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
+    "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",
     "resolve": "^1.20.0"
   },
