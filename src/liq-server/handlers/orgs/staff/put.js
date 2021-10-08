@@ -39,10 +39,7 @@ const func = ({ model }) => (req, res) => {
       .on('data', processRecord)
       .on('end', (recordCount) => totalRecords += recordCount)
     
-    const file = files[fileName]
-    const fileDataBuffer = file.data
-    const fileDataString = fileDataBuffer.toString()
-    const fileDataStream = Readable.from(fileDataString)
+    const fileDataStream = Readable.from(files[fileName].data.toString())
     
     pipelines.push(StreamPromises.pipeline(fileDataStream, parserStream))
   }
