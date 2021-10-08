@@ -6,7 +6,7 @@ import { model } from '../model'
 import { defaultTestOptions, reporter } from './lib/test-utils'
 import { fooOutput } from './data/plugin-pkg'
 
-const COMMAND_COUNT = 7
+const COMMAND_COUNT = 8
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
