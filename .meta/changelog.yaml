@@ -165,3 +165,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-10-07T20:31:31.121Z
+  startEpochMillis: 1633638691121
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/26
+  branch: 2021.10.07-zane@liquid-labs.com-support_updating_staff_from
+  branchFrom: 531b58cb30a2fe5dce00e011722f4c06bfafa3bb
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Support updating staff from multiple CSVs
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []

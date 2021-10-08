@@ -1,14 +1,15 @@
 // import asyncHandler from 'express-async-handler'
 import express from 'express'
+import fileUpload from 'express-fileupload'
 import findPlugins from 'find-plugins'
 
 import { handlers } from './handlers'
 
 const appInit = ({ model, reporter = console, pluginOptions = {}, skipPlugins }) => {
   const app = express()
+  app.use(fileUpload({ parseNested: true }))
+  
   const cache = new WeakMap()
-
-  app.initialized = false
 
   const registerHandlers = ({ name, handlers, model, reporter }) => {
     for (const handler of handlers) {
