@@ -25,7 +25,8 @@ const func = ({ model }) => (req, res) => {
         // it's possible the other file died already
         if (res.headersSent) return
         res.status(400).json({ message: error.message })
-        // note, the error is also thrown
+        // note, the error is also impmlicitly thrown (I believe; haven't worked with Streams much, but that's
+        // consistent with the observed behavior) TODO: improve this note
       })
       .on('data', processRecord)
       .on('end', (recordCount) => totalRecords += recordCount)
