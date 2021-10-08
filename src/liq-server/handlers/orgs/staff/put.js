@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
 
-import { field, validateAndNormalizeHeaders } from './lib/staff-import-lib'
+import { field, normalizeAllNames, validateAndNormalizeHeaders } from './lib/staff-import-lib'
 
 const verb = 'put'
 const path = '/orgs/:orgName/staff'
@@ -18,7 +18,8 @@ const func = ({ model }) => (req, res) => {
   for (const fileName of Object.keys(files)) {
     // TODO: can I reuse the same stream?
     const parserStream = parseCSV({
-        headers : validateAndNormalizeHeaders
+        headers : validateAndNormalizeHeaders,
+        trim : true
       })
       .on('error', (error) => {
         // TODO: could build up errors from multiple files for better user experience
@@ -40,7 +41,17 @@ const func = ({ model }) => (req, res) => {
   }
 
   Promise.all(pipelines)
-    .then(() => res.json(results))
+    .then(() => {
+      try {
+        const normalizedRecords = results.map((rec) =>
+          [ normalizeAllNames ]
+            .reduce((rec, normalizer) => normalizer(rec), rec))
+        res.json(normalizedRecords)
+      }
+      catch (e) {
+        res.status(400).json({ message: e.message })
+      }
+    })
     .catch((error) => {
       if (res.headersSent) return
       // if there were problems with the parsing, the result would have already been sent with the '.on('error', ...)'
