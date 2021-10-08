@@ -5,9 +5,16 @@ import { parse as parseCSV } from '@fast-csv/parse'
 import { field, validateAndNormalizeHeaders, validadteAndNormalizeRecords } from './lib/staff-import-lib'
 
 const verb = 'put'
-const path = '/orgs/:orgName/staff'
+const path = '/orgs/:orgKey/staff'
 
 const func = ({ model }) => (req, res) => {
+  // we won't use the org for awhile, but if the org path is invalid, then there's no point in doing other work
+  const { orgKey } = req.params
+  const org = model.orgs[orgKey]
+  if (!org) {
+    res.status(400).json({ message: `Could not locate org '${orgKey}'.` })
+  }
+  
   const { files } = req
   const records = []
   const pipelines = []
