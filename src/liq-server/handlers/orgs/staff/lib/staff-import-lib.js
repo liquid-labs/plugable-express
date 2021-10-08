@@ -43,7 +43,6 @@ const validateAndNormalizeHeaders = (origHeaders) => {
       : `* ${errorMessages.join("\n* ")}`
     
     throw new Error(errorMessage)
-    // res.status(400).json({ message: errorMessage })
   }
 }
 

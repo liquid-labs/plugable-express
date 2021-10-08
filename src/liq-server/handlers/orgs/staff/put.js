@@ -37,10 +37,6 @@ const func = ({ model }) => (req, res) => {
     const fileDataStream = Readable.from(fileDataString)
     
     pipelines.push(StreamPromises.pipeline(fileDataStream, parserStream))
-    
-    
-    // if we encountered an error, we stop processing.
-    // if (res.headersSent) return
   }
 
   Promise.all(pipelines)
