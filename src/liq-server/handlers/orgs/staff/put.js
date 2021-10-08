@@ -2,17 +2,17 @@ import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
 
-import { field, normalizeAllNames, validateAndNormalizeHeaders } from './lib/staff-import-lib'
+import { field, validateAndNormalizeHeaders, validadteAndNormalizeRecords } from './lib/staff-import-lib'
 
 const verb = 'put'
 const path = '/orgs/:orgName/staff'
 
 const func = ({ model }) => (req, res) => {
   const { files } = req
-  const results = []
+  const records = []
   const pipelines = []
   
-  const processRecord = (record) => results.push(record)
+  const processRecord = (record) => records.push(record)
   
   let totalRecords = 0
   for (const fileName of Object.keys(files)) {
@@ -43,12 +43,11 @@ const func = ({ model }) => (req, res) => {
   Promise.all(pipelines)
     .then(() => {
       try {
-        const normalizedRecords = results.map((rec) =>
-          [ normalizeAllNames ]
-            .reduce((rec, normalizer) => normalizer(rec), rec))
+        const normalizedRecords = validadteAndNormalizeRecords(records)
         res.json(normalizedRecords)
       }
-      catch (e) {
+      catch (e) { // the normalization functions will throw if they encounter un-processable data
+        // TODO: it would be nicer to let the record exist in an "invalid" state and continue processing what we can
         res.status(400).json({ message: e.message })
       }
     })

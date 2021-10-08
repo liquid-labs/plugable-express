@@ -53,8 +53,6 @@ const validateAndNormalizeHeaders = (origHeaders) => {
 const nicknameExtractor = /"([^"]+)"|"([^"]+)"/
 
 // If nickname is not explicitly defined already, then checks the full name
-//
-// Note: this must be run before 'normalizeNames'
 const normalizeNickname = (rec) => {
   const fullName = rec[field.FULL_NAME]
   if (!rec[field.NICKNAME] && fullName) {
@@ -78,8 +76,6 @@ const bitsExtractor = /^([^" ]+)?[,;]?(.*[" ])?([^" ]+)$/
 const errorContext = (field, value) => `field '${field}' with value '${value}'`
 
 // If given name and surname are not defined, then extracts them from full name
-//
-// Note: this must be run after 'normalizeNickname'
 const normalizeNames = (rec) => {
   if (!rec[field.GIVEN_NAME] || !rec[field.SURNAME]) {
     const fullName = rec[field.FULL_NAME]
@@ -121,15 +117,19 @@ const normalizeNames = (rec) => {
   return rec
 }
 
-const normalizeAllNames = (rec) => {
-  rec = normalizeNickname(rec)
-  return normalizeNames(rec)
+const validadteAndNormalizeRecords = (records) => {
+  return records.map((rec) => [ normalizeNickname, normalizeNames ]
+      .reduce((rec, normalizer) => normalizer(rec), rec))
+}
+
+const testables = { // exported for testing
+  normalizeNames,
+  normalizeNickname
 }
 
 export {
   field, // re-export from here to maintain clear field names for both this file and subsequent consumers
-  normalizeAllNames,
-  normalizeNames,
-  normalizeNickname,
-  validateAndNormalizeHeaders
+  testables,
+  validateAndNormalizeHeaders,
+  validadteAndNormalizeRecords
 }
