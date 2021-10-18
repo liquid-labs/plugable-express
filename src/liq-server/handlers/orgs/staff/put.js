@@ -25,7 +25,7 @@ const func = ({ model }) => (req, res) => {
   for (const fileName of Object.keys(files)) {
     // TODO: can I reuse the same stream?
     const parserStream = parseCSV({
-        headers : validateAndNormalizeHeaders,
+        headers : validateAndNormalizeHeaders(fileName),
         trim : true
       })
       .on('error', (error) => {

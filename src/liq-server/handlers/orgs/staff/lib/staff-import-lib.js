@@ -15,25 +15,28 @@ const headerMatchers = [
 const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
   // Keeping the field.TITLE and field.START_DATE checks separets allows us to report both if both fail.
-  (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `Missing '${field.TITLE}' column.`,
-  (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `Missing '${field.START_DATE}' column.`,
+  (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `missing '${field.TITLE}' column.`,
+  // TODO: support warnings?
+  // (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `missing '${field.START_DATE}' column.`,
   (newHeaders) =>
     newHeaders.indexOf(field.GIVEN_NAME) > -1
       ? null // we have a given name, good
       : newHeaders.indexOf(field.FULL_NAME) > -1
         ? null // we have no given name, but we'll try and extract it, so good for now
-        : `You must provide either '${field.SURNAME}', or '${field.FULL_NAME}'. If you want to include both given names and surnames, '${field.GIVEN_NAME}' + '${field.SURNAME}' is prefered over '${field.FULL_NAME}' preferred.`,
+        : `you must provide either '${field.SURNAME}', '${field.FULL_NAME}', or both.`,
 ]
 
-const validateAndNormalizeHeaders = (origHeaders) => {
+const validateAndNormalizeHeaders = (fileName) => (origHeaders) => {
   const newHeaders = []
   
+  // First we map the incoming headers to known header names
   for (const origHeader of origHeaders) {
     const match = headerMatchers.find(([ re ], i) => origHeader.match(re))
+    // if we match, map the header to the known name; otherwise, leave the header unchanged
     newHeaders.push(match ? match[1] : origHeader)
   }
   
-  const errorMessages = headerValidations.filter((v) => v(newHeaders))
+  const errorMessages = headerValidations.map((v) => v(newHeaders)).filter((r) => r !== null)
   
   if (errorMessages.length === 0) {
     return newHeaders
@@ -41,9 +44,9 @@ const validateAndNormalizeHeaders = (origHeaders) => {
   else {
     const errorMessage = errorMessages.length === 1
       ? errorMessages[0]
-      : `* ${errorMessages.join("\n* ")}`
+      : `\n* ${errorMessages.join("\n* ")}`
     
-    throw new Error(errorMessage)
+    throw new Error(`Error's processing '${fileName}': ${errorMessage}`)
   }
 }
 
