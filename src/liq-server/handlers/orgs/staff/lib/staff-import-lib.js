@@ -3,6 +3,7 @@ import * as field from './staff-import-fields'
 // validation data and functions
 const headerMatchers = [
   [ /company/i, field.COMPANY ],
+  [ /email/i, field.EMAIL ],
   [ /full *name/i, field.FULL_NAME ],
   [ /(given|first) *name/i, field.GIVEN_NAME ],
   [ /(surname|last *name)/i, field.SURNAME ],
@@ -16,6 +17,7 @@ const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
   // Keeping the field.TITLE and field.START_DATE checks separets allows us to report both if both fail.
   (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `missing '${field.TITLE}' column.`,
+  (newHeaders) => newHeaders.indexOf(field.EMAIL) > -1 ? null : `missing '${field.EMAIL}' column.`,
   // TODO: support warnings?
   // (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `missing '${field.START_DATE}' column.`,
   (newHeaders) =>

@@ -1,4 +1,5 @@
 export const COMPANY = 'company'
+export const EMAIL='email'
 export const FULL_NAME = 'full name'
 export const GIVEN_NAME = 'given name'
 export const SURNAME = 'surname'
