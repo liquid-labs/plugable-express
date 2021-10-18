@@ -180,3 +180,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-10-18T21:01:05.780Z
+  startEpochMillis: 1634590865780
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/28
+  branch: 2021.10.18-zane@liquid-labs.com-match_roles_and_save
+  branchFrom: eccbbc63cbbc7a07fd5881b2f4529d220ea351a9
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Match roles and save refreshed employees
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
