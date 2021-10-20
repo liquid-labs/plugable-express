@@ -111,8 +111,9 @@ const func = ({ model }) => (req, res) => {
       
       // now we check for deletes
       for (const currRecord of org.staff.list()) {
-        const { email } = currRecord
-        if (!keepList.some((keepEmail) => keepEmail.toLowerCase() === email.toLowerCase())) {
+        const { email, employmentStatus } = currRecord
+        if (employmentStatus !== 'board' && employmentStatus !== 'logical'
+            && !keepList.some((keepEmail) => keepEmail.toLowerCase() === email.toLowerCase())) {
           actions.push(() => {
             try {
               org.staff.remove(email)
@@ -155,7 +156,7 @@ const func = ({ model }) => (req, res) => {
         }
         else {
           // org.staff.dehydrate()
-          res.json({ actionSummary }) 
+          res.json({ actionSummary })
           // res.json({ actions, staff: org.staff.dehydrate() }) // DEBUG
           // res.send('done')
         }
