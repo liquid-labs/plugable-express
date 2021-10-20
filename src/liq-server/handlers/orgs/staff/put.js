@@ -56,8 +56,6 @@ const func = ({ model }) => (req, res) => {
         res.status(400).json({ message: e.message })
       }
       
-      // console.log(normalizedRecords) // DEBUG
-      
       const keepList = []
       const errors = []
       const actions = []
@@ -68,14 +66,12 @@ const func = ({ model }) => (req, res) => {
         newRecord.roles = []
         
         keepList.push(email)
-        // console.log(`processing ${email}...`) // DEBUG
         
         const currRecord = org.staff.get(email)
         
         const titles = titleSpec.split(/\s*\+\s*/)
         
         titles.forEach((title, i) => {
-          if (!title || title === '') console.log(`got empty title for ${email} / ${titleSpec}`, newRecord)
           const role = org.roles.get(title, { fuzzy: true })
           if (role === undefined) {
             errors.push(`Could not find role for title '${title}' while processing staff record for '${email}'.`)
@@ -84,14 +80,12 @@ const func = ({ model }) => (req, res) => {
           
           if (currRecord === undefined) {
             newRecord.roles.push({ name: role.getName() })
-            // console.log('adding:', newRecord) // DEBUG
           }
           else if (!currRecord.roles.some((r) => r.name === role.getName())) {
             currRecord.roles.push({ name: role.getName() })
             requiresHydration = true
             actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
             // TODO: update other fields
-            // console.log('found curr record', currRecord) // DEBUG
           }
         }) // multi-title forEach loop
         
@@ -136,6 +130,7 @@ const func = ({ model }) => (req, res) => {
         for (const action of actions) {
           action()
         }
+
         if (requiresHydration) {
           try {
             org.staff.hydrate(org)
