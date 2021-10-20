@@ -195,3 +195,22 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-10-19T02:59:32.139Z
+  startEpochMillis: 1634612372139
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/28
+    - https://github.com/Liquid-Labs/liq-core/issues/29
+  branch: 2021.10.18-zane@liquid-labs.com-match_roles_and_save
+  branchFrom: 494e4a46ef5242e32f62c8245c89868a440888e8
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+    - "@liquid-labs/orgs-model"
+    - "@moca/moca-financial-policy"
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Match roles and save refreshed employees
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
