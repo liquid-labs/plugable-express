@@ -141,24 +141,29 @@ const func = ({ model }) => (req, res) => {
             org.staff.hydrate(org)
           }
           catch (e) {
-            errors.push(`There was a problem while hydrating the updated data set: ${e.message}`)
+            errors.push(`There was a problem while hydrating the updated staff: ${e.message}`)
           }
         }
         
         if (errors.length > 0) {
           // reset the data
-          model.initialize() // TODO: preserve original options?
+          model.initialize()
           
           const message = errors.length === 1
             ? `There was an error updating the staff model: ${errors[0]}`
             : `There were errors updating the staff model:\n* ${errors.join("\n* ")}`
           res.status(500).json({ message })
+          return
         }
-        else {
-          // org.staff.dehydrate()
+        // else, no errors so far
+        try {
+          org.staff.write()
           res.json({ actionSummary })
-          // res.json({ actions, staff: org.staff.dehydrate() }) // DEBUG
-          // res.send('done')
+        }
+        catch (e) {
+          res.status(500).json({ message: `There was a problem saving the updated staff: ${e.message}` })
+          // reset the data
+          model.initialize()
         }
       }
     })
