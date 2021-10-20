@@ -66,6 +66,8 @@ const func = ({ model }) => (req, res) => {
       for (const newRecord of normalizedRecords) {
         const { email, title: titleSpec } = newRecord
         newRecord.roles = []
+        
+        keepList.push(email)
         // console.log(`processing ${email}...`) // DEBUG
         
         const currRecord = org.staff.get(email)
@@ -88,6 +90,7 @@ const func = ({ model }) => (req, res) => {
             currRecord.roles.push({ name: role.getName() })
             requiresHydration = true
             actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
+            // TODO: update other fields
             // console.log('found curr record', currRecord) // DEBUG
           }
         }) // multi-title forEach loop
@@ -105,6 +108,22 @@ const func = ({ model }) => (req, res) => {
           })
         }
       } // record processing loop
+      
+      // now we check for deletes
+      for (const currRecord of org.staff.list()) {
+        const { email } = currRecord
+        if (!keepList.some((keepEmail) => keepEmail.toLowerCase() === email.toLowerCase())) {
+          actions.push(() => {
+            try {
+              org.staff.remove(email)
+            }
+            catch (e) {
+              errors.push(`Error removing '${email}': ${e.message}`)
+            }
+          })
+          actionSummary.push(`Removed staff member '${email}'.`)
+        }
+      }
       
       if (errors.length > 0) {
         const message = errors.length === 1
@@ -134,11 +153,12 @@ const func = ({ model }) => (req, res) => {
             : `There were errors updating the staff model:\n* ${errors.join("\n* ")}`
           res.status(500).json({ message })
         }
-        // res.json(normalizedRecords) // DEBUG
-        console.log('Dehydrating staff...') // DEBUG
-        // org.staff.dehydrate()
-        res.json(org.staff.dehydrate()) // DEBUG
-        // res.send('done')
+        else {
+          // org.staff.dehydrate()
+          res.json({ actionSummary }) 
+          // res.json({ actions, staff: org.staff.dehydrate() }) // DEBUG
+          // res.send('done')
+        }
       }
     })
     .catch((error) => {
