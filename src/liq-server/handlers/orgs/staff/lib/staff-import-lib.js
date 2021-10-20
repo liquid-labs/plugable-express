@@ -6,7 +6,7 @@ const headerMatchers = [
   [ /email/i, field.EMAIL ],
   [ /full *name/i, field.FULL_NAME ],
   [ /(given|first) *name/i, field.GIVEN_NAME ],
-  [ /(surname|last *name)/i, field.SURNAME ],
+  [ /(surname|last *name)/i, field.FAMILY_NAME ],
   [ /nickname/i, field.NICKNAME ],
   [ /title/i, field.TITLE ],
   [ /start date/i, field.START_DATE ],
@@ -25,7 +25,7 @@ const headerValidations = [
       ? null // we have a given name, good
       : newHeaders.indexOf(field.FULL_NAME) > -1
         ? null // we have no given name, but we'll try and extract it, so good for now
-        : `you must provide either '${field.SURNAME}', '${field.FULL_NAME}', or both.`,
+        : `you must provide either '${field.FAMILY_NAME}', '${field.FULL_NAME}', or both.`,
 ]
 
 const validateAndNormalizeHeaders = (fileName) => (origHeaders) => {
@@ -82,7 +82,7 @@ const errorContext = (field, value) => `field '${field}' with value '${value}'`
 
 // If given name and surname are not defined, then extracts them from full name
 const normalizeNames = (rec) => {
-  if (!rec[field.GIVEN_NAME] || !rec[field.SURNAME]) {
+  if (!rec[field.GIVEN_NAME] || !rec[field.FAMILY_NAME]) {
     const fullName = rec[field.FULL_NAME]
     // Note, though we are guaranteed that either given and full names are present, we could have both without surname,
     // in which case we will attempt to extract it
@@ -100,14 +100,14 @@ const normalizeNames = (rec) => {
         if (rec[field.GIVEN_NAME] && extractedGivenName.toLowerCase() !== rec[field.GIVEN_NAME].toLowerCase())
           throw new Error(`Extracted given name '${extractedGivenName}' from full name '${fullName}' but it does not match specified given name '${rec[field.GIVEN_NAME]}'`)
         // ditto for surname
-        if (rec[field.SURNAME] && rec[field.SURNAME] !== extractedSurname)
+        if (rec[field.FAMILY_NAME] && rec[field.FAMILY_NAME] !== extractedSurname)
           throw new Error(`Extracted surname '${extractedGivenName}' from full name '${fullName}' but it does not match specified surname '${rec[field.GIVEN_NAME]}'`)
           
         // now, for the updates!
         // If no specified given name, but we have an extracted given name, use it
         if (newRec[field.GIVEN_NAME] === undefined) newRec[field.GIVEN_NAME] = extractedGivenName
         // ditto for surname
-        if (rec[field.SURNAME] === undefined && extractedSurname) newRec[field.SURNAME] = extractedSurname
+        if (rec[field.FAMILY_NAME] === undefined && extractedSurname) newRec[field.FAMILY_NAME] = extractedSurname
         
         return newRec
       }
@@ -122,8 +122,9 @@ const normalizeNames = (rec) => {
   return rec
 }
 
-const validadteAndNormalizeRecords = (records) => {
-  return records.map((rec) => [ normalizeNickname, normalizeNames ]
+const validateAndNormalizeRecords = (records) => {
+  return records.map((rec) =>
+    [ normalizeNickname, normalizeNames ]
       .reduce((rec, normalizer) => normalizer(rec), rec))
 }
 
@@ -136,5 +137,5 @@ export {
   field, // re-export from here to maintain clear field names for both this file and subsequent consumers
   testables,
   validateAndNormalizeHeaders,
-  validadteAndNormalizeRecords
+  validateAndNormalizeRecords
 }
