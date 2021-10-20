@@ -32,16 +32,22 @@ const model = {
   /**
   * Initializes the model by loading the playground.
   */
-  initialize : (options) => {
-    model.playground = loadPlayground(options)
+  initialize : (config) => {
+    if (config === undefined) {
+      config = model.config
+    }
+    else if (model.config === undefined) {
+      model.config = config
+    }
+    model.playground = loadPlayground(config)
     
-    const orgsOptions = Object.assign({ playground: model.playground }, options)
+    const orgsOptions = Object.assign({ playground: model.playground }, config)
     model.orgs = loadOrgs(orgsOptions)
     model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
 
-    // bind the original options to refreshPlayground
+    // bind the original config to refreshPlayground TODO: this is notnecessary as we save 'config' on 'model'
     model.refreshPlayground = () => {
-      model.playground = loadPlayground(options)
+      model.playground = loadPlayground(config)
       
       return model.playground
     }
