@@ -8,6 +8,7 @@
   branchInitiator: zane@liquid-labs.com
   involvedProjects:
     - "@liquid-labs/liq-core"
+    - "@moca/moca-financial-policy"
   changeNotes:
     - Kick off node server
   securityNotes: []
