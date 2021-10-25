@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
 
-import { field, validateAndNormalizeHeaders, validadteAndNormalizeRecords } from './lib/staff-import-lib'
+import { field, validateAndNormalizeHeaders, validateAndNormalizeRecords } from './lib/staff-import-lib'
 
 const verb = 'put'
 const path = '/orgs/:orgKey/staff'
@@ -25,8 +25,9 @@ const func = ({ model }) => (req, res) => {
   for (const fileName of Object.keys(files)) {
     // TODO: can I reuse the same stream?
     const parserStream = parseCSV({
-        headers : validateAndNormalizeHeaders,
-        trim : true
+        headers : validateAndNormalizeHeaders(fileName),
+        trim : true,
+        ignoreEmpty : true
       })
       .on('error', (error) => {
         // TODO: could build up errors from multiple files for better user experience
@@ -46,13 +47,119 @@ const func = ({ model }) => (req, res) => {
 
   Promise.all(pipelines)
     .then(() => {
+      let normalizedRecords
       try {
-        const normalizedRecords = validadteAndNormalizeRecords(records)
-        res.json(normalizedRecords)
+        normalizedRecords = validateAndNormalizeRecords(records)
       }
       catch (e) { // the normalization functions will throw if they encounter un-processable data
         // TODO: it would be nicer to let the record exist in an "invalid" state and continue processing what we can
         res.status(400).json({ message: e.message })
+      }
+      
+      const keepList = []
+      const errors = []
+      const actions = []
+      const actionSummary = []
+      let requiresHydration = false
+      for (const newRecord of normalizedRecords) {
+        const { email, title: titleSpec } = newRecord
+        newRecord.roles = []
+        
+        keepList.push(email)
+        
+        const currRecord = org.staff.get(email)
+        
+        const titles = titleSpec.split(/\s*\+\s*/)
+        
+        titles.forEach((title, i) => {
+          const role = org.roles.get(title, { fuzzy: true })
+          if (role === undefined) {
+            errors.push(`Could not find role for title '${title}' while processing staff record for '${email}'.`)
+            return
+          }
+          
+          if (currRecord === undefined) {
+            newRecord.roles.push({ name: role.getName() })
+          }
+          else if (!currRecord.roles.some((r) => r.name === role.getName())) {
+            currRecord.roles.push({ name: role.getName() })
+            requiresHydration = true
+            actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
+            // TODO: update other fields
+          }
+        }) // multi-title forEach loop
+        
+        if (currRecord === undefined) {
+          actions.push(() => {
+            try {
+              org.staff.addData(newRecord, { deferHydration: true })
+              requiresHydration = true
+              actionSummary.push(`Created new user '${email}' as ${newRecord.roles.map((r) => r.name)}`)
+            }
+            catch (e) {
+              errors.push(`There was an error while trying to add '${email}': ${e.message}`)
+            }
+          })
+        }
+      } // record processing loop
+      
+      // now we check for deletes
+      for (const currRecord of org.staff.list()) {
+        const { email, employmentStatus } = currRecord
+        if (employmentStatus !== 'board' && employmentStatus !== 'logical'
+            && !keepList.some((keepEmail) => keepEmail.toLowerCase() === email.toLowerCase())) {
+          actions.push(() => {
+            try {
+              org.staff.remove(email)
+            }
+            catch (e) {
+              errors.push(`Error removing '${email}': ${e.message}`)
+            }
+          })
+          actionSummary.push(`Removed staff member '${email}'.`)
+        }
+      }
+      
+      if (errors.length > 0) {
+        const message = errors.length === 1
+          ? `There was an error in the input data: ${errors[0]}`
+          : `There were errors in the input data:\n* ${errors.join("\n* ")}`
+        res.status(400).json({ message })
+      }
+      else {
+        for (const action of actions) {
+          action()
+        }
+
+        if (requiresHydration) {
+          try {
+            org.staff.hydrate(org)
+          }
+          catch (e) {
+            errors.push(`There was a problem while hydrating the updated staff: ${e.message}`)
+          }
+        }
+        
+        if (errors.length > 0) {
+          // reset the data
+          model.initialize()
+          
+          const message = errors.length === 1
+            ? `There was an error updating the staff model: ${errors[0]}`
+            : `There were errors updating the staff model:\n* ${errors.join("\n* ")}`
+          res.status(500).json({ message })
+          return
+        }
+        // else, no errors so far
+        try {
+          org.staff.write()
+          res.json({ actionSummary })
+        }
+        catch (e) {
+          res.status(500).json({ message: `There was a problem saving the updated staff: ${e.message}` })
+          // reset the data
+          model.initialize()
+        }
       }
     })
     .catch((error) => {
