@@ -72,17 +72,21 @@ const func = ({ model }) => (req, res) => {
         const titles = titleSpec.split(/\s*\+\s*/)
         
         titles.forEach((title, i) => {
-          const role = org.roles.get(title, { fuzzy: true })
+          const [ role, qualifier ] = org.roles.get(title, { fuzzy: true, includeQualifier: true })
           if (role === undefined) {
             errors.push(`Could not find role for title '${title}' while processing staff record for '${email}'.`)
             return
           }
           
+          // TODO: we could skip the pre-emptive creation once we update later processing to ignore / drop non-truthy 'qualifier' entries
+          const roleDef = { name: role.getName() }
+          if (qualifier) roleDef.qualifier = qualifier
+          
           if (currRecord === undefined) {
-            newRecord.roles.push({ name: role.getName() })
+            newRecord.roles.push(roleDef)
           }
           else if (!currRecord.roles.some((r) => r.name === role.getName())) {
-            currRecord.roles.push({ name: role.getName() })
+            currRecord.roles.push(roleDef)
             requiresHydration = true
             actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
             // TODO: update other fields
