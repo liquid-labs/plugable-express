@@ -1,7 +1,6 @@
+import { handlers } from './roles'
 import * as refreshStaff from './put'
 
-const handlers = [
-  refreshStaff
-]
+handlers.push(refreshStaff)
 
 export { handlers }
