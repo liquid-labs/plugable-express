@@ -2,7 +2,7 @@
 import * as fs from 'fs'
 
 import { model } from '../model'
-import { defaultTestOptions, reporter } from './lib/test-utils'
+import { defaultTestOptions } from './lib/test-utils'
 
 describe('model', () => {
   describe('playground', () => {
@@ -57,11 +57,11 @@ describe('model', () => {
       })
     })
   })
-  
+
   // TODO: do some org unit testing!
-  /*describe('org', () => {
+  /* describe('org', () => {
     describe('initialization', () => {
-      
+
     })
-  })*/
+  }) */
 })
