@@ -45,7 +45,7 @@ describe('app', () => {
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBe(COMMAND_COUNT)
+        .toBeGreaterThanOrEqual(COMMAND_COUNT)
     })
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
@@ -73,7 +73,7 @@ describe('app', () => {
     test('registers the new plugin', () => {
       expect(logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBe(COMMAND_COUNT + 1)
+        .toBeGreaterThanOrEqual(COMMAND_COUNT + 1)
     })
     
     test('can be loaded dynamically', async () => {
