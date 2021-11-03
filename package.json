@@ -27,6 +27,8 @@
     "packageType": "node|server"
   },
   "devDependencies": {
+    "@fast-csv/format": "^4.3.5",
+    "@fast-csv/parse": "^4.3.6",
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.50",
@@ -34,7 +36,6 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@fast-csv/parse": "^4.3.6",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "express-fileupload": "^1.2.1",
