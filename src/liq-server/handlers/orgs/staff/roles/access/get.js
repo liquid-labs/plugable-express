@@ -76,7 +76,8 @@ This document specifies which roles are granted special access to sensitive, con
 ${Object.keys(rolesAccess.accessRules).map((roleName) => `### ${roleName}
 
 NOT YET IMPLEMENTED
-`
+`)}`)
+      break
     default:
       res.status(400).json({ message: `Unsupported format '${format}'.` })
   }
