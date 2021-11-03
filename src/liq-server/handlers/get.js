@@ -25,7 +25,7 @@ const func = ({ cache, reporter }) => (req, res) => {
 
     const pkgJSON = safeJSONParse(pkgPath)
     if (pkgJSON === null) {
-      res.status(500).json({ message: "Could not locate server's package definition; installation may be corrupted." })
+      res.status(500).json({ message : "Could not locate server's package definition; installation may be corrupted." })
       return
     }
 
@@ -54,7 +54,7 @@ const func = ({ cache, reporter }) => (req, res) => {
       .send(`liq-server: ${versionInfo.server}\nnode: ${versionInfo.node}\nplatform:${versionInfo.platform}\n`)
   }
   else {
-    res.status(406).json({ message: "The server does not support any response format acceptable to the client. Try one or more of:\nAccept: application/json'\nAccept: text/plain" })
+    res.status(406).json({ message : "The server does not support any response format acceptable to the client. Try one or more of:\nAccept: application/json'\nAccept: text/plain" })
   }
 }
 

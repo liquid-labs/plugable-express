@@ -8,7 +8,6 @@
   branchInitiator: zane@liquid-labs.com
   involvedProjects:
     - "@liquid-labs/liq-core"
-    - "@moca/moca-financial-policy"
   changeNotes:
     - Kick off node server
   securityNotes: []
@@ -212,6 +211,21 @@
     - "@liquid-labs/liq-core"
   changeNotes:
     - Match roles and save refreshed employees
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
+- startTimestamp: 2021-11-02T00:29:04.064Z
+  startEpochMillis: 1635812944064
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/31
+  branch: 2021.11.01-zane@liquid-labs.com-add_get_orgstaffrolesresponsibilities
+  branchFrom: eca7d10fab29f492a2bec823cac98d4a95db8c4b
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Add GET /org/staff/roles/responsibilities
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
