@@ -1,4 +1,5 @@
 import { format as formatCSV } from '@fast-csv/format'
+import { kebabCase } from 'lodash'
 
 import { initializeRolesAccess } from './lib/roles-access-lib'
 
@@ -59,6 +60,23 @@ const func = ({ model }) => (req, res) => {
       csvStream.end()
       res.end()
       break
+    case 'md':
+    // TODO: to do MD right, we should 'denormalize' the JSON (rather than the rows) so we can use in CSV and here.
+      res.type('text/markdown; charset=UTF-8; variant=GFM')
+      res.send(`# Special Access by Role
+
+## Purpose and scope
+
+This document specifies which roles are granted special access to sensitive, controlled resources.
+
+## Reference
+
+* ${Object.keys(rolesAccess.accessRules).sort().map((roleName) => `[${roleName}](#${kebabCase(roleName)})`).join("* \n")}
+
+${Object.keys(rolesAccess.accessRules).map((roleName) => `### ${roleName}
+
+NOT YET IMPLEMENTED
+`
     default:
       res.status(400).json({ message: `Unsupported format '${format}'.` })
   }
