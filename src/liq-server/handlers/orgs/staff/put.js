@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
 
-import { field, validateAndNormalizeHeaders, validateAndNormalizeRecords } from './lib/staff-import-lib'
+import { field, validateAndNormalizeHeaders, validateAndNormalizeRecords } from './_lib/staff-import-lib'
 
 const verb = 'put'
 const path = '/orgs/:orgKey/staff'

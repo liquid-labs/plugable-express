@@ -229,3 +229,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-11-06T03:36:39.749Z
+  startEpochMillis: 1636169799749
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/34
+  branch: 2021.11.05-zane@liquid-labs.com-update_lib_dir_name
+  branchFrom: f16e1db2819169fc5a6cf8f90057cdc330262c08
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Update lib dir name.
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
