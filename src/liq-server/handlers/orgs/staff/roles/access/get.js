@@ -1,7 +1,7 @@
 import { format as formatCSV } from '@fast-csv/format'
 import { kebabCase } from 'lodash'
 
-import { initializeRolesAccess } from './lib/roles-access-lib'
+import { initializeRolesAccess } from './_lib/roles-access-lib'
 
 const verb = 'get'
 const path = '/orgs/:orgKey/staff/roles/access' // TODO: shouldn't this actually end end a '/'?
