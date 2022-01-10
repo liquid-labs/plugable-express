@@ -8,7 +8,7 @@ reporter.configure({ SILENT : true })
 const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simple')
 
 const defaultTestOptions = {
-  skipPlugins: true,
+  skipCorePlugins: true,
   reporter,
   LIQ_PLAYGROUND_PATH: simplePlaygroundPath
 }

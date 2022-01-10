@@ -51,35 +51,24 @@ describe('app', () => {
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
 
-  describe('plugins', () => {
+  describe('custom plugins', () => {
     let app
+    
     beforeAll(() => {
       mockLog()
       model.initialize(defaultTestOptions)
-      app = appInit(Object.assign({}, defaultTestOptions,
-        {
-          model,
-          force         : true,
-          pluginOptions : {
-            // Note, 'findPlugins' starts looking at directories under the dir and doesn't look in dir itself
-            dir         : path.join(__dirname, 'data', 'plugins'),
-            scanAllDirs : true,
-            excludeDependencies: undefined,
-            includeOptional: undefined
-          },
-          skipPlugins : false
-        })
-      )
+      app = appInit(Object.assign({}, defaultTestOptions, { customPlugins: [path.join(__dirname, 'data', 'plugins')] }))
     })
+    
     afterAll(unmockLog)
 
-    test('registers the new plugin', () => {
+    test('are registered', () => {
       expect(logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
         .toEqual(COMMAND_COUNT + 1)
     })
 
-    test('can be loaded dynamically', async() => {
+    test('can be called', async() => {
       const { status, body } = await request(app).get('/foo')
       expect(status).toBe(200)
       expect(body).toEqual(fooOutput)
