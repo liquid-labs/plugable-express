@@ -5,9 +5,9 @@ import request from 'supertest'
 import { appInit } from '../app'
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
-import { fooOutput } from './data/plugin-pkg'
+import { fooOutput } from './data/plugins/foo'
 
-const COMMAND_COUNT = 8
+const COMMAND_COUNT = 10
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
@@ -45,7 +45,7 @@ describe('app', () => {
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBeGreaterThanOrEqual(COMMAND_COUNT)
+        .toEqual(COMMAND_COUNT)
     })
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
@@ -62,8 +62,10 @@ describe('app', () => {
           force         : true,
           pluginOptions : {
             // Note, 'findPlugins' starts looking at directories under the dir and doesn't look in dir itself
-            dir         : path.join(__dirname, 'data'),
-            scanAllDirs : true
+            dir         : path.join(__dirname, 'data', 'plugins'),
+            scanAllDirs : true,
+            excludeDependencies: undefined,
+            includeOptional: undefined
           },
           skipPlugins : false
         })
@@ -74,7 +76,7 @@ describe('app', () => {
     test('registers the new plugin', () => {
       expect(logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBeGreaterThanOrEqual(COMMAND_COUNT + 1)
+        .toEqual(COMMAND_COUNT + 1)
     })
 
     test('can be loaded dynamically', async() => {

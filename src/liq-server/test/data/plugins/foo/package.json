@@ -1,0 +1,10 @@
+{
+  "name": "@foobar/plugin-test",
+  "main": "index.js",
+  "optionalDependencies": {
+    "foo": "1.0.0^"
+  },
+  "liq": {
+    "labels": [ "plugin:liq-core" ]
+  }
+}
