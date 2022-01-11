@@ -1,7 +1,7 @@
 const fooOutput = 'I am foo'
 
 const fooHandler = {
-  verb: 'get',
+  method: 'get',
   path: '/foo',
   func: () => (req, res) => {
     res.json(fooOutput)

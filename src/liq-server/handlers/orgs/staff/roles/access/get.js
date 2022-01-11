@@ -3,7 +3,7 @@ import { kebabCase } from 'lodash'
 
 import { initializeRolesAccess } from './_lib/roles-access-lib'
 
-const verb = 'get'
+const method = 'get'
 const path = '/orgs/:orgKey/staff/roles/access' // TODO: shouldn't this actually end end a '/'?
 
 const func = ({ model }) => (req, res) => {
@@ -83,4 +83,4 @@ NOT YET IMPLEMENTED
   }
 }
 
-export { func, path, verb }
+export { func, path, method }

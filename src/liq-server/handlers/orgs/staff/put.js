@@ -4,7 +4,7 @@ import { parse as parseCSV } from '@fast-csv/parse'
 
 import { field, validateAndNormalizeHeaders, validateAndNormalizeRecords } from './_lib/staff-import-lib'
 
-const verb = 'put'
+const method = 'put'
 const path = '/orgs/:orgKey/staff'
 
 const func = ({ model }) => (req, res) => {
@@ -174,4 +174,4 @@ const func = ({ model }) => (req, res) => {
     })
 }
 
-export { func, path, verb }
+export { func, path, method }

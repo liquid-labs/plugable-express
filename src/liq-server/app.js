@@ -14,10 +14,11 @@ const appInit = (options) => {
   
   options.cache = new WeakMap()
 
-  reporter.log('Loading core handlers...')
-  registerHandlers(app, Object.assign({}, options, { name:'core', handlers }))
+  app.handlers = []
   
-  app.plugins = []
+  reporter.log('Loading core handlers...')
+  registerHandlers(app, Object.assign({}, options, { sourcePkg:'@liquid-labs/liq-core', handlers }))
+  
   loadOptionalCorePlugins(app, options)
   loadCustomPlugins(app, options)
   
@@ -67,14 +68,17 @@ const loadCustomPlugins = (app, options) => {
 
 const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
-const registerHandlers = (app, { name, handlers, model, reporter, setupData, cache }) => {
+const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
-    const { path, verb, func } = handler
-    if (path === undefined || verb === undefined || func === undefined) {
-      throw new Error(`A handler from '${name}' does not fully define 'verb', 'path', and/or 'func' exports.`)
+    const { path, method, func } = handler
+    if (path === undefined || method === undefined || func === undefined) {
+      throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
-    reporter.log(`registering handler for path: ${verb.toUpperCase()}:${path}`)
-    app[verb](path, func({ cache, model, reporter, setupData }))
+    reporter.log(`registering handler for path: ${method.toUpperCase()}:${path}`)
+    // so express can find the handler
+    app[method](path, func({ app, cache, model, reporter, setupData }))
+    // for or own informational purposes
+    app.handlers.push({ method, path: path.toString(), sourcePkg })
   }
 }
 
@@ -84,22 +88,20 @@ const processPlugins = (app, { reporter, model, cache }, pluginOptions) => {
   console.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
   
   for (const plugin of plugins) {
-    const pluginName = plugin.pkg.name
-    reporter.log(`Loading plugins from ${pluginName}...`)
+    const sourcePkg = plugin.pkg.name
+    reporter.log(`Loading plugins from ${sourcePkg}...`)
     const { handlers, setup } = require(plugin.dir) || {}
     if (handlers === undefined && setup === undefined) {
-      throw new Error(`'liq-core' plugin '${pluginName}' does not export 'handlers' or 'setup'; bailing out.`)
+      throw new Error(`'liq-core' at least one plugin from '${sourcePkg}' does not export 'handlers' or 'setup'; bailing out.`)
     }
     
-    if (setup) reporter.log(`Running setup for ${pluginName}...`)
+    if (setup) reporter.log(`Running setup for ${sourcePkg} plugins...`)
     const setupData = setup ? setup({ model, reporter }) : {}
     
     if (handlers !== undefined) {
-      registerHandlers(app, { name:pluginName, handlers, model, reporter, setupData, cache })
+      registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })
     }
   }
-
-  app.plugins.push(...plugins)
 }
 
 export { appInit }
