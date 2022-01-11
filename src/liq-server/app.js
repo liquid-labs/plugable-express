@@ -5,15 +5,17 @@ import findPlugins from 'find-plugins'
 
 import { handlers } from './handlers'
 
+const PLUGIN_LABEL = 'plugin:liq-core'
+
 const appInit = (options) => {
-  const { model, reporter = console } = options
+  const { model, reporter } = options
   const app = express()
   app.use(fileUpload({ parseNested: true }))
   
   options.cache = new WeakMap()
 
   reporter.log('Loading core handlers...')
-  registerHandlers(app, { name:'core', handlers, model, reporter, cache: options.cache })
+  registerHandlers(app, Object.assign({}, options, { name:'core', handlers }))
   
   app.plugins = []
   loadOptionalCorePlugins(app, options)
@@ -41,7 +43,7 @@ const loadOptionalCorePlugins = (app, options) => {
     includeOptional: true,
     filter: pluginFilter
   }
-  processPlugins(app, options)
+  processPlugins(app, options, pluginOptions)
 }
 
 const loadCustomPlugins = (app, options) => {
@@ -63,7 +65,7 @@ const loadCustomPlugins = (app, options) => {
   }
 }
 
-const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === 'plugin:liq-core')
+const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
 const registerHandlers = (app, { name, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
@@ -76,8 +78,10 @@ const registerHandlers = (app, { name, handlers, model, reporter, setupData, cac
   }
 }
 
-const processPlugins = (app, { reporter = console, model, cache }, pluginOptions) => {
+const processPlugins = (app, { reporter, model, cache }, pluginOptions) => {
   const plugins = findPlugins(pluginOptions)
+  
+  console.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
   
   for (const plugin of plugins) {
     const pluginName = plugin.pkg.name
