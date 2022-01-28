@@ -9,6 +9,11 @@ import { handlers } from './handlers'
 
 const PLUGIN_LABEL = 'plugin:liq-core'
 
+/**
+* Options:
+* - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
+*     dependencies are the plugins to be loaded.
+*/
 const appInit = (options) => {
   const { model, reporter } = options
   const app = express()
@@ -31,17 +36,19 @@ const appInit = (options) => {
 
 const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
+const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
+
 /**
 *
 */
-const loadPlugins = (app, { model, cache, reporter, skipPlugins = false }) => {
-  if (skipPlugins === true) {
+const loadPlugins = (app, { model, cache, reporter, skipCorePlugins = false, pluginPath = defaultPluginPath }) => {
+  if (skipCorePlugins === true) {
     reporter.log('Skipping plugins.')
     return
   }
   
-  const pluginPkg = path.join(process.env.HOME, '.liq', 'plugins', 'core', 'package.json')
-  const pluginDir = path.join(process.env.HOME, '.liq', 'plugins', 'core', 'node_modules')
+  const pluginPkg = path.join(pluginPath, 'package.json')
+  const pluginDir = path.join(pluginPath, 'node_modules')
   reporter.log(`Searching for plugins (in ${path.dirname(pluginDir)})...`)
   const pluginOptions = {
     pkg: pluginPkg,
@@ -51,7 +58,7 @@ const loadPlugins = (app, { model, cache, reporter, skipPlugins = false }) => {
   
   const plugins = findPlugins(pluginOptions)
   
-  console.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
+  reporter.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
   
   for (const plugin of plugins) {
     const sourcePkg = plugin.pkg.name

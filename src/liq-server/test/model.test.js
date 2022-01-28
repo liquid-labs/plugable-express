@@ -7,7 +7,7 @@ import { defaultTestOptions } from './lib/test-utils'
 describe('model', () => {
   describe('playground', () => {
     describe('initialization', () => {
-      beforeAll(() => model.initialize(defaultTestOptions))
+      beforeAll(() => model.initialize(defaultTestOptions()))
 
       test('is part of the model', () => {
         expect(model.playground).toBeTruthy()
@@ -30,7 +30,7 @@ describe('model', () => {
     })
 
     describe('refreshPlayground', () => {
-      beforeAll(() => { model.initialize(defaultTestOptions) })
+      beforeAll(() => { model.initialize(defaultTestOptions()) })
 
       test('produces an equivalent model with no changes', () => {
         const playgroundA = model.playground
@@ -44,7 +44,7 @@ describe('model', () => {
           fs.mkdirSync(newProjectPath)
           model.refreshPlayground()
         })
-        const newProjectPath = `${defaultTestOptions.LIQ_PLAYGROUND_PATH}/orgA/projectA03`
+        const newProjectPath = `${defaultTestOptions().LIQ_PLAYGROUND_PATH}/orgA/projectA03`
 
         afterAll(() => {
           fs.rmSync(newProjectPath, { recursive : true })

@@ -8,8 +8,8 @@ import { CURR_VER, defaultTestOptions } from '../../test/lib/test-utils'
 describe('GET:/', () => {
   let app
   beforeAll(() => {
-    model.initialize(defaultTestOptions)
-    app = appInit(Object.assign({ model }, defaultTestOptions))
+    model.initialize(defaultTestOptions())
+    app = appInit(defaultTestOptions({ model }))
   })
   
   test("processes JSON requests", async() => {

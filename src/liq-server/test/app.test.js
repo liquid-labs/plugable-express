@@ -5,9 +5,9 @@ import request from 'supertest'
 import { appInit } from '../app'
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
-import { fooOutput } from './data/plugins/foo'
+import { fooOutput } from './data/plugins/node_modules/foo'
 
-const COMMAND_COUNT = 10
+const COMMAND_COUNT = 9
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
@@ -20,27 +20,28 @@ const projectA01Package = {
   license : 'UNLICENSED'
 }
 
-const origLog = defaultTestOptions.reporter.log
-const logs = []
-const mockLog = () => {
-  logs.length = 0
-  defaultTestOptions.reporter.log = jest.fn((msg) => { logs.push(msg) })
+const origLog = console.log
+const mockLogOptions = () => {
+  const logs = []
+  const options = defaultTestOptions()
+  
+  options.reporter.log = jest.fn((msg) => { logs.push(msg) })
+  options.logs = logs
+  
+  return options
 }
-const unmockLog = () => { defaultTestOptions.reporter.log = origLog }
 
 describe('app', () => {
   describe('default setup provides useful info', () => {
+    const testOptions = mockLogOptions()
+    
     beforeAll(() => {
-      mockLog()
-      model.initialize(defaultTestOptions)
-      appInit(Object.assign({ model }, defaultTestOptions))
+      model.initialize(testOptions)
+      appInit(Object.assign(testOptions, { model }))
     })
 
-    // Need to clean up a few things.
-    afterAll(unmockLog)
-
     test('describes registered paths', () => {
-      expect(logs.filter((msg) =>
+      expect(testOptions.logs.filter((msg) =>
         // re: '[A-Z]:' matches the verb  v      v always start with a slash
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
@@ -53,17 +54,17 @@ describe('app', () => {
 
   describe('custom plugins', () => {
     let app
+    const testOptions = mockLogOptions()
     
     beforeAll(() => {
-      mockLog()
-      model.initialize(defaultTestOptions)
-      app = appInit(Object.assign({}, defaultTestOptions, { customPlugins: [path.join(__dirname, 'data', 'plugins')] }))
+      model.initialize(testOptions)
+      testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
+      testOptions.skipCorePlugins = false
+      app = appInit(testOptions)
     })
-    
-    afterAll(unmockLog)
 
     test('are registered', () => {
-      expect(logs.filter((msg) =>
+      expect(testOptions.logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
         .toEqual(COMMAND_COUNT + 1)
     })
@@ -79,8 +80,9 @@ describe('app', () => {
   describe('response testing', () => {
     let app
     beforeAll(() => {
-      model.initialize(defaultTestOptions)
-      app = appInit(Object.assign({ model }, defaultTestOptions))
+      const testOptions = mockLogOptions()
+      model.initialize(testOptions)
+      app = appInit(Object.assign(testOptions, { model }))
     })
 
     test.each`
