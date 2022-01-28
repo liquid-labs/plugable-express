@@ -12,7 +12,8 @@ model.initialize(config)
 const app = appInit(Object.assign({ model }, config))
 
 const serverOptions = {
-  PORT : config[LIQ_PORT]
+  PORT : config[LIQ_PORT],
+  reporter : config.reporter || console
 }
 
 server.start({ app, options: serverOptions })
