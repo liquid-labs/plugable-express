@@ -244,3 +244,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2021-11-06T03:39:31.240Z
+  startEpochMillis: 1636169971240
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/33
+  branch: 2021.11.05-zane@liquid-labs.com-support_sourcing_responsibility_for
+  branchFrom: cf835be74a8f0b60320c9ea2fdd4fd2a43fa4d06
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Support sourcing responsibility for evidence
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []

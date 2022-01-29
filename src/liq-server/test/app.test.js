@@ -1,13 +1,13 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global beforeAll describe expect jest test */
 import * as path from 'path'
 import request from 'supertest'
 
 import { appInit } from '../app'
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
-import { fooOutput } from './data/plugin-pkg'
+import { fooOutput } from './data/plugins/node_modules/foo'
 
-const COMMAND_COUNT = 8
+const COMMAND_COUNT = 9
 
 const projectA01Package = {
   name        : '@orgA/projectA01',
@@ -20,64 +20,55 @@ const projectA01Package = {
   license : 'UNLICENSED'
 }
 
-const origLog = defaultTestOptions.reporter.log
-const logs = []
-const mockLog = () => {
-  logs.length = 0
-  defaultTestOptions.reporter.log = jest.fn((msg) => { logs.push(msg) })
+const mockLogOptions = () => {
+  const logs = []
+  const options = defaultTestOptions()
+
+  options.reporter.log = jest.fn((msg) => { logs.push(msg) })
+  options.logs = logs
+
+  return options
 }
-const unmockLog = () => { defaultTestOptions.reporter.log = origLog }
 
 describe('app', () => {
   describe('default setup provides useful info', () => {
+    const testOptions = mockLogOptions()
+
     beforeAll(() => {
-      mockLog()
-      model.initialize(defaultTestOptions)
-      appInit(Object.assign({ model }, defaultTestOptions))
+      model.initialize(testOptions)
+      appInit(Object.assign(testOptions, { model }))
     })
 
-    // Need to clean up a few things.
-    afterAll(unmockLog)
-
     test('describes registered paths', () => {
-      expect(logs.filter((msg) =>
+      expect(testOptions.logs.filter((msg) =>
         // re: '[A-Z]:' matches the verb  v      v always start with a slash
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBeGreaterThanOrEqual(COMMAND_COUNT)
+        .toEqual(COMMAND_COUNT)
     })
 
     // TODO: use http.METHODS to verify that all registered paths used known verbs
   })
 
-  describe('plugins', () => {
+  describe('custom plugins', () => {
     let app
+    const testOptions = mockLogOptions()
+
     beforeAll(() => {
-      mockLog()
-      model.initialize(defaultTestOptions)
-      app = appInit(Object.assign({}, defaultTestOptions,
-        {
-          model,
-          force         : true,
-          pluginOptions : {
-            // Note, 'findPlugins' starts looking at directories under the dir and doesn't look in dir itself
-            dir         : path.join(__dirname, 'data'),
-            scanAllDirs : true
-          },
-          skipPlugins : false
-        })
-      )
+      model.initialize(testOptions)
+      testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
+      testOptions.skipCorePlugins = false
+      app = appInit(testOptions)
     })
-    afterAll(unmockLog)
 
-    test('registers the new plugin', () => {
-      expect(logs.filter((msg) =>
+    test('are registered', () => {
+      expect(testOptions.logs.filter((msg) =>
         msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
-        .toBeGreaterThanOrEqual(COMMAND_COUNT + 1)
+        .toEqual(COMMAND_COUNT + 1)
     })
 
-    test('can be loaded dynamically', async() => {
+    test('can be called', async() => {
       const { status, body } = await request(app).get('/foo')
       expect(status).toBe(200)
       expect(body).toEqual(fooOutput)
@@ -88,8 +79,9 @@ describe('app', () => {
   describe('response testing', () => {
     let app
     beforeAll(() => {
-      model.initialize(defaultTestOptions)
-      app = appInit(Object.assign({ model }, defaultTestOptions))
+      const testOptions = mockLogOptions()
+      model.initialize(testOptions)
+      app = appInit(Object.assign(testOptions, { model }))
     })
 
     test.each`

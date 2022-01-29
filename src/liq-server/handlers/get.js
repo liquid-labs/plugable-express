@@ -1,13 +1,14 @@
 import * as fs from 'fs'
+import http from 'http'
 import * as os from 'os'
 import * as sysPath from 'path'
 
 import { safeJSONParse } from '../lib/load-playground'
 
-const verb = 'get'
+const method = 'get'
 const path = '/'
 
-const func = ({ cache, reporter }) => (req, res) => {
+const func = ({ app, cache, reporter }) => (req, res) => {
   let versionInfo = cache.get(func) // we assume versions are stable while running
 
   if (versionInfo === undefined) {
@@ -39,7 +40,9 @@ const func = ({ cache, reporter }) => (req, res) => {
         type     : os.type(),
         version  : os.version(),
         release  : os.release()
-      }
+      },
+      api              : app.handlers,
+      supportedMethods : http.METHODS
     }
 
     cache.set(func, versionInfo)
@@ -58,4 +61,4 @@ const func = ({ cache, reporter }) => (req, res) => {
   }
 }
 
-export { func, path, verb }
+export { func, path, method }

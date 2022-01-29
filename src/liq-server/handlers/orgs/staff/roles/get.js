@@ -1,4 +1,4 @@
-const verb = 'get'
+const method = 'get'
 const path = '/orgs/:orgKey/staff/roles' // TODO: shouldn't this actually end end a '/'?
 
 const func = ({ model }) => (req, res) => {
@@ -8,4 +8,4 @@ const func = ({ model }) => (req, res) => {
   res.json(org.roles.list())
 }
 
-export { func, path, verb }
+export { func, path, method }

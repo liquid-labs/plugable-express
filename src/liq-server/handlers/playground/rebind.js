@@ -1,4 +1,4 @@
-const verb = 'rebind'
+const method = 'rebind'
 const path = `/playground`
 
 const func = () => (req, res) => {
@@ -6,4 +6,4 @@ const func = () => (req, res) => {
   res.json(true)
 }
 
-export { func, path, verb }
+export { func, path, method }
