@@ -1,4 +1,4 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global beforeAll describe expect jest test */
 import * as path from 'path'
 import request from 'supertest'
 
@@ -20,21 +20,20 @@ const projectA01Package = {
   license : 'UNLICENSED'
 }
 
-const origLog = console.log
 const mockLogOptions = () => {
   const logs = []
   const options = defaultTestOptions()
-  
+
   options.reporter.log = jest.fn((msg) => { logs.push(msg) })
   options.logs = logs
-  
+
   return options
 }
 
 describe('app', () => {
   describe('default setup provides useful info', () => {
     const testOptions = mockLogOptions()
-    
+
     beforeAll(() => {
       model.initialize(testOptions)
       appInit(Object.assign(testOptions, { model }))
@@ -55,7 +54,7 @@ describe('app', () => {
   describe('custom plugins', () => {
     let app
     const testOptions = mockLogOptions()
-    
+
     beforeAll(() => {
       model.initialize(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')

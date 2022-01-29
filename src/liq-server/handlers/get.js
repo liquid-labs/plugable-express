@@ -41,8 +41,8 @@ const func = ({ app, cache, reporter }) => (req, res) => {
         version  : os.version(),
         release  : os.release()
       },
-      api: app.handlers,
-      supportedMethods: http.METHODS
+      api              : app.handlers,
+      supportedMethods : http.METHODS
     }
 
     cache.set(func, versionInfo)

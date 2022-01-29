@@ -32,7 +32,7 @@
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.50",
-    "@liquid-labs/orgs-model": "file:.yalc/@liquid-labs/orgs-model",
+    "@liquid-labs/orgs-model": "^1.0.0-beta.61",
     "lodash": "^4.17.21",
     "supertest": "^6.1.6"
   },

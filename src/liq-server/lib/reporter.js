@@ -15,7 +15,7 @@ const initReporter = (configOptions) => {
     },
     configuration : { silent : false }
   }
-  
+
   if (configOptions) {
     reporter.configure(configOptions)
   }
@@ -27,7 +27,7 @@ const initReporter = (configOptions) => {
       }
     }
   }
-  
+
   return reporter
 }
 
