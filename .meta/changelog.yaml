@@ -259,3 +259,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-01-30T19:17:40.734Z
+  startEpochMillis: 1643570260734
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/39
+  branch: 2022.01.30-zane@liquid-labs.com-encapsulate_the_csv
+  branchFrom: a9986c8d52e01a00b5478e6df54e6d0605ec1859
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Encapsulate the CSV <-> JSON functions
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []

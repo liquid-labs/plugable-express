@@ -6,5 +6,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "liq": {
+    "packageType": "org",
+    "org": {
+      "staffProject": "orgA/projectA01"
+    }
+  }
 }

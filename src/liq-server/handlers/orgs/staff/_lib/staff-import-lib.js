@@ -1,7 +1,7 @@
 import * as field from './staff-import-fields'
 
 // validation data and functions
-const headerMatchers = [
+const headerNormalizations = [
   [ /company/i, field.COMPANY ],
   [ /email/i, field.EMAIL ],
   [ /full *name/i, field.FULL_NAME ],
@@ -13,6 +13,12 @@ const headerMatchers = [
   [ /end *date/i, field.END_DATE ]
 ]
 
+/**
+* Validates:
+* - `email` is present
+* - `title` is present
+* - either `givenName` and `surname` are present or `fullName` is present
+*/
 const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
   // Keeping the field.TITLE and field.START_DATE checks separets allows us to report both if both fail.
@@ -27,30 +33,6 @@ const headerValidations = [
         ? null // we have no given name, but we'll try and extract it, so good for now
         : `you must provide either '${field.FAMILY_NAME}', '${field.FULL_NAME}', or both.`,
 ]
-
-const validateAndNormalizeHeaders = (fileName) => (origHeaders) => {
-  const newHeaders = []
-  
-  // First we map the incoming headers to known header names
-  for (const origHeader of origHeaders) {
-    const match = headerMatchers.find(([ re ], i) => origHeader.match(re))
-    // if we match, map the header to the known name; otherwise, leave the header unchanged
-    newHeaders.push(match ? match[1] : origHeader)
-  }
-  
-  const errorMessages = headerValidations.map((v) => v(newHeaders)).filter((r) => r !== null)
-  
-  if (errorMessages.length === 0) {
-    return newHeaders
-  }
-  else {
-    const errorMessage = errorMessages.length === 1
-      ? errorMessages[0]
-      : `\n* ${errorMessages.join("\n* ")}`
-    
-    throw new Error(`Error's processing '${fileName}': ${errorMessage}`)
-  }
-}
 
 // record normalization functions
 
@@ -80,7 +62,8 @@ const bitsExtractor = /^([^" ]+)?[,;]?(.*[" ])?([^" ]+)$/
 
 const errorContext = (field, value) => `field '${field}' with value '${value}'`
 
-// If given name and surname are not defined, then extracts them from full name
+// If given name and/or surname are not defined, then extracts them from the `field.FULL_NAME`, which is assumed to be
+// present (validated with `headerValidations`).
 const normalizeNames = (rec) => {
   if (!rec[field.GIVEN_NAME] || !rec[field.FAMILY_NAME]) {
     const fullName = rec[field.FULL_NAME]
@@ -106,27 +89,85 @@ const normalizeNames = (rec) => {
         // now, for the updates!
         // If no specified given name, but we have an extracted given name, use it
         if (newRec[field.GIVEN_NAME] === undefined) newRec[field.GIVEN_NAME] = extractedGivenName
-        // ditto for surname
-        if (rec[field.FAMILY_NAME] === undefined && extractedSurname) newRec[field.FAMILY_NAME] = extractedSurname
+        // ditto for surname TODO: was 'rec[field.FAMILY_NAME] === undefined'; changed for consistency, just noting in case this blows up somehow
+        if (newRec[field.FAMILY_NAME] === undefined && extractedSurname) newRec[field.FAMILY_NAME] = extractedSurname
         
         return newRec
       }
       
+      // 'updateNames' returns the record
       return fullName.match(lastNameFirst)
         ? updateNames(bitsMatch[1], bitsMatch[3])
         : updateNames(bitsMatch[3], bitsMatch[1])
     }
-    // else we have no fullname and at least a given name, so we can just return
+    // else we have no fullname and at least a given name, so we can just return the rec
   }
   
   return rec
 }
 
 const validateAndNormalizeRecords = (records) => {
-  return records.map((rec) =>
-    [ normalizeNickname, normalizeNames ]
-      .reduce((rec, normalizer) => normalizer(rec), rec))
+  return records.map((rec) => {
+    for (const normalizer of [ normalizeNickname, normalizeNames ]) {
+      rec = normalizer(rec)
+    }
+    return rec
+  })
 }
+
+/**
+* Finalizing the record may have side effects, which should be desribed with an`actionSummary` entry.
+*/
+const finalizeRecord = ({ actionSummary, newRecord, org }) => {
+  const { email, title: titleSpec, _sourceFileName } = newRecord
+  newRecord.roles = []
+  const currRecord = org.staff.get(email)
+  
+  const titles = titleSpec.split(/\s*[;]\s*/)
+  
+  titles.forEach((title, i) => {
+    const [ role, qualifier ] = org.roles.get(title, { fuzzy: true, includeQualifier: true })
+    if (role === undefined) {
+      errors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
+      return
+    }
+    
+    // TODO: we could skip the pre-emptive creation once we update later processing to ignore / drop non-truthy 'qualifier' entries
+    const roleDef = { name: role.getName() }
+    if (qualifier) roleDef.qualifier = qualifier
+    
+    if (currRecord === undefined) {
+      newRecord.roles.push(roleDef)
+    }
+    else { // it's an update and we need to recongile changes in the role
+      newRecord.roles.push(roleDef)
+      if (!currRecord.roles.some((r) => r.name === roleDef.name)) {
+        // then we are adding a new role
+        actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
+      }
+      // else the role is currently present, so no change
+    }
+  }) // multi-title forEach loop
+  
+  // new we need to check if any roles have been removed
+  for (const oldRole of currRecord.roles) {
+    if (!newRecord.roles.some((r) => r.name === oldRole.name)) {
+      actionSummary.push(`Removed role '${oldRole.name}' from '${email}'.`)
+    }
+  }
+  
+  return true // always hydrate
+}
+
+/**
+* Verifies whether the current record can be deleted automatically. In our case, 'board' and 'logical' staff don't show
+* up in the reports, but are non-deletable.
+*
+* ### Parameters
+*
+* - `employmentStatus` (from imported record): indicates the nature of employment
+*/
+const canBeAutoDeleted = ({ employmentStatus }) => employmentStatus !== 'board' && employmentStatus !== 'logical'
 
 const testables = { // exported for testing
   normalizeNames,
@@ -134,8 +175,11 @@ const testables = { // exported for testing
 }
 
 export {
+  canBeAutoDeleted,
   field, // re-export from here to maintain clear field names for both this file and subsequent consumers
+  finalizeRecord,
+  headerNormalizations,
+  headerValidations,
   testables,
-  validateAndNormalizeHeaders,
   validateAndNormalizeRecords
 }

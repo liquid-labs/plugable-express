@@ -24,9 +24,13 @@ const loadOrgs = ({ playground, reporter = console }) => {
   const orgs = {}
 
   for (const orgName of playground.orgsAlphaList) {
-    const orgTypeRe = /(^|[|])org([|]|$)/
+    const orgTypeRe = /(^(.*|)?org(|.*)?$)/
     const orgProjects = Object.values(playground.orgs[orgName].projects)
-      .filter((projectModel) => projectModel.packageJSON?.liq?.packageType?.match(orgTypeRe))
+      .filter((projectModel) => {
+        // console.log(`testing: ${projectModel.packageJSON?.liq?.packageType}`)
+        // console.log(projectModel)
+        return projectModel.packageJSON?.liq?.packageType?.match(orgTypeRe)
+      })
 
     if (!orgProjects || orgProjects.length === 0) {
       reporter.log(`Skipping '${orgName}'; no org definition found.`)
