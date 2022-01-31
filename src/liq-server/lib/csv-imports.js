@@ -162,7 +162,7 @@ const processPipelines = ({
 
     try {
       resourceAPI.write()
-      res.json({ message: actionSummary.join("\n") })
+      res.json({ message : actionSummary.join('\n') })
     }
     catch (e) {
       res.status(500).json({ message : `There was a problem saving the updated staff: ${e.message}` })
@@ -170,13 +170,13 @@ const processPipelines = ({
       model.initialize() // hopefully the data on file is intact...
     }
   }) // Promise(.all(pipelines).then(...
-  .catch((error) => {
-    console.error(error)
-    if (res.headersSent) return
-    // if there were problems with the parsing, the result would have already been sent with the '.on('error', ...)'
-    // handler; so this is something else and we'll assume a 500
-    res.status(500).json({ message : error.message })
-  })
+    .catch((error) => {
+      console.error(error)
+      if (res.headersSent) return
+      // if there were problems with the parsing, the result would have already been sent with the '.on('error', ...)'
+      // handler; so this is something else and we'll assume a 500
+      res.status(500).json({ message : error.message })
+    })
 } // end processPipelines
 
 const processNewAndUpdated = ({
