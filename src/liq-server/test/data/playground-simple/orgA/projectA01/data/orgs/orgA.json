@@ -1,0 +1,11 @@
+{
+  "audits": [],
+  "roles": [
+    { "name": "CEO", "singular": true, "titular": true, "jobDescription": "Chief executive officer." },
+    { "name": "CTO", "singular": true, "titular": true, "jobDescription": "Chief technical officer." },
+    { "name": "Developer", "titular": true, "qualifiable": true, "jobDescription": "Hacker." },
+    { "name": "Tester", "titular": true, "qualifiable": true, "jobDescription": "QA." }
+  ],
+  "thirdPartyAccounts": [],
+  "technologies": []
+}

@@ -6,19 +6,9 @@ import { appInit } from '../app'
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
+import projectA01Package from './data/playground-simple/orgA/projectA01/package.json'
 
 const COMMAND_COUNT = 9
-
-const projectA01Package = {
-  name        : '@orgA/projectA01',
-  version     : '1.0.0',
-  description : 'Test data',
-  scripts     : {
-    test : 'echo "Error: no test specified" && exit 1'
-  },
-  author  : 'Zane Rockenbaugh <zane@liquid-labs.com>',
-  license : 'UNLICENSED'
-}
 
 const mockLogOptions = () => {
   const logs = []
