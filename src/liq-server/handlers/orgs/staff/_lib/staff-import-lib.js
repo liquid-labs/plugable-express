@@ -10,7 +10,8 @@ const headerNormalizations = [
   [ /nickname/i, field.NICKNAME ],
   [ /title/i, field.TITLE ],
   [ /start date/i, field.START_DATE ],
-  [ /end *date/i, field.END_DATE ]
+  [ /end *date/i, field.END_DATE ],
+  [ /employment *status/i, field.EMPLOYMENT_STATUS ]
 ]
 
 /**
@@ -21,9 +22,9 @@ const headerNormalizations = [
 */
 const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
-  // Keeping the field.TITLE and field.START_DATE checks separets allows us to report both if both fail.
-  (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `missing '${field.TITLE}' column.`,
+  // Keeping the field checks separets allows us to report both if both fail.
   (newHeaders) => newHeaders.indexOf(field.EMAIL) > -1 ? null : `missing '${field.EMAIL}' column.`,
+  (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `missing '${field.TITLE}' column.`,
   // TODO: support warnings?
   // (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `missing '${field.START_DATE}' column.`,
   (newHeaders) =>
@@ -121,32 +122,37 @@ const validateAndNormalizeRecords = (records) => {
 const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   const { email, title: titleSpec, _sourceFileName } = newRecord
   newRecord.roles = []
-  const currRecord = org.staff.get(email)
+  const currRecord = org.staff.getData(email)
+  
+  if (currRecord !== undefined)
+    newRecord = Object.assign({}, currRecord, newRecord)
   
   const titles = titleSpec.split(/\s*[;]\s*/)
   
   titles.forEach((title, i) => {
-    const [ role, qualifier ] = org.roles.get(title, { fuzzy: true, includeQualifier: true })
+    const [ roleName, manager ] = title.split('/')
+    const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
     if (role === undefined) {
       errors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
       return
     }
     
     // TODO: we could skip the pre-emptive creation once we update later processing to ignore / drop non-truthy 'qualifier' entries
-    const roleDef = { name: role.getName() }
-    if (qualifier) roleDef.qualifier = qualifier
-    
-    if (currRecord === undefined) {
-      newRecord.roles.push(roleDef)
-    }
-    else { // it's an update and we need to recongile changes in the role
-      newRecord.roles.push(roleDef)
-      if (!currRecord.roles.some((r) => r.name === roleDef.name)) {
+    let roleDef = { name: role.getName() }
+    if (qualifier !== undefined) roleDef.qualifier = qualifier
+    if (manager !== undefined) roleDef.manager = manager
+    if (currRecord !== undefined) { // it's an update and we need to reconcile changes in the role
+      const currRoleData = currRecord.roles.find((r) => r.name === roleDef.name)
+      if (!currRoleData) {
         // then we are adding a new role
         actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
       }
-      // else the role is currently present, so no change
+      else {
+        roleDef = Object.assign({}, currRoleData, roleDef)
+      }
     }
+    
+    newRecord.roles.push(roleDef)
   }) // multi-title forEach loop
   
   // new we need to check if any roles have been removed
@@ -156,7 +162,7 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
     }
   }
   
-  return true // always hydrate
+  return newRecord
 }
 
 /**

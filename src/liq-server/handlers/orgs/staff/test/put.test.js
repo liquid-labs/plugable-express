@@ -14,6 +14,7 @@ const staffJSONDest = path.join(__dirname, '..', '..', '..', '..',
 
 describe('PUT:/orgs/:orgKey/staff', () => {
   let app
+  let count = 1
   beforeEach(() => {
     model.initialize(defaultTestOptions())
     app = appInit(defaultTestOptions({ model }))
@@ -21,7 +22,9 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     expect(model.orgs.orgA.staff.list()).toHaveLength(3)
   })
   afterEach(() => { // put the original staff.json back in place
-    fs.copyFileSync(origStaffJSON, origStaffJSON)
+    fs.copyFileSync(staffJSONDest, staffJSONDest + `.${count}`)
+    count += 1
+    fs.copyFileSync(origStaffJSON, staffJSONDest)
   })
   
   test("deletes", async () => {

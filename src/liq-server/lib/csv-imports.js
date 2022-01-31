@@ -62,7 +62,6 @@ const importFromCSV = (options) => {
 * - `resourceAPI`: see `importFromCSV`
 */
 const validateAPI = ({ res, resourceAPI }) => {
-  // Notice we don't check 'hydrate' as "hydration" is optional and will be factored out at some point.
   const requiredAPI = ['add', 'delete', 'get', 'itemName', 'keyField', 'list', 'resourceName', 'write']
   const missing = requiredAPI.reduce((acc, key) => {
     if (!resourceAPI[key]) { acc.push(key) }
@@ -154,30 +153,21 @@ const processPipelines = ({
     const actions = []
     const actionSummary = []
     // these build up 'actions', but don't do anything to the model until processed
-    const { keepList, requiresHydration } =
+    const { keepList } =
       processNewAndUpdated({ actions, actionSummary, errors, finalizeRecord, normalizedRecords, org, resourceAPI, ...names })
     processDeletions({ actions, actionSummary, canBeAutoDeleted, errors, keepList, resourceAPI })
 
     for (const action of actions) action()
     if (!checkStatus({ errors, source : 'processing updates', model, res })) return
 
-    if (requiresHydration) {
-      try { resourceAPI.hydrate() }
-      catch (e) {
-        errors.push(`There was a problem while hydrating the updated ${names.resourceName} model: ${e.message}`)
-      }
+    try {
+      resourceAPI.write()
+      res.json({ message: actionSummary.join("\n") })
     }
-
-    if (checkStatus({ errors, source : `updating the ${names.resourceName} model`, model, res })) {
-      try {
-        resourceAPI.write()
-        res.json({ message: actionSummary.join("\n") })
-      }
-      catch (e) {
-        res.status(500).json({ message : `There was a problem saving the updated staff: ${e.message}` })
-        // reset the data
-        model.initialize() // hopefully the data on file is intact...
-      }
+    catch (e) {
+      res.status(500).json({ message : `There was a problem saving the updated staff: ${e.message}` })
+      // reset the data
+      model.initialize() // hopefully the data on file is intact...
     }
   }) // Promise(.all(pipelines).then(...
   .catch((error) => {
@@ -200,10 +190,9 @@ const processNewAndUpdated = ({
   resourceAPI
 }) => {
   const keepList = []
-  let requiresHydration = false // TODO: factor out 'hydration'
   // process the incoming and normalized records
-  for (const newRecord of normalizedRecords) {
-    requiresHydration = finalizeRecord({ actions, actionSummary, newRecord, org }) || requiresHydration
+  for (let newRecord of normalizedRecords) {
+    newRecord = finalizeRecord({ actions, actionSummary, newRecord, org })
     const newId = newRecord[resourceAPI.keyField.toLowerCase()] // notice we normalize the ID to lower case
     keepList.push(newId)
 
@@ -212,8 +201,7 @@ const processNewAndUpdated = ({
       try {
         if (resourceAPI.get(newId) === undefined) {
           action = 'add'
-          resourceAPI.add(newRecord, { deferHydration : true }) // TODO: factor out hydration
-          requiresHydration = true
+          resourceAPI.add(newRecord)
           actionSummary.push(`Created new ${itemName} '${newId}' as ${newRecord.roles.map((r) => r.name).join(', ')}`)
         }
         else {
@@ -227,7 +215,7 @@ const processNewAndUpdated = ({
     }) // end deferred action setup
   } // record processing loop
 
-  return { actions, actionSummary, keepList, requiresHydration }
+  return { actions, actionSummary, keepList }
 }
 
 const tryValidateAndNormalizeRecords = ({ itemName, records, res, validateAndNormalizeRecords }) => {
