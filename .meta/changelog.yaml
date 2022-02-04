@@ -274,3 +274,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-02-04T05:43:41.860Z
+  startEpochMillis: 1643953421860
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/42
+  branch: 2022.02.03-zane@liquid-labs.com-fix_data_cleaning
+  branchFrom: e177cf3a80015219323897ffe6f73f836fa9369b
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Fix data cleaning
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
