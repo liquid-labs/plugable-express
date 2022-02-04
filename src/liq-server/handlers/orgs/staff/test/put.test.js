@@ -28,8 +28,8 @@ describe('PUT:/orgs/:orgKey/staff', () => {
   })
   
   test("deletes", async () => {
-    const origCEO = model.orgs.orgA.staff.get('ceo@foo.com')
-    const origDev = model.orgs.orgA.staff.get('dev@foo.com')
+    const origCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true })
+    const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData: true })
     const filePath = path.join(__dirname, 'staff-delete.csv');
     const { body, headers, status, text } = await request(app)
       .post('/orgs/orgA/staff') // it reads weird, but this MUST go first
@@ -39,8 +39,8 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     expect(headers['content-type']).toMatch(/application\/json/)
     expect(body.message.match( /(updated.*){2}/i ))
     expect(model.orgs.orgA.staff.list()).toHaveLength(2)
-    expect(model.orgs.orgA.staff.get('ceo@foo.com')).toEqual(origCEO)
-    expect(model.orgs.orgA.staff.get('dev@foo.com')).toEqual(origDev)
+    expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true, clean: true })).toEqual(origCEO)
+    expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true, clean: true })).toEqual(origDev)
   })
 /*
   test("adds", async () => {

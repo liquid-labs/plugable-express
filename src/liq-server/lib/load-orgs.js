@@ -15,8 +15,8 @@ const loadOrg = ({ playground, projectModel, reporter }) => {
     return
   }
 
-  const staffJSONPath = `${staffDataProject.localProjectPath}/staff.json`
-  return new Organization(`${projectModel.localProjectPath}/data`, staffJSONPath)
+  const staffDataPath = `${staffDataProject.localProjectPath}/staff.json`
+  return new Organization({dataPath: `${projectModel.localProjectPath}/data`, staffDataPath })
 }
 
 const loadOrgs = ({ playground, reporter = console }) => {

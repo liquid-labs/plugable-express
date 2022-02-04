@@ -35,12 +35,12 @@ const func = ({ model }) => (req, res) => {
       
       for (const role of org.roles.list()) {
         const row = Array.from({length: colWidth}, () => null)
-        row[0] = role.getName()
+        row[0] = role.name
       
         // Fill in the rest of the row with either 'null' or an array of access rules.
         // e.g. { domain, type, scope}
         for (let frontierRole = role; frontierRole !== undefined; frontierRole = frontierRole.superRole) {
-          const roleName = frontierRole.getName()
+          const roleName = frontierRole.name
           const directAccessRules = rolesAccess.directRulesByRole[roleName]?.access || []
           
           // TODO: we could pre-index the build up across super-roles

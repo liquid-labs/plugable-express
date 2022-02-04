@@ -165,6 +165,7 @@ const processPipelines = ({
       res.json({ message : actionSummary.join('\n') })
     }
     catch (e) {
+      console.error(e)
       res.status(500).json({ message : `There was a problem saving the updated staff: ${e.message}` })
       // reset the data
       model.initialize() // hopefully the data on file is intact...
@@ -210,6 +211,7 @@ const processNewAndUpdated = ({
         }
       }
       catch (e) {
+        console.error(e)
         errors.push(`An error occurred while trying to ${action} ${itemName} '${newId}' from '${newRecord._sourceFileName}': ${e.message}`)
       }
     }) // end deferred action setup
@@ -223,6 +225,7 @@ const tryValidateAndNormalizeRecords = ({ itemName, records, res, validateAndNor
     return validateAndNormalizeRecords(records)
   }
   catch (e) { // the normalization functions will throw if they encounter un-processable data
+    console.error(error)
     // TODO: it would be nicer to let the record exist in an "invalid" state and continue processing what we can
     res.status(400).json({ message : `Encounterd an error while normaliing ${itemName} records: ${e.message}` })
   }
@@ -238,6 +241,7 @@ const processDeletions = ({ actions, actionSummary, canBeAutoDeleted, errors, ke
           resourceAPI.delete(itemId)
         }
         catch (e) {
+          console.error(e)
           errors.push(`Error removing ${resourceAPI.itemName} '${itemId}': ${e.message}`)
         }
       })

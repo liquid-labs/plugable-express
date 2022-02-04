@@ -122,7 +122,7 @@ const validateAndNormalizeRecords = (records) => {
 const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   const { email, title: titleSpec, _sourceFileName } = newRecord
   newRecord.roles = []
-  const currRecord = org.staff.getData(email)
+  const currRecord = org.staff.get(email, { rawData : true })
   
   if (currRecord !== undefined)
     newRecord = Object.assign({}, currRecord, newRecord)
@@ -131,21 +131,21 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   
   titles.forEach((title, i) => {
     const [ roleName, manager ] = title.split('/')
-    const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
+    const [ role, qualifier ] = org.roles.fuzzyGet(roleName, { fuzzy: true, includeQualifier: true })
     if (role === undefined) {
       errors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
       return
     }
     
     // TODO: we could skip the pre-emptive creation once we update later processing to ignore / drop non-truthy 'qualifier' entries
-    let roleDef = { name: role.getName() }
+    let roleDef = { name: role.name }
     if (qualifier !== undefined) roleDef.qualifier = qualifier
     if (manager !== undefined) roleDef.manager = manager
     if (currRecord !== undefined) { // it's an update and we need to reconcile changes in the role
       const currRoleData = currRecord.roles.find((r) => r.name === roleDef.name)
       if (!currRoleData) {
         // then we are adding a new role
-        actionSummary.push(`Added role '${role.getName()}' to '${email}'.`)
+        actionSummary.push(`Added role '${role.name}' to '${email}'.`)
       }
       else {
         roleDef = Object.assign({}, currRoleData, roleDef)
