@@ -44,8 +44,9 @@ const loadOrgs = ({ playground, reporter = console }) => {
   }
 
   if (Object.keys(orgs).length === 0) {
-    reporter.error('No valid organizations were loaded; bailing out.')
-    process.exit(3)
+    const msg = 'No valid organizations were loaded; bailing out.'
+    reporter.error(msg)
+    throw new Error(msg)
   }
 
   return orgs
