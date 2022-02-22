@@ -131,7 +131,7 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   
   titles.forEach((title, i) => {
     const [ roleName, manager ] = title.split('/')
-    const [ role, qualifier ] = org.roles.fuzzyGet(roleName, { fuzzy: true, includeQualifier: true })
+    const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
     if (role === undefined) {
       errors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
       return
