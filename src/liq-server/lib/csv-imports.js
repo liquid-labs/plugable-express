@@ -225,7 +225,7 @@ const tryValidateAndNormalizeRecords = ({ itemName, records, res, validateAndNor
     return validateAndNormalizeRecords(records)
   }
   catch (e) { // the normalization functions will throw if they encounter un-processable data
-    console.error(error)
+    console.error(e)
     // TODO: it would be nicer to let the record exist in an "invalid" state and continue processing what we can
     res.status(400).json({ message : `Encounterd an error while normaliing ${itemName} records: ${e.message}` })
   }

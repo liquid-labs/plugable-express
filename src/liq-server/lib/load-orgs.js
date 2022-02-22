@@ -27,7 +27,7 @@ const loadOrgs = ({ playground, reporter = console }) => {
 
       const dataPath = path.join(localProjectPath, 'data')
       reporter.log(`Found org definition project: ${fullName}\n  using data path ${dataPath}`)
-      
+
       try {
         const org = new Organization({ dataPath })
         if (org !== undefined) {
