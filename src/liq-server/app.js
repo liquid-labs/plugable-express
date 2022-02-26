@@ -77,9 +77,12 @@ const loadPlugins = (app, { model, cache, reporter, skipCorePlugins = false, plu
   }
 }
 
+const pathParamRegExp = /:[^/ ][^/]*/g
+
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
-    const { path, method, func } = handler
+    // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
+    const { func, method, parameters, path/*, pathParams*/ } = handler
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
@@ -88,7 +91,62 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     // so express can find the handler
     app[method](path, func({ app, cache, model, reporter, setupData }))
     // for or own informational purposes
-    app.handlers.push({ method: methodUpper, path: path.toString(), sourcePkg })
+    const endpointDef = Object.assign({}, handler)
+
+    // convet the path to a more easily interogated data structure
+    let pathString
+    endpointDef.path = { value: path.toString() }
+    if (path instanceof RegExp) {
+      pathString = `RE: /${path.source}/${path.flags}`
+      endpointDef.path.isRegexp = true
+    }
+    else {
+      pathString = path
+    }
+    
+    if (!parameters) {
+      reporter.warn(`Endpoint '${pathString}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
+      parameters = []
+      endpointDef.parameters = parameters
+    }
+    let i = 0
+    for (const pathParam of pathString.match(pathParamRegExp) || []) {
+      const paramName = pathParam.substring(1)
+      let paramDef = parameters.find((p) => p.name === paramName)
+      if (paramDef === undefined) {
+        paramDef = { name: paramName }
+        parameters.push(paramDef) // TODO: I assume pushing and sorting more is quicker than unshift and sorting less
+      }
+      paramDef.required = true
+      paramDef.inPath = true
+      paramDef.position = i
+      paramDef.isSingleValue = true
+      i += 1
+    }
+    
+    for (const paramDef of parameters) {
+      if (paramDef.inPath === undefined && paramDef.inQuery === undefined) {
+        paramDef.inQuery = true
+      }
+    }
+
+    endpointDef.parameters.sort((a, b) => {
+      if (a.inPath === true && b.inQuery === true) {
+        return 1
+      }
+      else if (a.inPath === true && b.inQuery === true) {
+        return -1
+      }
+      else if (a.inPath) /* sort by position */ return a.position > b.position ? 1 : -1 // position is never equal
+      else /* query param; sort by name */ return a.name.localeCompare(b.name)
+    })
+
+    // a little cleanup and annotation
+    endpointDef.method = methodUpper
+    delete endpointDef.func
+    endpointDef.sourcePkg = sourcePkg // do this here so it shows up at the end of the obj
+    
+    app.handlers.push(endpointDef)
   }
 }
 
