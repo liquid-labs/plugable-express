@@ -1,3 +1,5 @@
+import clc from 'cli-color'
+
 const outputMethodNames = [
   'debug',
   'error',
@@ -22,9 +24,12 @@ const initReporter = (configOptions) => {
 
   for (const methodName of outputMethodNames) {
     reporter[methodName] = (...msgs) => {
-      if (!reporter.configuration.silent) {
-        console[methodName](...msgs)
-      }
+      if (reporter.configuration.silent) return
+      // else, not silent
+      if (methodName === 'debug') msgs = msgs.map(s => clc.bold(s))
+      else if (methodName === 'error') msgs = msgs.map(s => clc.red(s))
+      else if (methodName === 'warn') msgs = msgs.map(s => clc.yellow(s))
+      console[methodName](...msgs)
     }
   }
 
