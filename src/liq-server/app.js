@@ -83,11 +83,12 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
-    reporter.log(`registering handler for path: ${method.toUpperCase()}:${path}`)
+    const methodUpper = method.toUpperCase()
+    reporter.log(`registering handler for path: ${methodUpper}:${path}`)
     // so express can find the handler
     app[method](path, func({ app, cache, model, reporter, setupData }))
     // for or own informational purposes
-    app.handlers.push({ method, path: path.toString(), sourcePkg })
+    app.handlers.push({ method: methodUpper, path: path.toString(), sourcePkg })
   }
 }
 
