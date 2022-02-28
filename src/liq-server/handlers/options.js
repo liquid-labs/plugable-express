@@ -1,5 +1,5 @@
 const method = 'options'
-const path = '/*'
+const path = '/([*])'
 
 const func = ({ app/*, reporter*/ }) => (req, res) => {
   res.json(app.handlers)
