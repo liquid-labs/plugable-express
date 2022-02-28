@@ -306,3 +306,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-02-28T01:19:11.811Z
+  startEpochMillis: 1646011151811
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/1
+  branch: 2022.02.27-zane@liquid-labs.com-closed_kick_off_node
+  branchFrom: c4ed47d0201f7cad732df22901960096743cb14f
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - "[CLOSED] Kick off node server"
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
