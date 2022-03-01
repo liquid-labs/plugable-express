@@ -1,5 +1,5 @@
 import { handlers } from './roles'
-import * as refreshStaff from './put'
+import * as refreshStaff from './post'
 
 handlers.push(refreshStaff)
 
