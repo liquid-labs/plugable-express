@@ -80,7 +80,7 @@ const loadPlugins = async (app, { model, cache, reporter, skipCorePlugins = fals
   }
 }
 
-const pathParamRegExp = /:[^/ ][^/]*/g
+const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
