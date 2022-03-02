@@ -1,4 +1,4 @@
-import clc from 'chalk'
+// import clc from 'chalk'
 
 const outputMethodNames = [
   'debug',
@@ -26,9 +26,10 @@ const initReporter = (configOptions) => {
     reporter[methodName] = (...msgs) => {
       if (reporter.configuration.silent) return
       // else, not silent
+      /*
       if (methodName === 'debug') msgs = msgs.map(s => clc.bold(s))
       else if (methodName === 'error') msgs = msgs.map(s => clc.red(s))
-      else if (methodName === 'warn') msgs = msgs.map(s => clc.yellow(s))
+      else if (methodName === 'warn') msgs = msgs.map(s => clc.yellow(s))*/
       console[methodName](...msgs)
     }
   }

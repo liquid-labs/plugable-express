@@ -39,8 +39,8 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     expect(headers['content-type']).toMatch(/application\/json/)
     expect(body.message.match( /(updated.*){2}/i ))
     expect(model.orgs.orgA.staff.list()).toHaveLength(2)
-    expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true, clean: true })).toEqual(origCEO)
-    expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true, clean: true })).toEqual(origDev)
+    expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origCEO)
+    expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origDev)
   })
 /*
   test("adds", async () => {

@@ -13,16 +13,18 @@ const func = ({ app, cache, reporter }) => (req, res) => {
 
   if (versionInfo === undefined) {
     // Note, you might think we could use the playground, but the server might be running as an installed package.
-    const dirpath = import.meta.url.replace('file://', '').split(path.sep)
+    // for es builds
+    // const dirpath = import.meta.url.replace('file://', '').split(path.sep)
+    const dirpath = __dirname
     const pkgLocations = [
-      sysPath.join(...dirpath, '..', 'package.json'), // production
-      sysPath.join(...dirpath, '..', '..', 'package.json') // testing
+      sysPath.join(dirpath, '..', 'package.json'), // production
+      sysPath.join(dirpath, '..', '..', 'package.json') // testing
     ]
     const pkgPath = pkgLocations.find((testPath) => {
       return fs.existsSync(testPath)
     })
     if (!pkgPath) {
-      throw new Error('Could not determine location of servers packag.json file.')
+      throw new Error('Could not determine location of servers package.json file.')
     }
 
     const pkgJSON = safeJSONParse(pkgPath)
