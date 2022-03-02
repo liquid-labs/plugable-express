@@ -99,11 +99,11 @@ const buildPipelines = ({ files, headerNormalizations, headerValidations, record
     records.push(record)
   }
 
-  for (const varKey in files) {
+  for (const varKey in files) { // eslint-disable-line guard-for-in
     let varData = files[varKey]
     // first, normalize so that single and multi-value vars have the same structure
     if (!Array.isArray(varData)) {
-      varData = [ varData ]
+      varData = [varData]
     }
     for (const { fileName : altName, name, data } of varData) {
       const fileName = name || altName
@@ -123,7 +123,7 @@ const buildPipelines = ({ files, headerNormalizations, headerValidations, record
           // consistent with the observed behavior) TODO: improve this note
         })
         .on('data', processRecord(fileName))
-      
+
       const fileDataStream = Readable.from(data.toString())
 
       pipelines.push(StreamPromises.pipeline(fileDataStream, parserStream))
@@ -209,10 +209,10 @@ const processNewAndUpdated = ({
     const newId = newRecord[resourceAPI.keyField.toLowerCase()] // notice we normalize the ID to lower case
     keepList.push(newId)
 
-    const origRecord = resourceAPI.get(newId, { rawData: true })
-    const cleanNewRecord = pickBy(newRecord, (v,k) => !k.startsWith('_'))
-    const diff = diffString(origRecord, cleanNewRecord, { color: false })
-    
+    const origRecord = resourceAPI.get(newId, { rawData : true })
+    const cleanNewRecord = pickBy(newRecord, (v, k) => !k.startsWith('_'))
+    const diff = diffString(origRecord, cleanNewRecord, { color : false })
+
     if (diff) {
       actions.push(() => {
         let action = 'update'
