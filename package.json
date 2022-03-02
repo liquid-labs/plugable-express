@@ -2,7 +2,7 @@
   "name": "@liquid-labs/liq-core",
   "version": "1.0.0-alpha.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/liq-server.js",
   "scripts": {
     "build": "make",
     "lint": "make lint",
@@ -31,9 +31,11 @@
     "@fast-csv/parse": "^4.3.6",
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.50",
-    "@liquid-labs/orgs-model": "^1.0.0-beta.64",
-    "lodash": "^4.17.21",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.53",
+    "@liquid-labs/orgs-model": "^1.0.0-beta.72",
+    "lodash.kebabcase": "^4.1.1",
+    "lodash.pickby": "^4.6.0",
+    "path-to-regexp": "^6.2.0",
     "supertest": "^6.1.6"
   },
   "dependencies": {
@@ -41,6 +43,7 @@
     "express-async-handler": "^1.1.4",
     "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",
+    "json-diff": "^0.7.1",
     "resolve": "^1.20.0"
   }
 }

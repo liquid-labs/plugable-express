@@ -1,5 +1,5 @@
 import { format as formatCSV } from '@fast-csv/format'
-import { kebabCase } from 'lodash'
+import kebabCase from 'lodash.kebabcase'
 
 import { initializeRolesAccess } from './_lib/roles-access-lib'
 

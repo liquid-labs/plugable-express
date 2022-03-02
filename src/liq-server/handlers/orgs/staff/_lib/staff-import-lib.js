@@ -3,15 +3,16 @@ import * as field from './staff-import-fields'
 // validation data and functions
 const headerNormalizations = [
   [ /company/i, field.COMPANY ],
-  [ /email/i, field.EMAIL ],
-  [ /full *name/i, field.FULL_NAME ],
+  [ /e-?mail/i, field.EMAIL ],
+  [ /(?:full|emp(?:loyee)?) *name/i, field.FULL_NAME ],
   [ /(given|first) *name/i, field.GIVEN_NAME ],
   [ /(surname|last *name)/i, field.FAMILY_NAME ],
   [ /nickname/i, field.NICKNAME ],
-  [ /title/i, field.TITLE ],
-  [ /start date/i, field.START_DATE ],
+  [ /title|designation|role/i, field.ROLES ],
+  [ /start *date/i, field.START_DATE ],
   [ /end *date/i, field.END_DATE ],
-  [ /employment *status/i, field.EMPLOYMENT_STATUS ]
+  [ /employment *status/i, field.EMPLOYMENT_STATUS ],
+  [ /manager/i, field.MANAGER ]
 ]
 
 /**
@@ -24,7 +25,7 @@ const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
   // Keeping the field checks separets allows us to report both if both fail.
   (newHeaders) => newHeaders.indexOf(field.EMAIL) > -1 ? null : `missing '${field.EMAIL}' column.`,
-  (newHeaders) => newHeaders.indexOf(field.TITLE) > -1 ? null : `missing '${field.TITLE}' column.`,
+  (newHeaders) => newHeaders.indexOf(field.ROLES) > -1 ? null : `missing '${field.ROLES}' column.`,
   // TODO: support warnings?
   // (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `missing '${field.START_DATE}' column.`,
   (newHeaders) =>
@@ -107,9 +108,18 @@ const normalizeNames = (rec) => {
   return rec
 }
 
+const normalizeManager = (rec) => {
+  if (rec.title.indexOf('/') === -1 && rec.manager) {
+    rec.title = `${rec.title}/${rec.manager}`
+    delete rec.manager
+  }
+  
+  return rec
+}
+
 const validateAndNormalizeRecords = (records) => {
   return records.map((rec) => {
-    for (const normalizer of [ normalizeNickname, normalizeNames ]) {
+    for (const normalizer of [ normalizeNickname, normalizeNames, normalizeManager ]) {
       rec = normalizer(rec)
     }
     return rec
@@ -129,11 +139,12 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   
   const titles = titleSpec.split(/\s*[;]\s*/)
   
+  const roleErrors = []
   titles.forEach((title, i) => {
     const [ roleName, manager ] = title.split('/')
-    const [ role, qualifier ] = org.roles.fuzzyGet(roleName, { fuzzy: true, includeQualifier: true })
+    const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
     if (role === undefined) {
-      errors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
+      roleErrors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
       return
     }
     
@@ -155,12 +166,22 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
     newRecord.roles.push(roleDef)
   }) // multi-title forEach loop
   
-  // new we need to check if any roles have been removed
-  for (const oldRole of currRecord.roles) {
+  if (roleErrors.length > 0) {
+    throw new Error(roleErrors.join('\n'))
+  }
+  
+  // new we need to check if any roles have been removed (currRecord may be undef)
+  for (const oldRole of currRecord?.roles || []) {
     if (!newRecord.roles.some((r) => r.name === oldRole.name)) {
       actionSummary.push(`Removed role '${oldRole.name}' from '${email}'.`)
     }
   }
+  
+  // clean up data from import that we don't use here
+  delete newRecord.title // captured in roles
+  delete newRecord.manager // captured in the roles data
+  delete newRecord.fullName // decomposed into given and family names
+  delete newRecord['Family name'] // TODO: no idea where this is coming from...
   
   return newRecord
 }

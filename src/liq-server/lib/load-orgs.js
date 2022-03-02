@@ -1,23 +1,6 @@
+import * as path from 'path'
+
 import { Organization } from '@liquid-labs/orgs-model'
-
-const loadOrg = ({ playground, projectModel, reporter }) => {
-  reporter.log(`Found org definition project: ${projectModel.fullName}`)
-
-  // At some point, we'll probably support loading staff-less orgs.
-  const staffProjectName = projectModel.packageJSON?.liq?.org?.staffProject
-  if (staffProjectName === undefined) {
-    reporter.error(`Staff data project not defnied in '${projectModel.fullName}' package definition; add '.liq.org.staffProject'.`)
-    return
-  }
-  const staffDataProject = playground.projects[staffProjectName]
-  if (staffDataProject === undefined) {
-    reporter.error('Could not locate staff data project in local playground, skipping org loading.')
-    return
-  }
-
-  const staffDataPath = `${staffDataProject.localProjectPath}/staff.json`
-  return new Organization({dataPath: `${projectModel.localProjectPath}/data`, staffDataPath })
-}
 
 const loadOrgs = ({ playground, reporter = console }) => {
   reporter.log('Loading organization data...')
@@ -40,11 +23,30 @@ const loadOrgs = ({ playground, reporter = console }) => {
     }
     else {
       const orgProject = orgProjects[0]
-      const org = loadOrg({ playground, projectModel : orgProject, reporter })
-      if (org !== undefined) {
-        orgs[orgProject.orgName] = org
+      const { fullName, localProjectPath, orgName } = orgProject
+
+      const dataPath = path.join(localProjectPath, 'data')
+      reporter.log(`Found org definition project: ${fullName}\n  using data path ${dataPath}`)
+
+      try {
+        const org = new Organization({ dataPath })
+        if (org !== undefined) {
+          orgs[orgProject.orgName] = org
+        }
+        else {
+          reporter.warn(`Loading '${orgName}' resulted in 'undefined'.`)
+        }
+      }
+      catch (e) {
+        reporter.warn(`Failed to load '${orgName}'; ${e.message}`)
       }
     }
+  }
+
+  if (Object.keys(orgs).length === 0) {
+    const msg = 'No valid organizations were loaded; bailing out.'
+    reporter.error(msg)
+    throw new Error(msg)
   }
 
   return orgs

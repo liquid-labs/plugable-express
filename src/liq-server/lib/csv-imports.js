@@ -1,6 +1,8 @@
 import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
+import pickBy from 'lodash.pickby'
+import { diffString } from 'json-diff'
 
 /**
 * Transform CSV files into JSON objects. Bad data (missing headers)
@@ -9,8 +11,10 @@ import { parse as parseCSV } from '@fast-csv/parse'
 *
 * - `canBeAutoDeleted`: callback function used to test whether a current item record can be auto-deleted or not. Must
 *     accept single positional argument (item object) and return true or false.
-* - `files`: an object with the structure `{ [fileName]: { data: <byte data>} }` where
-*     `files[fileName].data.toString()` yields the file contents.
+* - `files`: an object with the structure `{ <var name>: [ { name: <file name>, data: <byte data>, ...}, ... ] }` for
+*     multi-value vars and `{ <var name>: { fileName: <file name>, data: <byte data> }, ...}` for single value vars
+*     where `data.toString()` yields the file contents. Note, the chane in the file name key. (TODO: confirm this is
+*     the case.)
 * - `finalizeRecord`: called on the normalized records to do another round of checking and updates, but this time with
 *     the assurance that all field names are normalized and required fields are present.
 * - `headerNormalizations`: maps unambiguous variations to standard field names. E.g. 'Given name' and 'First name' may
@@ -95,28 +99,36 @@ const buildPipelines = ({ files, headerNormalizations, headerValidations, record
     records.push(record)
   }
 
-  for (const fileName of Object.keys(files)) {
-    // TODO: can I reuse the same stream?
-    const parserStream = parseCSV({
-      // 'fileName' is used to generate useful error messages
-      headers     : validateAndNormalizeHeaders({ fileName, headerNormalizations, headerValidations }),
-      trim        : true,
-      ignoreEmpty : true
-    })
-      .on('error', (error) => {
-        // TODO: could build up errors from multiple files for better user experience
-        // it's possible the other file died already
-        if (res.headersSent) return
-        res.status(400).json({ message : `Error while processing CSV upload: ${error.message}` })
-        // note, the error is also impmlicitly thrown (I believe; haven't worked with Streams much, but that's
-        // consistent with the observed behavior) TODO: improve this note
+  for (const varKey in files) { // eslint-disable-line guard-for-in
+    let varData = files[varKey]
+    // first, normalize so that single and multi-value vars have the same structure
+    if (!Array.isArray(varData)) {
+      varData = [varData]
+    }
+    for (const { fileName : altName, name, data } of varData) {
+      const fileName = name || altName
+      // TODO: can I reuse the same stream?
+      const parserStream = parseCSV({
+        // 'fileName' is used to generate useful error messages
+        headers     : validateAndNormalizeHeaders({ fileName, headerNormalizations, headerValidations }),
+        trim        : true,
+        ignoreEmpty : true
       })
-      .on('data', processRecord(fileName))
+        .on('error', (error) => {
+          // TODO: could build up errors from multiple files for better user experience
+          // it's possible the other file died already
+          if (res.headersSent) return
+          res.status(400).json({ message : `Error while processing CSV upload: ${error.message}` })
+          // note, the error is also impmlicitly thrown (I believe; haven't worked with Streams much, but that's
+          // consistent with the observed behavior) TODO: improve this note
+        })
+        .on('data', processRecord(fileName))
 
-    const fileDataStream = Readable.from(files[fileName].data.toString())
+      const fileDataStream = Readable.from(data.toString())
 
-    pipelines.push(StreamPromises.pipeline(fileDataStream, parserStream))
-  }
+      pipelines.push(StreamPromises.pipeline(fileDataStream, parserStream))
+    } // file data loop
+  } // vars loop
 
   return pipelines
 }
@@ -197,24 +209,30 @@ const processNewAndUpdated = ({
     const newId = newRecord[resourceAPI.keyField.toLowerCase()] // notice we normalize the ID to lower case
     keepList.push(newId)
 
-    actions.push(() => {
-      let action = 'update'
-      try {
-        if (resourceAPI.get(newId) === undefined) {
-          action = 'add'
-          resourceAPI.add(newRecord)
-          actionSummary.push(`Created new ${itemName} '${newId}' as ${newRecord.roles.map((r) => r.name).join(', ')}`)
+    const origRecord = resourceAPI.get(newId, { rawData : true })
+    const cleanNewRecord = pickBy(newRecord, (v, k) => !k.startsWith('_'))
+    const diff = diffString(origRecord, cleanNewRecord, { color : false })
+
+    if (diff) {
+      actions.push(() => {
+        let action = 'update'
+        try {
+          if (origRecord === undefined) {
+            action = 'add'
+            resourceAPI.add(newRecord)
+            actionSummary.push(`Created new ${itemName} '${newId}' as ${newRecord.roles.map((r) => r.name).join(', ')}`)
+          }
+          else {
+            resourceAPI.update(newRecord)
+            actionSummary.push(`Updated ${itemName} '${newId}': ${diff}`)
+          }
         }
-        else {
-          resourceAPI.update(newRecord)
-          actionSummary.push(`Updated ${itemName} '${newId}' as ${newRecord.roles.map((r) => r.name).join(', ')}`)
+        catch (e) {
+          console.error(e)
+          errors.push(`An error occurred while trying to ${action} ${itemName} '${newId}' from '${newRecord._sourceFileName}': ${e.message}`)
         }
-      }
-      catch (e) {
-        console.error(e)
-        errors.push(`An error occurred while trying to ${action} ${itemName} '${newId}' from '${newRecord._sourceFileName}': ${e.message}`)
-      }
-    }) // end deferred action setup
+      }) // end deferred action setup
+    }
   } // record processing loop
 
   return { actions, actionSummary, keepList }
@@ -225,7 +243,7 @@ const tryValidateAndNormalizeRecords = ({ itemName, records, res, validateAndNor
     return validateAndNormalizeRecords(records)
   }
   catch (e) { // the normalization functions will throw if they encounter un-processable data
-    console.error(error)
+    console.error(e)
     // TODO: it would be nicer to let the record exist in an "invalid" state and continue processing what we can
     res.status(400).json({ message : `Encounterd an error while normaliing ${itemName} records: ${e.message}` })
   }

@@ -8,7 +8,7 @@ import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
 import projectA01Package from './data/playground-simple/orgA/projectA01/package.json'
 
-const COMMAND_COUNT = 9
+const COMMAND_COUNT = 10
 
 const mockLogOptions = () => {
   const logs = []
@@ -19,6 +19,8 @@ const mockLogOptions = () => {
 
   return options
 }
+
+const registrationRegExp = /^registering handler for path: [A-Z]+:/
 
 describe('app', () => {
   describe('default setup provides useful info', () => {
@@ -34,7 +36,7 @@ describe('app', () => {
         // re: '[A-Z]:' matches the verb  v      v always start with a slash
         //                                          v regular path elements with optional ':', indicating it's a param
         //                                                            v or it's an RE as indicated by a closing '/'
-        msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
+        msg.match(registrationRegExp)).length)
         .toEqual(COMMAND_COUNT)
     })
 
@@ -54,7 +56,7 @@ describe('app', () => {
 
     test('are registered', () => {
       expect(testOptions.logs.filter((msg) =>
-        msg.match(/registering handler.+[A-Z]+:\/((:?[a-zA-Z0-9/-])*|.*[/])$/)).length)
+        msg.match(registrationRegExp)).length)
         .toEqual(COMMAND_COUNT + 1)
     })
 

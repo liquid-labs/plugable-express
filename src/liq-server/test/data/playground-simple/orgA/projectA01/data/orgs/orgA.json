@@ -1,4 +1,18 @@
 {
+  "_meta": {
+    "com.liquid-labs.federated-json": {
+      "mountSpecs": [
+        {
+          "path": ".staff",
+          "file": "${ORG_DATA_PATH}/../staff.json"
+        }
+      ]
+    }
+  },
+  "alerts": {
+    "reviews": [],
+    "sources": []
+  },
   "audits": [],
   "roles": [
     { "name": "CEO", "singular": true, "titular": true, "jobDescription": "Chief executive officer." },
@@ -6,6 +20,7 @@
     { "name": "Developer", "titular": true, "qualifiable": true, "jobDescription": "Hacker." },
     { "name": "Tester", "titular": true, "qualifiable": true, "jobDescription": "QA." }
   ],
+  "staff": null,
   "thirdPartyAccounts": [],
   "technologies": []
 }
