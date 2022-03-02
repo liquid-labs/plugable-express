@@ -30,5 +30,19 @@ liq-server-start() {
   }
   
   [[ -n "${QUIET}" ]] || echofmt "\nServer running (${SERVER_PID})."
+  local STARTED=1
+  local ATTEMPTS=0
+  local MAX_ATTEMPTS=10
+  while (( ${STARTED} != 0 )) && (( ${ATTEMPTS} < ${MAX_ATTEMPTS})); do
+    sleep 1
+    curl http://127.0.0.1:32600/ >/dev/null 2>&1
+    STARTED=$?
+    ATTEMPTS=$(( ${ATTEMPTS} + 1 ))
+  done
+  if (( ${STARTED} != 0 )); then
+    echo "Server faild to start after ${MAX_ATTEMPTS} attempts. Check status manually or kill and restart." >&2
+  fi
+  echo "Registering server api..."
+  curl -X OPTIONS http://127.0.0.1:32600/* | jq > "${HOME}/.liq/core-api.json"
   return ${LIQ_SERVER_STATUS_RUNNING}
 }
