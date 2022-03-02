@@ -8,6 +8,7 @@
   branchInitiator: zane@liquid-labs.com
   involvedProjects:
     - "@liquid-labs/liq-core"
+    - "@liquid-labs/liq-cli"
   changeNotes:
     - Kick off node server
   securityNotes: []
