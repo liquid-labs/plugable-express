@@ -8,7 +8,6 @@
   branchInitiator: zane@liquid-labs.com
   involvedProjects:
     - "@liquid-labs/liq-core"
-    - "@liquid-labs/liq-cli"
   changeNotes:
     - Kick off node server
   securityNotes: []
@@ -319,6 +318,21 @@
     - "@liquid-labs/liq-core"
   changeNotes:
     - "[CLOSED] Kick off node server"
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
+- startTimestamp: 2022-03-21T23:11:07.302Z
+  startEpochMillis: 1647904267302
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/49
+  branch: 2022.03.21-zane@liquid-labs.com-add_print
+  branchFrom: 3e5bf1599686e0254dc24ff0b6811d51c0e36116
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Add print
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
