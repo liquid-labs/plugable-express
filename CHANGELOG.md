@@ -29,3 +29,7 @@
 * Fix data cleaning _(zane@liquid-labs.com; 2022-02-04T05:43:41.860Z)_
 * Initial implementation _(zane@liquid-labs.com; 2022-02-22T20:07:52.028Z)_
 * [CLOSED] Kick off node server _(zane@liquid-labs.com; 2022-02-28T01:19:11.811Z)_
+
+## Release 1.0.0-alpha.2
+* Add print _(zane@liquid-labs.com; 2022-03-21T23:11:07.302Z)_
+* _**hotfix**_: check 'md2x' status for errors; lint fixes _(zane@liquid-labs.com; 2022-03-23T01:22:48.000Z)_
