@@ -39,11 +39,13 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
+    "@liquid-labs/md2x": "^1.0.0-alpha.2",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",
     "json-diff": "^0.7.1",
-    "resolve": "^1.20.0"
+    "resolve": "^1.20.0",
+    "shelljs": "^0.8.5"
   }
 }
