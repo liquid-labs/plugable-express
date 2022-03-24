@@ -33,3 +33,7 @@
 ## Release 1.0.0-alpha.2
 * Add print _(zane@liquid-labs.com; 2022-03-21T23:11:07.302Z)_
 * _**hotfix**_: check 'md2x' status for errors; lint fixes _(zane@liquid-labs.com; 2022-03-23T01:22:48.000Z)_
+
+## Release 1.0.0-alpha.3
+* _**hotfix**_: sketched in support for multi-file reports _(zane@liquid-labs.com; 2022-03-23T16:37:56.000Z)_
+* Generalize output format handling _(zane@liquid-labs.com; 2022-03-23T22:52:06.020Z)_
