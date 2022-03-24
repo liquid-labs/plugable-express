@@ -109,9 +109,9 @@ const normalizeNames = (rec) => {
 }
 
 const normalizeManager = (rec) => {
-  if (rec.title.indexOf('/') === -1 && rec.manager) {
-    rec.title = `${rec.title}/${rec.manager}`
-    delete rec.manager
+  if (rec[field.ROLES].indexOf('/') === -1 && rec[field.MANAGER]) {
+    rec[field.ROLES] = `${rec[field.ROLES]}/${rec[field.MANAGER]}`
+    delete rec[field.MANAGER]
   }
   
   return rec
