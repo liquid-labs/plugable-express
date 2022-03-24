@@ -336,3 +336,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-03-23T22:52:06.020Z
+  startEpochMillis: 1648075926020
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/51
+  branch: 2022.03.23-zane@liquid-labs.com-generalize_output_format_handling
+  branchFrom: 86f1760d8ef2c0633c98e3cd7d591e17222c645a
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Generalize output format handling
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
