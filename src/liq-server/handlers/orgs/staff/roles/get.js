@@ -1,11 +1,9 @@
 import * as fs from 'fs'
 import * as fsPath from 'path'
 
-import AdmZip from 'adm-zip'
 import kebabCase from 'lodash.kebabcase'
 
 import { formatOutput, getOrgFromKey } from '../../../_lib'
-import { md2x } from '../../../../lib/pdf-lib'
 
 const method = 'get'
 const path = '/orgs/:orgKey/staff/roles' // TODO: shouldn't this actually end end a '/'?
