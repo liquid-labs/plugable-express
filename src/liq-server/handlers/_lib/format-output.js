@@ -1,4 +1,6 @@
 import { format as formatTable } from '@fast-csv/format'
+import pick from 'lodash.pick'
+import { toSentenceCase } from 'js-convert-case'
 
 import { standardTitle } from './standard-title'
 import { md2x } from '../../lib/pdf-lib'
@@ -19,15 +21,19 @@ const outputExtensions = {
   'tab-separated-values' : 'tsv'
 }
 
+/**
+* Expects raw, clean data.
+*/
 const formatOutput = ({
   basicTitle='Report', // ignored if 'reportTitle' present
-  csvTransform,
   data,
+  fields,
   mdFormatter,
   reporter,
   reportTitle, // overrides 'basicTitle'
   req,
-  res
+  res,
+  ...rest
 }) => {
   reportTitle = reportTitle || standardTitle({ basicTitle })
   
@@ -37,22 +43,26 @@ const formatOutput = ({
   
   res.attachment(reportFileName) // default name
   
+  const trimmerFunc = fields && fields.length > 0
+    ? (i) => pick(i, fields)
+    : undefined
+  
   if (format === 'json') {
-    res.json(data)
+    res.json(trimmerFunc ? data.map(trimmerFunc) : data)
     return
   }
   else if (format === 'csv' || format === 'tsv'){ // handle rote transformations
+    const { dataFlattener, noHeaders = false } = rest
     const delimiter = format === 'csv' ? ',' : "\t"
+    const { headers, data: newData } = transformForTable({ data, dataFlattener, fields, noHeaders, trimmerFunc })
+    
     const stream = formatTable({
       delimiter,
-      headers : true
+      headers: noHeaders ? false : headers ? headers : true
     })
-    if (csvTransform) {
-      stream.transform(csvTransform)
-    }
-    // console.error(JSON.stringify(data, null, '  '))
+    
     stream.pipe(res)
-    for (const item of data) {
+    for (const item of newData) {
       stream.write(item)
     }
     stream.end()
@@ -107,6 +117,63 @@ const formatOutput = ({
         }
       })
     })
+  }
+}
+
+const transformForTable = ({ data, dataFlattener, fields, noHeaders, trimmerFunc }) => {
+  const headersIndex = {}
+  const headers = !noHeaders && fields && fields.length > 0
+    ? fields.map((f) => {
+      const humanField = toSentenceCase(f)
+      headersIndex[f] = humanField
+      return humanField
+    })
+    : []
+  
+  const fieldConverter = (item) => {
+    const keys = fields || Object.keys(item)
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i]
+      let humanField = headersIndex[key]
+      if (humanField === undefined) {
+        humanField = toSentenceCase(key)
+        headersIndex[key] = humanField
+        headers.splice(i, 0, humanField)
+      }
+      if (key !== humanField) {
+        item[humanField] = item[key]
+        // delete i[key] <- not really necessary since we end up specifying the header?
+      }
+    }
+    
+    return item
+  }
+  
+  if (!dataFlattener && !trimmerFunc && noHeaders) {
+    return { data }
+  }
+  else if (!dataFlattener && !trimmerFunc) {
+    for (const i of data) {
+      fieldConverter(i)
+    }
+    return { headers, data }
+  }
+  else { // there is a dataFlattener and/or trimmerFunc
+    let transformer
+    if (dataFlattener && trimmerFunc) {
+      transformer = (i) => dataFlattener(trimmerFunc(i))
+    }
+    else {
+      transformer = dataFlattener || trimmerFunc
+    }
+    
+    if (noHeaders) {
+      return { data: data.map(transformer) }
+    }
+    else {
+      data = data.map(i => fieldConverter(transformer(i)))
+      return { headers, data }
+    }
   }
 }
 
