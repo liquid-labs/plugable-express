@@ -1,19 +1,27 @@
 import { format as formatTable } from '@fast-csv/format'
 
 import { standardTitle } from './standard-title'
+import { md2x } from '../../lib/pdf-lib'
 
 const outputFormats = [
   'json', // native
   // 'yaml', // equivalent data
   'csv',
-  'tsv',
+  'tsv', // even though the MIME type is 'text/tab-separated-values', 'tsv' will work with express (4.17.1)
+  // 'tab-separated-values',
   'markdown', // simple text
   'pdf', // binary text
   'docx'
 ]
 
+const outputExtensions = {
+  'markdown' : 'md',
+  'tab-separated-values' : 'tsv'
+}
+
 const formatOutput = ({
   basicTitle='Report', // ignored if 'reportTitle' present
+  csvTransform,
   data,
   mdFormatter,
   reporter,
@@ -24,7 +32,7 @@ const formatOutput = ({
   reportTitle = reportTitle || standardTitle({ basicTitle })
   
   const format = req.accepts(outputFormats) || 'json'
-  const fileExtension = format === 'markdown' ? 'md' : format
+  const fileExtension = outputExtensions[format] || format
   const reportFileName = `${reportTitle}.${fileExtension}`
   
   res.attachment(reportFileName) // default name
@@ -39,10 +47,9 @@ const formatOutput = ({
       delimiter,
       headers : true
     })
-    .transform((r) => {
-      console.error(r)
-      return r
-    })
+    if (csvTransform) {
+      stream.transform(csvTransform)
+    }
     // console.error(JSON.stringify(data, null, '  '))
     stream.pipe(res)
     for (const item of data) {

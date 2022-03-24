@@ -27,6 +27,7 @@ const func = ({ model, reporter }) => (req, res) => {
 
   formatOutput({
     basicTitle : 'Staff Report',
+    csvTransform : org.staff.constructor.csvTransform,
     data : staff,
     mdFormatter,
     reporter,
