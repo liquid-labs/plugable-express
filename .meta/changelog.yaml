@@ -351,3 +351,18 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-03-24T18:47:19.287Z
+  startEpochMillis: 1648147639287
+  issues:
+    - https://github.com/Liquid-Labs/liq-core/issues/53
+  branch: 2022.03.24-zane@liquid-labs.com-support_noheader_and_fields
+  branchFrom: 3206e5c5eec238b0c0cc069355a5d70587c25d23
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Support noHeader and fields options on output
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []
