@@ -37,3 +37,6 @@
 ## Release 1.0.0-alpha.3
 * _**hotfix**_: sketched in support for multi-file reports _(zane@liquid-labs.com; 2022-03-23T16:37:56.000Z)_
 * Generalize output format handling _(zane@liquid-labs.com; 2022-03-23T22:52:06.020Z)_
+
+## Release 1.0.0-alpha.4
+* Support noHeader and fields options on output _(zane@liquid-labs.com; 2022-03-24T18:47:19.287Z)_
