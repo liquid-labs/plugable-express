@@ -57,4 +57,4 @@ const func = ({ model, reporter }) => (req, res) => {
   })
 }
 
-export { func, path, method }
+export { func, parameters, path, method }

@@ -1,4 +1,5 @@
 import { loadPlayground, loadOrgs } from './lib'
+import { Worker } from 'worker_threads'
 
 /**
 * The model looks like:
@@ -24,7 +25,8 @@ import { loadPlayground, loadOrgs } from './lib'
 *     orgsAlphaList: [ alpha sorted list of org names with at least one project ]
 *   },
 *  orgs: { <org name>: <org definition> },
-*  orgsAlphaList: [ <alhpa sorted list of modeled org names> ]
+*  orgsAlphaList: [ <alhpa sorted list of modeled org names> ],
+*  workers: {}
 * }
 * ```
 */
@@ -51,6 +53,100 @@ const model = {
       
       return model.playground
     }
+    
+    model.tasks = {
+      create: ({ runFile, workerData, onError, onOnline, onMessage, onMessageError, onExit }) => {
+        const worker = new Worker(runFile, { workerData })
+        const { threadId } = worker
+        worker.acknowledge = () => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.acknowledged = true
+          }
+        }
+        worker.unref()
+        
+        model.tasks.data[threadId] = {
+          startTime: new Date().getTime(),
+          endTime: null,
+          status: 'offline',
+          results: undefined,
+          error: undefined,
+          exitCode: undefined,
+          acknowledged: false
+        }
+
+        worker.on('online', () => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.status = 'online'
+          }
+          if (onOnline) {
+            onOnline(worker)
+          }
+        })
+        worker.on('error', (err) => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.status = 'error'
+            data.error = err
+          }
+          if (onError) {
+            onError(worker)
+          }
+        })
+        worker.on('messageerror', (err) => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.status = 'messageerror'
+            data.error = err
+          }
+          if (onMessageError) {
+            onMessageError(worker)
+          }
+        })
+        worker.on('message', (result) => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.status = 'resolved'
+            data.results = result
+          }
+          if (onMessage) {
+            onMessage(worker)
+          }
+        })
+        worker.on('exit', (code) => {
+          const data = model.tasks.data[threadId]
+          if (data) {
+            data.status = 'done'
+            data.exitCode = code
+            data.endTime = new Date().getTime()
+          }
+          if (onExit) {
+            onExit(worker)
+          }
+        })
+        
+        return worker
+      }, // end 'create'
+      remove: (threadId) => {
+        delete model.tasks.data[threadId]
+      },
+      data: {}
+    }
+    
+    // clean out completed, acknowledged tasks and too old tasks
+    const staleTaskTimeout = 25 * 60 * 60 * 1000 // a little over a day
+    setInterval(() => {
+      for (const threadId of Object.keys(model.tasks.data)) {
+        const data = model.tasks.data[threadId]
+        if ((data[threadId]?.acknowledged === true && data[threadId]?.status === 'done')
+            || new Date().getTime() - data[threadId]?.startTime > staleTaskTimeout ) {
+          model.tasks.remove(threadId)
+          // TODO: kill the worker
+        }
+      }
+    }, 60000).unref()
 
     return model
   }

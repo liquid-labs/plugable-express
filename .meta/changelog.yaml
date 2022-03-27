@@ -366,3 +366,19 @@
   securityNotes: []
   drpBcpNotes: []
   backoutNotes: []
+- startTimestamp: 2022-03-25T18:43:24.342Z
+  startEpochMillis: 1648233804342
+  issues:
+    - https://github.com/Liquid-Labs/liq-policy/issues/1
+  branch: 2022.03.25-zane@liquid-labs.com-migrate_policy_compilation_and
+  branchFrom: 7d47c1291343201214ba6610dbd156d562491f5a
+  workInitiator: zane@liquid-labs.com
+  branchInitiator: zane@liquid-labs.com
+  involvedProjects:
+    - "@liquid-labs/liq-policy"
+    - "@liquid-labs/liq-core"
+  changeNotes:
+    - Migrate policy compilation and export here
+  securityNotes: []
+  drpBcpNotes: []
+  backoutNotes: []

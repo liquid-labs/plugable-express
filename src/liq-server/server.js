@@ -1,3 +1,5 @@
+const serverData = {}
+
 const start = ( { app, options }) => {
   const { PORT, reporter } = options
   const server = app.listen(PORT, (err) => {
@@ -17,7 +19,9 @@ const start = ( { app, options }) => {
     })
   })
   
+  serverData.port = PORT
+  
   return server
 }
 
-export { start }
+export { start, serverData }
