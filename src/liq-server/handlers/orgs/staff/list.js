@@ -1,6 +1,8 @@
 import omit from 'lodash.omit'
 
-import { commonOutputConfig, formatOutput, getOrgFromKey } from '../../_lib'
+import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
+
+import { commonOutputConfig, formatOutput } from '../../_lib'
 
 const method = 'get'
 const path = '/orgs/:orgKey/staff(/list)?'
@@ -36,7 +38,7 @@ const func = ({ model, reporter }) => (req, res) => {
     throw new Error(`Unknown query parameters: ${remainder.join(', ')}.`)
   }
   
-  const org = getOrgFromKey({ model, params: req.params })
+  const org = getOrgFromKey({ model, params: req.params, res })
   if (org === false) {
     return
   }
@@ -57,4 +59,4 @@ const func = ({ model, reporter }) => (req, res) => {
   })
 }
 
-export { func, path, method }
+export { func, parameters, path, method }

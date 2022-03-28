@@ -11,6 +11,9 @@
     "preversion": "make test && make lint",
     "postversion": "git push upstream v${npm_package_version}"
   },
+  "files": [
+    "./dist"
+  ],
   "keywords": [],
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
   "license": "UNLICENSED",
@@ -41,6 +44,7 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.1",
     "@liquid-labs/md2x": "^1.0.0-alpha.2",
     "adm-zip": "^0.5.9",
     "express": "^4.17.1",

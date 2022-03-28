@@ -1,7 +1,7 @@
 const getPackageJSON = ({ req, res, model }) => {
-  const { orgName, projectName } = req.params
+  const { orgKey, projectName } = req.params
     
-  return res.json(model.playground.orgs[orgName].projects[projectName].packageJSON)
+  return res.json(model.playground.orgs[orgKey].projects[projectName].packageJSON)
 }
 
 export { getPackageJSON }
