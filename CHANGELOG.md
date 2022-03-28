@@ -47,3 +47,5 @@
 ## Release 1.0.0-alpha.6
 * _**hotfix**_: moved 'pdf-lib' to 'liq-handlers-lab' as 'md2x' _(zane@liquid-labs.com; 2022-03-28T13:56:25.000Z)_
 * [CLOSED] Migrate policy compilation and export here _(zane@liquid-labs.com; 2022-03-28T14:08:35.375Z)_
+
+## Release 1.0.0-alpha.7
