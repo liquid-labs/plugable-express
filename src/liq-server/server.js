@@ -20,8 +20,9 @@ const start = ( { app, options }) => {
   })
   
   serverData.port = PORT
+  app.serverData = serverData
   
   return server
 }
 
-export { start, serverData }
+export { start }

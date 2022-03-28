@@ -1,8 +1,6 @@
 import * as fs from 'fs'
 import * as sysPath from 'path'
 
-import { serverData } from '../../../server'
-
 const method = 'patch'
 
 const path = '(/playground)?/projects/:orgKey/:projectName/update'
@@ -16,7 +14,7 @@ const parameters = [
   }
 ]
 
-const func = ({ model }) => (req, res) => {
+const func = ({ app, model }) => (req, res) => {
   const { orgKey, projectName } = req.params
   const { dryRun } = req.query
   
@@ -26,20 +24,17 @@ const func = ({ model }) => (req, res) => {
     return
   }
   
-  const worker = model.tasks.create({
+  model.tasks.create({
     runFile: sysPath.join(__dirname, 'workers', 'projects-update.worker.js'),
     workerData: {
       dryRun,
       localProjectPath,
-      projectName: `${orgKey}/${projectName}` },
-  })
-  
-  res.json({
-    message: "Update task has been queued and should be processed shortly.",
-    followup: [
-      `${req.protocol}://${req.hostname || req.ip}:${serverData.port}/tasks/${worker.threadId}`,
-      `liq tasks ${worker.threadId}`
-    ]
+      projectName: `${orgKey}/${projectName}`
+    },
+    queueMessage: "Update task has been queued and should be processed shortly.",
+    app,
+    req,
+    res
   })
 }
 

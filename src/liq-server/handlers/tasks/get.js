@@ -21,11 +21,9 @@ const func = ({ model }) => (req, res) => {
     return
   }
 
-  if (!peek && (taskData.status === 'resolved' || taskData.status === 'done')) {
+  if (!peek && taskData.running === false) {
     taskData.acknowledged = true
-    if (taskData.status === 'done') {
-      model.tasks.remove(threadId)
-    }
+    model.tasks.remove(threadId)
   }
   
   res.json(taskData)
