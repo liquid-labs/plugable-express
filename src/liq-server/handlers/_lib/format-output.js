@@ -2,8 +2,9 @@ import { format as formatTable } from '@fast-csv/format'
 import pick from 'lodash.pick'
 import { toSentenceCase } from 'js-convert-case'
 
+import { md2x } from '@liquid-labs/liq-handlers-lib'
+
 import { standardTitle } from './standard-title'
-import { md2x } from '../../lib/pdf-lib'
 
 const outputFormats = [
   'json', // native
