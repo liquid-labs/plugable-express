@@ -40,3 +40,6 @@
 
 ## Release 1.0.0-alpha.4
 * Support noHeader and fields options on output _(zane@liquid-labs.com; 2022-03-24T18:47:19.287Z)_
+
+## Release 1.0.0-alpha.5
+* Migrate policy compilation and export here _(zane@liquid-labs.com; 2022-03-25T18:43:24.342Z)_
