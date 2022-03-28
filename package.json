@@ -44,8 +44,8 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.1",
-    "@liquid-labs/md2x": "^1.0.0-alpha.2",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.2",
+    "@liquid-labs/md2x": "^1.0.0-alpha.3",
     "adm-zip": "^0.5.9",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
