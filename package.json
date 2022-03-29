@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/liq-core",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "",
   "main": "dist/liq-server.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "bin": {
     "liq-server": "./dist/liq-server.sh"
-  },      
+  },
   "files": [
     "./dist"
   ],
