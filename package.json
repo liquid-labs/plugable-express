@@ -11,6 +11,9 @@
     "preversion": "make test && make lint",
     "postversion": "git push upstream v${npm_package_version}"
   },
+  "bin": {
+    "liq-server": "./dist/liq-server.sh"
+  },      
   "files": [
     "./dist"
   ],
