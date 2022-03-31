@@ -4,6 +4,7 @@ import strict
 import echoerr
 import echofmt
 import options
+import real_path
 
 source ./globals.sh
 source ./actions/inc.sh
