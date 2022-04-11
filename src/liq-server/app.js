@@ -11,6 +11,9 @@ import { handlers } from './handlers'
 
 const PLUGIN_LABEL = 'plugin:liq-core'
 
+// TODO: regex path: we haven't gotten regex paths to work yet; but we preserve tacic support for it here since it
+// *may* work and there's some detail in the handler's that we're missing
+
 /**
 * Options:
 * - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
@@ -81,6 +84,41 @@ const loadPlugins = async (app, { model, cache, reporter, skipCorePlugins = fals
 }
 
 const pathParamRegExp = /:[a-zA-Z0-9_]+/g
+// TODO: see regex path note at top
+const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
+const trueParams = /y(es)?|t(rue)?|1/i
+const falseParams = /n(o)?|f(alse)?|0/i
+
+const paramNormalizer = ({ parameters, req, res }) => {
+  for (const p of parameters.filter(p => p.isBoolean)) {
+    if (req.query[p.name] !== undefined) {
+      if (req.query[p.name].match(trueParams)) {
+        req.query[p.name] = true
+      }
+      else if (req.query[p.name].match(falseParams)) {
+        req.query[p.name] = false
+      }
+      else {
+        res.status(404).send({ message: `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.`})
+        return false
+      }
+    }
+  }
+  return true
+}
+
+const createHandler = ({ parameters, func, ...rest }) => {
+  const handlerFunc = func({ ...rest })
+  if (parameters?.length > 0) {
+    return (req, res) => {
+      paramNormalizer({ parameters, req, res })
+      handlerFunc(req, res)
+    }
+  }
+  else {
+    return handlerFunc
+  }
+}
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
@@ -89,24 +127,30 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
+    /* TODO: see note on regexp paths at top
     if (typeof path !== 'string') {
       throw new Error(`A handler from '${sourcePkg}' for endpoint '${path.toString()}' is not a string. Only string paths are allowed.`)
-    }
+    }*/
     const methodUpper = method.toUpperCase()
-    reporter.log(`registering handler for path: ${methodUpper}:${path}`)
+    reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
     // so express can find the handler
-    app[method](path, func({ app, cache, model, reporter, setupData }))
+    // app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
+    app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
-    endpointDef.path = path
+    endpointDef.path = path.toString()
     
     if (!parameters) {
       reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
       endpointDef.parameters = []
     }
     let i = 0
-    for (const pathParam of path.match(pathParamRegExp) || []) {
+    // TODO: see regex path note at top
+    const pathParams = typeof path === 'string'
+      ? path.match(pathParamRegExp)
+      : path.toString().match(regexParamRegExp)
+    for (const pathParam of pathParams || []) {
       const paramName = pathParam.substring(1)
       let paramDef = endpointDef.parameters.find((p) => p.name === paramName)
       if (paramDef === undefined) {
@@ -143,7 +187,8 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     endpointDef.sourcePkg = sourcePkg // do this here so it shows up at the end of the obj
     try {
       // endpointDef.matcher = '^\/' + endpointDef.path.replace(pathParamRegExp, '[^/]+') + '[/#?]?$'
-      const matcher = pathToRegexp(path).toString()
+      // TODO: see regex path note at top
+      const matcher = (typeof path === 'string' ? pathToRegexp(path) : path).toString()
       endpointDef.matcher = matcher.substring(1, matcher.length - 2)
     }
     catch (e) {

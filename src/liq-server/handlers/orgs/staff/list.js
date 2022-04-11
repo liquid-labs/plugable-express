@@ -1,8 +1,6 @@
 import omit from 'lodash.omit'
 
-import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
-
-import { commonOutputConfig, formatOutput } from '../../_lib'
+import { commonOutputConfig, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 const path = '/orgs/:orgKey/staff(/list)?'
@@ -30,7 +28,7 @@ const validParams = parameters.map(p => p.name)
 validParams.push('format', 'output')
 
 const mdFormatter = (staff, title) =>
-  `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`)}`
+  `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`).join("\n")}\n`
 
 const func = ({ model, reporter }) => (req, res) => {
   const remainder = Object.keys(omit(req.query, validParams))
