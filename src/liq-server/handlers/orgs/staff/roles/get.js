@@ -3,9 +3,7 @@ import * as fsPath from 'path'
 
 import kebabCase from 'lodash.kebabcase'
 
-import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
-
-import { formatOutput } from '../../../_lib'
+import { formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 const path = '/orgs/:orgKey/staff/roles' // TODO: shouldn't this actually end end a '/'?
