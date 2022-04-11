@@ -1,7 +1,9 @@
-import { handlers } from './roles'
 import * as listStaff from './list'
 import * as refreshStaff from './post'
 
-handlers.push(listStaff, refreshStaff)
+const handlers = [
+  listStaff,
+  refreshStaff
+]
 
 export { handlers }
