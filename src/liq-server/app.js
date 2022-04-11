@@ -81,6 +81,39 @@ const loadPlugins = async (app, { model, cache, reporter, skipCorePlugins = fals
 }
 
 const pathParamRegExp = /:[a-zA-Z0-9_]+/g
+const trueParams = /y(es)?|t(rue)?|1/i
+const falseParams = /n(o)?|f(alse)?|0/i
+
+const paramNormalizer = ({ parameters, req, res }) => {
+  for (const p of parameters.filter(p => p.isBoolean)) {
+    if (req.query[p.name] !== undefined) {
+      if (req.query[p.name].match(trueParams)) {
+        req.query[p.name] = true
+      }
+      else if (req.query[p.name].match(falseParams)) {
+        req.query[p.name] = false
+      }
+      else {
+        res.status(404).send({ message: `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.`})
+        return false
+      }
+    }
+  }
+  return true
+}
+
+const createHandler = ({ parameters, func, ...rest }) => {
+  const handlerFunc = func({ ...rest })
+  if (parameters?.length > 0) {
+    return (req, res) => {
+      paramNormalizer({ parameters, req, res })
+      handlerFunc(req, res)
+    }
+  }
+  else {
+    return handlerFunc
+  }
+}
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
@@ -95,7 +128,8 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const methodUpper = method.toUpperCase()
     reporter.log(`registering handler for path: ${methodUpper}:${path}`)
     // so express can find the handler
-    app[method](path, func({ app, cache, model, reporter, setupData }))
+    // app[method](path, func({ app, cache, model, reporter, setupData }))
+    app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
