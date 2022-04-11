@@ -16,7 +16,7 @@ liq-server-start() {
   [[ -n "${QUIET}" ]] || echofmt "Starting..."
   
   local MY_DIR NODE_SCRIPT
-  MY_DIR="$(dirname $(real_path "${0}")")"
+  MY_DIR="$(dirname "$(real_path "${0}")")"
   NODE_SCRIPT="${MY_DIR}/liq-server.js"
   
   node "${NODE_SCRIPT}" &
