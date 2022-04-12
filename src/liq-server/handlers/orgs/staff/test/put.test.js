@@ -12,12 +12,18 @@ const origStaffJSON = path.join(__dirname, '..', '..', '..', '..', '..',
 const staffJSONDest = path.join(__dirname, '..', '..', '..', '..',
   'test', 'data', 'playground-simple', 'orgA', 'projectA01', 'staff.json')
 
+const logs = []
+const testOptions = defaultTestOptions()
+testOptions.reporter.log = jest.fn((msg) => { logs.push(msg) })
+testOptions.reporter.error = testOptions.reporter.log
+testOptions.logs = logs
+
 describe('PUT:/orgs/:orgKey/staff', () => {
   let app
   let count = 1
   beforeEach(() => {
-    model.initialize(defaultTestOptions())
-    app = appInit(defaultTestOptions({ model }))
+    model.initialize(testOptions)
+    app = appInit(defaultTestOptions(Object.assign({ model }, testOptions)))
     // confirm initial setup
     expect(model.orgs.orgA.staff.list()).toHaveLength(3)
   })
@@ -25,6 +31,7 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     fs.copyFileSync(staffJSONDest, staffJSONDest + `.${count}`)
     count += 1
     fs.copyFileSync(origStaffJSON, staffJSONDest)
+    logs.splice(0, logs.length)
   })
   
   test("deletes", async () => {
@@ -32,15 +39,23 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData: true })
     const filePath = path.join(__dirname, 'staff-delete.csv');
     const { body, headers, status, text } = await request(app)
-      .post('/orgs/orgA/staff') // it reads weird, but this MUST go first
+      .post('/orgs/orgA/staff/refresh') // it reads weird, but this MUST go first
       .accept('application/json')
       .attach('testFile', filePath)
-    expect(status).toBe(200)
-    expect(headers['content-type']).toMatch(/application\/json/)
-    expect(body.message.match( /(updated.*){2}/i ))
-    expect(model.orgs.orgA.staff.list()).toHaveLength(2)
-    expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origCEO)
-    expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origDev)
+    try {
+      expect(status).toBe(200)
+      expect(headers['content-type']).toMatch(/application\/json/)
+      expect(body.message.match( /(updated.*){2}/i ))
+      expect(model.orgs.orgA.staff.list()).toHaveLength(2)
+      expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origCEO)
+      expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origDev)
+    }
+    catch (err) {
+      console.error(logs.join("\n"))
+      console.error(body)
+      console.error(text)
+      throw err
+    }
   })
 /*
   test("adds", async () => {
