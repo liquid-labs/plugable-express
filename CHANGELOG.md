@@ -54,3 +54,9 @@
 * _**hotfix**_: noted liq-server as provided executable 'bin' _(zane@liquid-labs.com; 2022-03-29T18:26:57.000Z)_
 * _**hotfix**_: updated CHANGELOGE.md for release (by liq) _(zane@liquid-labs.com; 2022-03-29T18:30:48.000Z)_
 * _**hotfix**_: updated CHANGELOGE.md for release (by liq) _(zane@liquid-labs.com; 2022-03-29T18:42:10.000Z)_
+
+## Release 1.0.0-alpha.9
+* _**hotfix**_: get "real path" to self to find JS script _(zane@liquid-labs.com; 2022-03-31T20:17:06.000Z)_
+* Implement basic list with visible roles support _(zane@liquid-labs.com; 2022-04-07T22:27:55.019Z)_
+* _**hotfix**_: update tests _(zane@liquid-labs.com; 2022-04-12T14:59:36.000Z)_
+* _**hotfix**_: updated test name to repflect proper 'POST' method _(zane@liquid-labs.com; 2022-04-12T15:00:23.000Z)_
