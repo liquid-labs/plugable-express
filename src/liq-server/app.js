@@ -188,8 +188,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     try {
       // endpointDef.matcher = '^\/' + endpointDef.path.replace(pathParamRegExp, '[^/]+') + '[/#?]?$'
       // TODO: see regex path note at top
-      const matcher = (typeof path === 'string' ? pathToRegexp(path) : path).toString()
-      endpointDef.matcher = matcher.substring(1, matcher.length - 2)
+      endpointDef.matcher = typeof path === 'string'
+        ? pathToRegexp(path).toString().slice(1, -2)
+        : path.toString().slice(1, -1)
     }
     catch (e) {
       reporter.error(`Exception while attempting to process path '${path}'. Perhaps there are special characters that need escaping; try '([*])' where '*' is your special character. Error message: ${e.message}`)
