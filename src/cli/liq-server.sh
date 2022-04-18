@@ -10,7 +10,7 @@ source ./globals.sh
 source ./actions/inc.sh
 
 usage() {
-  echofmt "liq-server [--quiet|-q] [start|stop|status]"
+  echofmt "liq-server [--quiet|-q] [start|stop|restart|status]"
 }
 
 eval "$(setSimpleOptions --script QUIET -- "$@")"
@@ -21,10 +21,9 @@ ACTION="${1:-}"
 
 [[ -d "${LIQ_SERVER_DB}" ]] || mkdir -p "${LIQ_SERVER_DB}"
 
-case "${ACTION}" in
-  start|stop|status)
-    liq-server-${ACTION};;
-  *)
-    usage
-    echoerrandexit "Unknown action '${ACTION}'. See usage above";;
-esac
+if [[ $(type -t "liq-server-${ACTION}") == 'function' ]]; then
+  liq-server-${ACTION}
+else
+  usage
+  echoerrandexit "Unknown action '${ACTION}'. See usage above"
+fi
