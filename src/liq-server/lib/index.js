@@ -1,4 +1,5 @@
 export * from './configurables'
 export * from './load-orgs'
 export * from './load-playground'
+export * from './register-handlers'
 export * from './reporter'
