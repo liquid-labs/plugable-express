@@ -1,3 +1,5 @@
+import { pathToRegexp } from 'path-to-regexp'
+
 const falseParams = /n(o)?|f(alse)?|0/i
 const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
@@ -26,7 +28,7 @@ const paramNormalizer = ({ parameters, req, res }) => {
         req.query[p.name] = false
       }
       else {
-        res.status(404).send({ message: `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.`})
+        res.status(404).send({ message : `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.` })
         return false
       }
     }
@@ -37,14 +39,14 @@ const paramNormalizer = ({ parameters, req, res }) => {
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
-    const { func, method, parameters, path/*, pathParams*/ } = handler
+    const { func, method, parameters, path/*, pathParams */ } = handler
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
     /* TODO: see note on regexp paths at top
     if (typeof path !== 'string') {
       throw new Error(`A handler from '${sourcePkg}' for endpoint '${path.toString()}' is not a string. Only string paths are allowed.`)
-    }*/
+    } */
     const methodUpper = method.toUpperCase()
     reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
     // so express can find the handler
@@ -54,7 +56,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const endpointDef = Object.assign({}, handler)
 
     endpointDef.path = path.toString()
-    
+
     if (!parameters) {
       reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
       endpointDef.parameters = []
@@ -68,7 +70,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       const paramName = pathParam.substring(1)
       let paramDef = endpointDef.parameters.find((p) => p.name === paramName)
       if (paramDef === undefined) {
-        paramDef = { name: paramName }
+        paramDef = { name : paramName }
         endpointDef.parameters.push(paramDef) // TODO: I assume pushing and sorting more is quicker than unshift and sorting less
       }
       paramDef.required = true
@@ -77,7 +79,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       paramDef.isSingleValue = true
       i += 1
     }
-    
+
     for (const paramDef of endpointDef.parameters) {
       if (paramDef.inPath === undefined && paramDef.inQuery === undefined) {
         paramDef.inQuery = true
@@ -88,7 +90,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       if (a.inPath === true && b.inQuery === true) {
         return 1
       }
-      else if (a.inPath === true && b.inQuery === true) {
+      else if (b.inPath === true && a.inQuery === true) {
         return -1
       }
       else if (a.inPath) /* sort by position */ return a.position > b.position ? 1 : -1 // position is never equal
@@ -110,7 +112,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       reporter.error(`Exception while attempting to process path '${path}'. Perhaps there are special characters that need escaping; try '([*])' where '*' is your special character. Error message: ${e.message}`)
       throw e
     }
-    
+
     app.handlers.push(endpointDef)
   }
 }
