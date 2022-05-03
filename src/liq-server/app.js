@@ -14,7 +14,7 @@ const PLUGIN_LABEL = 'plugin:liq-core'
 * - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
 *     dependencies are the plugins to be loaded.
 */
-const appInit = (options) => {
+const appInit = ({ skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
   const app = express()
   app.use(fileUpload({ parseNested: true }))
@@ -26,7 +26,9 @@ const appInit = (options) => {
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg:'@liquid-labs/liq-core', handlers }))
   
-  loadPlugins(app, options)
+  if (!skipCorePlugins) {
+    loadPlugins(app, options)
+  }
   
   return app
 }
