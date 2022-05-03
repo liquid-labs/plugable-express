@@ -39,6 +39,7 @@ const loadOrgs = ({ playground, reporter = console }) => {
       }
       catch (e) {
         reporter.warn(`Failed to load '${orgName}'; ${e.message}`)
+        console.warn(e.stack)
       }
     }
   }
