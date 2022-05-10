@@ -18,8 +18,9 @@ liq-server-start() {
   local MY_DIR NODE_SCRIPT
   MY_DIR="$(dirname "$(real_path "${0}")")"
   NODE_SCRIPT="${MY_DIR}/liq-server.js"
+  PACKAGE_ROOT="$(dirname ${MY_DIR})"
   
-  node "${NODE_SCRIPT}" &
+  cd "${PACKAGE_ROOT}" && NODE_PATH="${PACKAGE_ROOT}/node_modules" node "${NODE_SCRIPT}" &
   local SERVER_PID=$!
   echo "${SERVER_PID}" > "${LIQ_SERVER_PID_FILE}"
   

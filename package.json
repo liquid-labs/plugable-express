@@ -37,8 +37,8 @@
     "@fast-csv/parse": "^4.3.6",
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.53",
-    "@liquid-labs/orgs-model": "^1.0.0-beta.81",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.54",
+    "@liquid-labs/orgs-model": "^1.0.0-beta.83",
     "lodash.kebabcase": "^4.1.1",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
@@ -47,7 +47,7 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.3",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.5",
     "@liquid-labs/md2x": "^1.0.0-alpha.5",
     "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",
