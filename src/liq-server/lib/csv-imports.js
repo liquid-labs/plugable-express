@@ -4,21 +4,24 @@ import { parse as parseCSV } from '@fast-csv/parse'
 import pickBy from 'lodash.pickby'
 import { diffString } from 'json-diff'
 
+const identity = (r) => r
+
 /**
 * Transform CSV files into JSON objects. Bad data (missing headers)
 *
 * ### Parameters
 *
-* - `canBeAutoDeleted`: callback function used to test whether a current item record can be auto-deleted or not. Must
-*     accept single positional argument (item object) and return true or false.
-* - `files`: an object with the structure `{ <var name>: [ { name: <file name>, data: <byte data>, ...}, ... ] }` for
-*     multi-value vars and `{ <var name>: { fileName: <file name>, data: <byte data> }, ...}` for single value vars
+* - `canBeAutoDeleted`: optional callback function used to test whether a current item record can be auto-deleted or
+*     not. Must accept single positional argument (item object) and return true or false. Defaults to `() => true`
+* - `files`: required object with the structure `{ <var name>: [ { name: <file name>, data: <byte data>, ...}, ... ] }`
+*     for multi-value vars and `{ <var name>: { fileName: <file name>, data: <byte data> }, ...}` for single value vars
 *     where `data.toString()` yields the file contents. Note, the chane in the file name key. (TODO: confirm this is
 *     the case.)
-* - `finalizeRecord`: called on the normalized records to do another round of checking and updates, but this time with
-*     the assurance that all field names are normalized and required fields are present.
-* - `headerNormalizations`: maps unambiguous variations to standard field names. E.g. 'Given name' and 'First name' may
-*     be mapped to 'givenName'. Has the form of:
+* - `finalizeRecord`: optional transform called on the normalized records to do another round of checking and updates,
+*     but this time with the assurance that all field names are normalized and required fields are present. Defaults to
+*     the identity funciton `(r) => r`
+* - `headerNormalizations`: required funtion to transform and normalizes header names. E.g. 'Given name' and 'First
+      name' may be mapped to 'givenName'. Has the form of:
 *     ```
 *     [ [<regex matcher>, <normalized field name>], ... ]
 *     ```
@@ -31,14 +34,25 @@ import { diffString } from 'json-diff'
 *     ```
 *     (headers) => headers.indexOf('requiredField') !== -1 ? null : "missing required field 'requiredField'"
 *     ```
-* - `res`: the Express 'results' object. This is used to set 400 and 500 responses.
-* - `resourceAPI`: API object used to retrieve current items and check against incoming items for DB refresh
-* - `validateAndNormalizeRecords`: a function used to process the array of records to extract and normalize data. This
-*     can be used to add new data as well as combine, vaidate, and transform existing data. E.g.: split field
+* - `res`: required Express 'results' object. This is used to set 400 and 500 responses.
+* - `resourceAPI`:required API object used to retrieve current items and check against incoming items for DB refresh.
+*     Must implement:
+*     - `itemName`
+*     - `keyField`
+*     - `resourceName`: plural item
+*     - add()
+*     - delete()
+*     - get()
+*     - list()
+*     - update()
+*     - write(): updates underlying DB
+* - `validateAndNormalizeRecords`: optional function used to process the array of records to extract and normalize
+*     data. This can be used to add new data as well as combine, vaidate, and transform existing data. E.g.: split field
 *     'fullName' into 'givenName' and 'surname'; calculate 'daysSinceCertification' from 'lastCertification'; parse
 *     'hireDate' as a date and validate it's in the past etc. Validation failures should throw an exception with a
 *     useful, user facing error message. Note this function is used to normalize the 'form' of the data. Use
-*     `finalizeRecord` incorporate cross references, etc.
+*     `finalizeRecord` to update the content. E.g., augment using external data incorporate cross references, etc.
+*     Defaults to identity function `(r) => r`.
 */
 const importFromCSV = (options) => {
   const { res } = options
@@ -146,15 +160,15 @@ const buildPipelines = ({ files, headerNormalizations, headerValidations, record
 * - `resourceAPI`: see `importFromCSV`
 */
 const processPipelines = ({
-  canBeAutoDeleted,
-  finalizeRecord,
+  canBeAutoDeleted=() => true,
+  finalizeRecord=identity,
   model,
   org,
   pipelines,
   records,
   res,
   resourceAPI,
-  validateAndNormalizeRecords
+  validateAndNormalizeRecords=identity
 }) => {
   const names = { itemName : resourceAPI.itemName, resourceName : resourceAPI.resourceName }
   Promise.all(pipelines).then(() => {
