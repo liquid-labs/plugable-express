@@ -1,8 +1,7 @@
-import { Readable } from 'stream'
 import * as StreamPromises from 'stream/promises'
 import { parse as parseCSV } from '@fast-csv/parse'
 
-import { importFromCSV } from '../../../lib/csv-imports'
+import { importFromCSV } from '@liquid-labs/import-export'
 
 import {
   canBeAutoDeleted,
