@@ -17,6 +17,8 @@ const PLUGIN_LABEL = 'plugin:liq-core'
 const appInit = ({ skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
   const app = express()
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: true })) // handle POST body params
   app.use(fileUpload({ parseNested: true }))
   
   options.cache = new WeakMap()
