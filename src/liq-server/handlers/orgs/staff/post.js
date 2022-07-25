@@ -1,5 +1,4 @@
 import * as StreamPromises from 'stream/promises'
-import { parse as parseCSV } from '@fast-csv/parse'
 
 import { importFromCSV } from '@liquid-labs/import-export'
 
