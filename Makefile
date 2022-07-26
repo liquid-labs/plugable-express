@@ -8,7 +8,7 @@ CATALYST_SCRIPTS:=$(NPM_BIN)/catalyst-scripts
 BASH_ROLLUP:=$(NPM_BIN)/bash-rollup
 
 LIQ_SERVER_SRC:=src/liq-server
-LIQ_SERVER_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js" -not -path "*/test/*" -not -name "*.test.js")
+LIQ_SERVER_FILES:=$(shell find $(LIQ_SERVER_SRC) \( -name "*.js" -o -name "*.mjs" \) -not -path "*/test/*" -not -name "*.test.js")
 LIQ_SERVER_TEST_SRC_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js")
 LIQ_SERVER_TEST_BUILT_FILES=$(patsubst $(LIQ_SERVER_SRC)/%, test-staging/%, $(LIQ_SERVER_TEST_SRC_FILES))
 LIQ_SERVER_TEST_SRC_DATA:=$(shell find $(LIQ_SERVER_SRC) -path "*/data/*" -type f -o -name "*.csv")
