@@ -22,6 +22,12 @@ const parameters = [
     required: false,
     isMultivalue: true,
     description: "An array or comma-separated list of field names."
+  },
+  {
+    name: 'withRole',
+    required: false,
+    isMultivalue: true,
+    description: "An array or comma separated list of role names. The resultis must have at least one of the indicated roles."
   }
 ]
 const validParams = parameters.map(p => p.name)
@@ -33,18 +39,22 @@ const mdFormatter = (staff, title) =>
 const func = ({ model, reporter }) => (req, res) => {
   const remainder = Object.keys(omit(req.query, validParams))
   if (remainder.length > 0) {
-    throw new Error(`Unknown query parameters: ${remainder.join(', ')}.`)
+    throw new Error(`Unknown query parameters listing staff: ${remainder.join(', ')}.`)
   }
   
   const org = getOrgFromKey({ model, params: req.params, res })
   if (org === false) {
     return
   }
-  const { all=false } = req.query
+  const { all=false, withRole } = req.query
   
-  const staff = all
+  let staff = withRole === undefined
     ? org.staff.list({ clean : true, rawData : true })
-    : org.staff.list({ clean : true, rawData : true }).filter((s) => s.employmentStatus !== 'logical')
+    : org.staff.getByRoleName(withRole, { ownRolesOnly : false })
+  
+  if (!all) {
+    staff = staff.filter((s) => s.employmentStatus !== 'logical')
+  }
 
   formatOutput({
     basicTitle : 'Staff Report',
