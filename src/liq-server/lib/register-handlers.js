@@ -51,7 +51,11 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
     // so express can find the handler
     // app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
-    app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
+    app[method](
+      // express barfs if there are named capture groups; but we expect named capture groups so we can identify
+      // parameters so we have to remove the bit that names them for express.
+      typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1)),
+      createHandler({ parameters, func, app, cache, model, reporter, setupData }))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
@@ -67,7 +71,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       ? path.match(pathParamRegExp)
       : path.toString().match(regexParamRegExp)
     for (const pathParam of pathParams || []) {
-      const paramName = pathParam.substring(1)
+      const paramName = pathParam.startsWith(':')
+        ? pathParam.substring(1)
+        : pathParam.slice(2, -1)
       let paramDef = endpointDef.parameters.find((p) => p.name === paramName)
       if (paramDef === undefined) {
         paramDef = { name : paramName }
@@ -88,10 +94,10 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
 
     endpointDef.parameters.sort((a, b) => {
       if (a.inPath === true && b.inQuery === true) {
-        return 1
+        return -1
       }
       else if (b.inPath === true && a.inQuery === true) {
-        return -1
+        return 1
       }
       else if (a.inPath) /* sort by position */ return a.position > b.position ? 1 : -1 // position is never equal
       else /* query param; sort by name */ return a.name.localeCompare(b.name)
