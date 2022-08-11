@@ -39,7 +39,7 @@ const paramNormalizer = ({ parameters, req, res }) => {
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
-    const { func, method, parameters, path/*, pathParams */ } = handler
+    const { func, help, method, nickName, parameters, path/*, pathParams */ } = handler
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
@@ -120,6 +120,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     }
 
     app.handlers.push(endpointDef)
+    if (nickName !== undefined) {
+      app.helpData[nickName] = [ help, endpointDef.parameters ]
+    }
   }
 }
 
