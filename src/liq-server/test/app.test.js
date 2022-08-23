@@ -8,7 +8,7 @@ import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
 import projectA01Package from './data/playground-simple/orgA/projectA01/package.json'
 
-const COMMAND_COUNT = 11
+const COMMAND_COUNT = 14
 
 const mockLogOptions = () => {
   const logs = []

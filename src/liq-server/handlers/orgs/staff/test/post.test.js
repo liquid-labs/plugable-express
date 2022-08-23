@@ -1,6 +1,8 @@
 /* global afterAll beforeAll describe expect jest test */
 import * as fs from 'fs'
 import * as path from 'path'
+
+import omit from 'lodash.omit'
 import request from 'supertest'
 
 import { appInit } from '../../../../app'
@@ -47,8 +49,16 @@ describe('PUT:/orgs/:orgKey/staff', () => {
       expect(headers['content-type']).toMatch(/application\/json/)
       expect(body.message.match( /(updated.*){2}/i ))
       expect(model.orgs.orgA.staff.list()).toHaveLength(2)
-      expect(model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origCEO)
-      expect(model.orgs.orgA.staff.get('dev@foo.com', { rawData: true/*, clean: true*/ })).toEqual(origDev)
+      
+      const newCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true })
+      expect(newCEO._sourceFileName).toBe('staff-delete.csv')
+      delete newCEO._sourceFileName
+      expect(newCEO).toEqual(origCEO)
+      
+      const newDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData: true })
+      expect(newDev._sourceFileName).toBe('staff-delete.csv')
+      delete newDev._sourceFileName
+      expect(newDev).toEqual(origDev)
     }
     catch (err) {
       console.error(logs.join("\n"))
