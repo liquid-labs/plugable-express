@@ -24,15 +24,13 @@ const headerNormalizations = [
 const headerValidations = [
   // note, fast-csv/parse will check for duplicate headers, so we don't have too
   // Keeping the field checks separets allows us to report both if both fail.
+  // We don't need much, just email and some name.
   (newHeaders) => newHeaders.indexOf(field.EMAIL) > -1 ? null : `missing '${field.EMAIL}' column.`,
-  (newHeaders) => newHeaders.indexOf(field.ROLES) > -1 ? null : `missing '${field.ROLES}' column.`,
-  // TODO: support warnings?
-  // (newHeaders) => newHeaders.indexOf(field.START_DATE) > -1 ? null : `missing '${field.START_DATE}' column.`,
   (newHeaders) =>
-    newHeaders.indexOf(field.GIVEN_NAME) > -1
-      ? null // we have a given name, good
+    newHeaders.indexOf(field.FAMILY_NAME) > -1
+      ? null // we have an explicit family name, good
       : newHeaders.indexOf(field.FULL_NAME) > -1
-        ? null // we have no given name, but we'll try and extract it, so good for now
+        ? null // we have no family name, but we'll try and extract it, so good for now
         : `you must provide either '${field.FAMILY_NAME}', '${field.FULL_NAME}', or both.`,
 ]
 
@@ -57,10 +55,11 @@ const normalizeNickname = (rec) => {
   return rec
 }
 
-const lastNameFirst = /[,;]/
+const corpTest = /[;, ](?:l\.?l\.?c\.?|corp(?:\.|oration)?|inc(?:\.|orporation)?)\s*["]?\s*$/i
+const familyNameFirst = /[,;]/
 // Notice we allow for "Pablo Diego Fransico DePaulo ... Picaso" :)
 // const bitsExtractor = /^([^" ]+)( +.*|( *[,;])?.*([^" ]+)?$/
-const bitsExtractor = /^([^" ]+)?[,;]?(.*[" ])?([^" ]+)$/
+const bitsExtractor = /^"?([^", ]+)?[,;]?\s*(?:([^", ]*)[," ]+)?([^"]+)$/
 
 const errorContext = (field, value) => `field '${field}' with value '${value}'`
 
@@ -72,35 +71,40 @@ const normalizeNames = (rec) => {
     // Note, though we are guaranteed that either given and full names are present, we could have both without surname,
     // in which case we will attempt to extract it
     if (fullName) {
+      const newRec = Object.assign({}, rec)
+      if (fullName.match(corpTest)) {
+        newRec[field.FAMILY_NAME] = fullName
+        return newRec
+      }
+      
       const bitsMatch = fullName.match(bitsExtractor)
       if (!bitsMatch)
         throw new Error(`Could not extract useful data from ${errorContext(field.FULL_NAME, fullName)}; is it empty?`)
       
-      const newRec = Object.assign({}, rec)
-      
-      const updateNames = (extractedSurname, extractedGivenName) => {
+      const updateNames = (extractedFamilyName, extractedGivenName) => {
         // We always need a given name
         if (!extractedGivenName) throw new Error(`Could not identify given name in ${errorContext(field.FULL_NAME, fullName)}.`)
         // If we have an extracted given name and a specified given name, they must match (ignoring case)
         if (rec[field.GIVEN_NAME] && extractedGivenName.toLowerCase() !== rec[field.GIVEN_NAME].toLowerCase())
           throw new Error(`Extracted given name '${extractedGivenName}' from full name '${fullName}' but it does not match specified given name '${rec[field.GIVEN_NAME]}'`)
         // ditto for surname
-        if (rec[field.FAMILY_NAME] && rec[field.FAMILY_NAME] !== extractedSurname)
+        if (rec[field.FAMILY_NAME] && rec[field.FAMILY_NAME] !== extractedFamilyName)
           throw new Error(`Extracted surname '${extractedGivenName}' from full name '${fullName}' but it does not match specified surname '${rec[field.GIVEN_NAME]}'`)
           
         // now, for the updates!
         // If no specified given name, but we have an extracted given name, use it
         if (newRec[field.GIVEN_NAME] === undefined) newRec[field.GIVEN_NAME] = extractedGivenName
         // ditto for surname TODO: was 'rec[field.FAMILY_NAME] === undefined'; changed for consistency, just noting in case this blows up somehow
-        if (newRec[field.FAMILY_NAME] === undefined && extractedSurname) newRec[field.FAMILY_NAME] = extractedSurname
+        if (newRec[field.FAMILY_NAME] === undefined && extractedFamilyName) newRec[field.FAMILY_NAME] = extractedFamilyName
         
         return newRec
       }
       
       // 'updateNames' returns the record
-      return fullName.match(lastNameFirst)
-        ? updateNames(bitsMatch[1], bitsMatch[3])
-        : updateNames(bitsMatch[3], bitsMatch[1])
+      const middleName = `${bitsMatch[2] ? bitsMatch[2] + ' ' : ''}`
+      return fullName.match(familyNameFirst)
+        ? updateNames(bitsMatch[1], `${middleName}${bitsMatch[3]}`)
+        : updateNames(bitsMatch[3], `${bitsMatch[1]}${middleName}`)
     }
     // else we have no fullname and at least a given name, so we can just return the rec
   }
@@ -109,7 +113,7 @@ const normalizeNames = (rec) => {
 }
 
 const normalizeManager = (rec) => {
-  if (rec[field.ROLES].indexOf('/') === -1 && rec[field.MANAGER]) {
+  if (rec[field.ROLES]?.indexOf('/') === -1 && rec[field.MANAGER]) {
     rec[field.ROLES] = `${rec[field.ROLES]}/${rec[field.MANAGER]}`
     delete rec[field.MANAGER]
   }
@@ -117,9 +121,51 @@ const normalizeManager = (rec) => {
   return rec
 }
 
+const stdDateFmt = /^\s*\d{4}[/.-][01]\d[/.-][0123]\d\s*$/
+const indDate = /^\s*(\d{1,2})[/.-]([a-z]+)[/.-](\d{1,4})\s*$/i
+const monthTranslator = {
+  jan: '01',
+  feb: '02',
+  mar: '03',
+  march: '03',
+  apr: '04',
+  may: '05',
+  jun: '06',
+  june: '06',
+  jul: '07',
+  july: '07',
+  aug: '08',
+  sep: '09',
+  oct: '10',
+  nov: '11',
+  dec: '12'
+}
+const normalizeStartDate = (rec) => {
+  const dateS = rec[field.START_DATE]
+  if (!dateS || dateS.match(stdDateFmt)) {
+    return rec
+  }
+  
+  const match = dateS.match(indDate)
+  if (match) {
+    const [ , dayS, monthS, yearS ] = match
+    rec[field.START_DATE] = `20${yearS}-`
+      + monthTranslator[monthS.toLowerCase()] + '-'
+      + (dayS.length === 1 ? '0' + dayS : dayS)
+  }
+  else {
+    const guessDate = new Date(rec[field.START_DATE])
+    rec[field.START_DATE] = guessDate.getFullYear() + '-'
+      + ('' + guessDate.getDate()).padStart(2, '0') + '-'
+      + ('' + (guessDate.getMonth() + 1)).padStart(2, '0')
+  }
+  
+  return rec
+}
+
 const validateAndNormalizeRecords = (records) => {
   return records.map((rec) => {
-    for (const normalizer of [ normalizeNickname, normalizeNames, normalizeManager ]) {
+    for (const normalizer of [ normalizeNickname, normalizeNames, normalizeManager, normalizeStartDate ]) {
       rec = normalizer(rec)
     }
     return rec
@@ -137,7 +183,7 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   if (currRecord !== undefined)
     newRecord = Object.assign({}, currRecord, newRecord)
   
-  const titles = titleSpec.split(/\s*[;]\s*/)
+  const titles = titleSpec?.split(/\s*[;]\s*/) || []
   
   const roleErrors = []
   titles.forEach((title, i) => {
