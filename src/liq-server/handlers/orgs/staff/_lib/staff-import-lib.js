@@ -226,14 +226,17 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   // now we check if any of the new roles match or 'roll up' existing roles
   if (refreshRoles !== true && refreshRoles !== 'true') {
     for (const newRoleSpec of newRecord.roles) {
-      const { name: newRoleName } = newRoleSpec
+      const { name: newRoleName, manager: newRoleManager } = newRoleSpec
       let skip = false
-      currRoles = currRoles.filter(({ name: currRoleName }) => {
+      currRoles = currRoles.filter(({ name: currRoleName, manager: currManager }) => {
         if (currRoleName === newRoleName) { // nothing to do
           return false
         }
         else if (org.roles.get(newRoleName).impliesRole(currRoleName)) {
           actionSummary.push(`Dropped role '${currRoleName}' which is implied by new role '${newRoleName}' on '${email}'.`)
+          if (!newRoleManager) { // then infer the manager of the implied role is still the manager
+            newRoleSpec.manager = currManager
+          }
           return false
         }
         return true
