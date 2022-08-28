@@ -42,7 +42,7 @@ const func = ({ model }) => (req, res) => {
   importFromCSV({
     canBeAutoDeleted,
     files,
-    finalizeRecord: finalizeRecord(refreshRoles),
+    finalizeRecords: finalizeRecord(refreshRoles),
     headerNormalizations,
     headerValidations,
     model,

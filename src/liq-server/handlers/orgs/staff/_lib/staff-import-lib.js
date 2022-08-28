@@ -175,10 +175,12 @@ const validateAndNormalizeRecords = (records) => {
 /**
 * Finalizing the record may have side effects, which should be desribed with an`actionSummary` entry.
 */
-const finalizeRecord = ({ actionSummary, newRecord, org }) => {
+const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => {
   const { email, title: titleSpec, _sourceFileName } = newRecord
+  console.error(`finalizing ${email}...`) // DEBUG
   newRecord.roles = []
   const currRecord = org.staff.get(email, { rawData : true })
+  let currRoles = structuredClone(currRecord?.roles) || []
   
   if (currRecord !== undefined)
     newRecord = Object.assign({}, currRecord, newRecord)
@@ -199,13 +201,17 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
     if (qualifier !== undefined) roleDef.qualifier = qualifier
     if (manager !== undefined) roleDef.manager = manager
     if (currRecord !== undefined) { // it's an update and we need to reconcile changes in the role
-      const currRoleData = currRecord.roles.find((r) => r.name === roleDef.name)
+      const currRoleData = currRoles.find((r) => r.name === roleDef.name)
       if (!currRoleData) {
         // then we are adding a new role
         actionSummary.push(`Added role '${role.name}' to '${email}'.`)
       }
       else {
         roleDef = Object.assign({}, currRoleData, roleDef)
+        if (roleDef.manager !== currRoleData.manager) {
+          actionSummary.push(`Updated role '${role.name}' of '${email} from '${currRoleData.manager}' to '${roleDef.manager}'.`)
+        }
+        // else no change
       }
     }
     
@@ -215,11 +221,32 @@ const finalizeRecord = ({ actionSummary, newRecord, org }) => {
   if (roleErrors.length > 0) {
     throw new Error(roleErrors.join('\n'))
   }
+  // we've now processed the roles from the incoming record, now let's process and reconcile with the existing roles
   
-  // new we need to check if any roles have been removed (currRecord may be undef)
-  for (const oldRole of currRecord?.roles || []) {
-    if (!newRecord.roles.some((r) => r.name === oldRole.name)) {
-      actionSummary.push(`Removed role '${oldRole.name}' from '${email}'.`)
+  // now we check if any of the new roles match or 'roll up' existing roles
+  if (refreshRoles !== true && refreshRoles !== 'true') {
+    for (const newRoleSpec of newRecord.roles) {
+      const { name: newRoleName } = newRoleSpec
+      let skip = false
+      currRoles = currRoles.filter(({ name: currRoleName }) => {
+        if (currRoleName === newRoleName) { // nothing to do
+          return false
+        }
+        else if (org.roles.get(newRoleName).impliesRole(currRoleName)) {
+          actionSummary.push(`Dropped role '${currRoleName}' which is implied by new role '${newRoleName}' on '${email}'.`)
+          return false
+        }
+        return true
+      })
+    }
+    
+    newRecord.roles.push(...currRoles)
+  } // !refreshRoles
+  else { // okay, we're refreshing so some roles may be dropped
+    for (const currRole of currRecord?.roles || []) {
+      if (!newRecord.roles.some((r) => r.name === currRole.name)) {
+        actionSummary.push(`Removed role '${currRole.name}' from '${email}'.`)
+      }
     }
   }
   
