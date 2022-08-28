@@ -56,7 +56,7 @@ const normalizeNickname = (rec) => {
 }
 
 const corpTest = /[;, ](?:l\.?l\.?c\.?|corp(?:\.|oration)?|inc(?:\.|orporation)?)\s*["]?\s*$/i
-const familyNameFirst = /[,;]/
+const familyNameFirstTest = /[,;]/
 // Notice we allow for "Pablo Diego Fransico DePaulo ... Picaso" :)
 // const bitsExtractor = /^([^" ]+)( +.*|( *[,;])?.*([^" ]+)?$/
 const bitsExtractor = /^"?([^", ]+)?[,;]?\s*(?:([^", ]*)[," ]+)?([^"]+)$/
@@ -94,17 +94,23 @@ const normalizeNames = (rec) => {
         // now, for the updates!
         // If no specified given name, but we have an extracted given name, use it
         if (newRec[field.GIVEN_NAME] === undefined) newRec[field.GIVEN_NAME] = extractedGivenName
-        // ditto for surname TODO: was 'rec[field.FAMILY_NAME] === undefined'; changed for consistency, just noting in case this blows up somehow
+        // ditto for surname
         if (newRec[field.FAMILY_NAME] === undefined && extractedFamilyName) newRec[field.FAMILY_NAME] = extractedFamilyName
         
         return newRec
       }
       
-      // 'updateNames' returns the record
+      const familyNameFirst = fullName.match(familyNameFirstTest)
       const middleName = `${bitsMatch[2] ? bitsMatch[2] + ' ' : ''}`
-      return fullName.match(familyNameFirst)
-        ? updateNames(bitsMatch[1], `${middleName}${bitsMatch[3]}`)
-        : updateNames(bitsMatch[3], `${bitsMatch[1]}${middleName}`)
+      // the 'givenName' is set if there is only one name, which may have multiple parts.
+      const givenName = familyNameFirst || !bitsMatch[1]?
+        middleName + bitsMatch[3] :
+        bitsMatch[1] + middleName
+      // so, if familyName is first, but there is only one match, it's already been used by 'givenName' and 'familyName' ends up being the unmatched first group, or ''
+      let familyName = familyNameFirst || !bitsMatch[1] ? bitsMatch[1] : bitsMatch[3]
+      if (familyName === '') familyName = null
+      // 'updateNames' returns the record
+      return updateNames(familyName, givenName)
     }
     // else we have no fullname and at least a given name, so we can just return the rec
   }
