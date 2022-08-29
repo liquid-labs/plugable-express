@@ -195,6 +195,8 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   
   const roleErrors = []
   titles.forEach((title, i) => {
+    if (!title) return
+    
     const [ roleName, manager ] = title.split('/')
     const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
     if (role === undefined) {
