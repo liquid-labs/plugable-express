@@ -7,6 +7,7 @@ import {
   finalizeRecord,
   headerNormalizations,
   headerValidations,
+  validateAllRecords,
   validateAndNormalizeRecords
 } from './_lib/staff-import-lib'
 
@@ -39,6 +40,7 @@ const func = ({ model }) => (req, res) => {
   const { refreshRoles = false } = req.query
   const { files } = req
   
+  // TODO: need to reload base data in the face of import failure
   importFromCSV({
     canBeAutoDeleted,
     files,
@@ -49,6 +51,7 @@ const func = ({ model }) => (req, res) => {
     org,
     res,
     resourceAPI: org.staff,
+    validateAllRecords,
     validateAndNormalizeRecords
   })
 }

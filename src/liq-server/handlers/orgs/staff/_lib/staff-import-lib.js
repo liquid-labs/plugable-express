@@ -183,7 +183,6 @@ const validateAndNormalizeRecords = (records) => {
 */
 const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => {
   const { email, title: titleSpec, _sourceFileName } = newRecord
-  console.error(`finalizing ${email}...`) // DEBUG
   newRecord.roles = []
   const currRecord = org.staff.get(email, { rawData : true })
   let currRoles = structuredClone(currRecord?.roles) || []
@@ -270,6 +269,10 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   return newRecord
 }
 
+const validateAllRecords = ({ org }) => {
+  org.staff.validate({ required: true })
+}
+
 /**
 * Verifies whether the current record can be deleted automatically. In our case, 'board' and 'logical' staff don't show
 * up in the reports, but are non-deletable.
@@ -292,5 +295,6 @@ export {
   headerNormalizations,
   headerValidations,
   testables,
+  validateAllRecords,
   validateAndNormalizeRecords
 }
