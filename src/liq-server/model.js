@@ -111,7 +111,6 @@ const model = {
           if (onError) {
             onError(worker)
           }
-          console.log(`terminating worker ${threadId}`) // DEBUG
           worker.terminate()
         })
         worker.on('messageerror', (err) => {
