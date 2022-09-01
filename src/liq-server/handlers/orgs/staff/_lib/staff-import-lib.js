@@ -208,6 +208,13 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
     if (qualifier !== undefined) roleDef.qualifier = qualifier
     if (manager !== undefined) roleDef.manager = manager
     if (currRecord !== undefined) { // it's an update and we need to reconcile changes in the role
+      // explicitly note employment status change
+      const currEmploymentStatus = currRecord.employmentStatus
+      const newEmploymentStatus = newRecord.employmentStatus
+      if (currEmploymentStatus !== newEmploymentStatus) {
+        actionSummary.push(`Updated ${email} employment status from '${currEmploymentStatus}' to ${newEmploymentStatus}.`)
+      }
+      // handle roles updates
       const currRoleData = currRoles.find((r) => r.name === roleDef.name)
       if (!currRoleData) {
         // then we are adding a new role
@@ -216,7 +223,7 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
       else {
         roleDef = Object.assign({}, currRoleData, roleDef)
         if (roleDef.manager !== currRoleData.manager) {
-          actionSummary.push(`Updated role '${role.name}' of '${email} from '${currRoleData.manager}' to '${roleDef.manager}'.`)
+          actionSummary.push(`Updated ${email} role '${role.name}' from '${currRoleData.manager}' to '${roleDef.manager}'.`)
         }
         // else no change
       }
@@ -234,13 +241,12 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   if (refreshRoles !== true && refreshRoles !== 'true') {
     for (const newRoleSpec of newRecord.roles) {
       const { name: newRoleName, manager: newRoleManager } = newRoleSpec
-      let skip = false
       currRoles = currRoles.filter(({ name: currRoleName, manager: currManager }) => {
         if (currRoleName === newRoleName) { // nothing to do
           return false
         }
         else if (org.roles.get(newRoleName).impliesRole(currRoleName)) {
-          actionSummary.push(`Dropped role '${currRoleName}' which is implied by new role '${newRoleName}' on '${email}'.`)
+          actionSummary.push(`Dropped ${email} role '${currRoleName}' which is implied by new role '${newRoleName}' on '${email}'.`)
           if (!newRoleManager) { // then infer the manager of the implied role is still the manager
             newRoleSpec.manager = currManager
           }
@@ -249,13 +255,12 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
         return true
       })
     }
-    
     newRecord.roles.push(...currRoles)
   } // !refreshRoles
   else { // okay, we're refreshing so some roles may be dropped
     for (const currRole of currRecord?.roles || []) {
       if (!newRecord.roles.some((r) => r.name === currRole.name)) {
-        actionSummary.push(`Removed role '${currRole.name}' from '${email}'.`)
+        actionSummary.push(`Removed ${email} role '${currRole.name}'.`)
       }
     }
   }
@@ -269,9 +274,13 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   return newRecord
 }
 
-const validateAllRecords = ({ org }) => {
-  org.staff.validate({ required: true })
-}
+/**
+* Validates the staff DB is correct after import.
+*
+* #### Returns
+* `true` or an array of human readable screens describing the errors found in the dataset.
+*/
+const validateAllRecords = ({ org }) => org.staff.validate({ required: true })
 
 /**
 * Verifies whether the current record can be deleted automatically. In our case, 'board' and 'logical' staff don't show
