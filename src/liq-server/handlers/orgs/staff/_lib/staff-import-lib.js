@@ -181,7 +181,7 @@ const validateAndNormalizeRecords = (records) => {
 /**
 * Finalizing the record may have side effects, which should be desribed with an`actionSummary` entry.
 */
-const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => {
+const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, finalizationCookie, org }) => {
   const { email, title: titleSpec, _sourceFileName } = newRecord
   newRecord.roles = []
   const currRecord = org.staff.get(email, { rawData : true })
@@ -265,6 +265,12 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
     }
   }
   
+  for (const newRole of newRecord.roles.map((r) => org.roles.get(r.name, { rawData: true }))) {
+    if (newRole.singular) {
+      finalizationCookie[email] = newRole.name
+    }
+  }
+  
   // clean up data from import that we don't use here
   delete newRecord.title // captured in roles
   delete newRecord.manager // captured in the roles data
@@ -272,6 +278,25 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, org }) => 
   delete newRecord['Family name'] // TODO: no idea where this is coming from...
   
   return newRecord
+}
+
+const finalizeAllRecords = ({ finalizedRecords, finalizationCookie }) => {
+  console.error(`finalizedRecords in finalizeAllRecords: ${JSON.stringify(finalizedRecords, null, '  ')}`) // DEBUG
+  // for (const { email, roles } of finalizedRecords) {
+  for (const finalizedRecord of structuredClone(finalizedRecords)) {
+    console.error(`in iteration: ${finalizedRecord.email} has roles ${JSON.stringify(finalizedRecord.roles)}`) // DEBUG
+    const singularRole = finalizationCookie[finalizedRecord.email]
+    if (singularRole) {
+      for (const { email: testEmail, roles: testRoles } of finalizedRecords) {
+        if (finalizedRecord.email === testEmail) continue
+        const i = testRoles.findIndex((r) => r.name === singularRole)
+        if (i !== -1) {
+          console.error(`splicing at ${i}`) // DEBUG
+          testRoles.splice(i, 1)
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -300,6 +325,7 @@ const testables = { // exported for testing
 export {
   canBeAutoDeleted,
   field, // re-export from here to maintain clear field names for both this file and subsequent consumers
+  finalizeAllRecords,
   finalizeRecord,
   headerNormalizations,
   headerValidations,

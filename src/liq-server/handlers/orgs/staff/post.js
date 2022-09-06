@@ -4,6 +4,7 @@ import { importFromCSV } from '@liquid-labs/import-export'
 
 import {
   canBeAutoDeleted,
+  finalizeAllRecords,
   finalizeRecord,
   headerNormalizations,
   headerValidations,
@@ -44,6 +45,7 @@ const func = ({ model }) => (req, res) => {
   importFromCSV({
     canBeAutoDeleted,
     files,
+    finalizeAllRecords,
     finalizeRecord: finalizeRecord(refreshRoles),
     headerNormalizations,
     headerValidations,
