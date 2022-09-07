@@ -1,3 +1,4 @@
+import asyncHandler from 'express-async-handler'
 import { pathToRegexp } from 'path-to-regexp'
 
 const falseParams = /n(o)?|f(alse)?|0/i
@@ -49,13 +50,15 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     } */
     const methodUpper = method.toUpperCase()
     reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
-    // so express can find the handler
+    
+    // express barfs if there are named capture groups; but we expect named capture groups so we can identify
+    // parameters so we have to remove the bit that names them for express.
+    const routablePath =
+      typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
+    const handlerFunc = createHandler({ parameters, func, app, cache, model, reporter, setupData })
+    
     // app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
-    app[method](
-      // express barfs if there are named capture groups; but we expect named capture groups so we can identify
-      // parameters so we have to remove the bit that names them for express.
-      typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1)),
-      createHandler({ parameters, func, app, cache, model, reporter, setupData }))
+    app[method]( routablePath, asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 

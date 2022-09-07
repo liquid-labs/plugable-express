@@ -1,6 +1,5 @@
 import * as path from 'path'
 
-// import asyncHandler from 'express-async-handler'
 import chalk from 'chalk'
 import express from 'express'
 import fileUpload from 'express-fileupload'
