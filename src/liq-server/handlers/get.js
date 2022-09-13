@@ -48,7 +48,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
       supportedMethods : http.METHODS
     }
 
-    cache.set(func, versionInfo)
+    cache.put(func, versionInfo)
   }
 
   if (req.accepts('json')) {

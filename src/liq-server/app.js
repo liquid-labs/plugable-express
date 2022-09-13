@@ -4,6 +4,8 @@ import chalk from 'chalk'
 import express from 'express'
 import fileUpload from 'express-fileupload'
 
+import { WeakCache } from '@liquid-labs/weak-cache'
+
 import { handlers } from './handlers'
 import { loadPlugins, registerHandlers } from './lib'
 
@@ -21,7 +23,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.use(express.urlencoded({ extended: true })) // handle POST body params
   app.use(fileUpload({ parseNested: true }))
   
-  options.cache = new WeakMap()
+  options.cache = new WeakCache()
 
   app.handlers = []
   app.helpData = {}
