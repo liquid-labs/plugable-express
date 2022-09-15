@@ -20,12 +20,18 @@ const createHandler = ({ parameters, func, ...rest }) => {
 }
 
 const paramNormalizer = ({ parameters, req, res }) => {
+  const source = req.method === 'POST'
+    ? req.body
+    : req.query
+  if (source === undefined) return true
+  
   for (const p of parameters.filter(p => p.isBoolean)) {
-    if (req.query[p.name] !== undefined) {
-      if (req.query[p.name].match(trueParams)) {
+    const value = source[p.name]
+    if (value !== undefined) {
+      if (value.match(trueParams)) {
         req.query[p.name] = true
       }
-      else if (req.query[p.name].match(falseParams)) {
+      else if (value.match(falseParams)) {
         req.query[p.name] = false
       }
       else {
