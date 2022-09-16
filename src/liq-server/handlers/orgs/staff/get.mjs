@@ -4,7 +4,7 @@ import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 // '%40' == '@''
-const path = '/orgs/:orgKey/staff/:staffId(.+%40.+)'
+const path = '/orgs/:orgKey/staff/:staffId(.+%40[^/]+)'
 const parameters = [
   {
     name: 'fields',
