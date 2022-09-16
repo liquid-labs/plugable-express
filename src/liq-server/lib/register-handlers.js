@@ -6,20 +6,8 @@ const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
 const trueParams = /y(es)?|t(rue)?|1/i
 
-const createHandler = ({ parameters, func, ...rest }) => {
-  const handlerFunc = func({ ...rest })
-  if (parameters?.length > 0) {
-    return (req, res) => {
-      paramNormalizer({ parameters, req, res })
-      handlerFunc(req, res)
-    }
-  }
-  else {
-    return handlerFunc
-  }
-}
-
-const paramNormalizer = ({ parameters, req, res }) => {
+// TODO: this doesn't work and I don't know why...
+const processParams = ({ parameters = [] }) => (req, res, next) => {
   const source = req.method === 'POST'
     ? req.body
     : req.query
@@ -29,10 +17,10 @@ const paramNormalizer = ({ parameters, req, res }) => {
     const value = source[p.name]
     if (value !== undefined) {
       if (value.match(trueParams)) {
-        req.query[p.name] = true
+        source[p.name] = true
       }
       else if (value.match(falseParams)) {
-        req.query[p.name] = false
+        source[p.name] = false
       }
       else {
         res.status(404).send({ message : `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.` })
@@ -40,7 +28,7 @@ const paramNormalizer = ({ parameters, req, res }) => {
       }
     }
   }
-  return true
+  next()
 }
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
@@ -61,10 +49,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     // parameters so we have to remove the bit that names them for express.
     const routablePath =
       typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
-    const handlerFunc = createHandler({ parameters, func, app, cache, model, reporter, setupData })
+    const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     
-    // app[method](path, createHandler({ parameters, func, app, cache, model, reporter, setupData }))
-    app[method]( routablePath, asyncHandler(handlerFunc))
+    app[method]( routablePath, processParams({ parameters }), asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
