@@ -46,12 +46,13 @@
     "chalk": "^4.1.2",
     "lodash.kebabcase": "^4.1.1",
     "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
     "path-to-regexp": "^6.2.0",
     "supertest": "^6.1.6"
   },
   "dependencies": {
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
-    "@liquid-labs/liq-handlers-lib": "file:.yalc/@liquid-labs/liq-handlers-lib",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.8",
     "@liquid-labs/md2x": "^1.0.0-alpha.6",
     "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",

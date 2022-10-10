@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler'
+import omit from 'lodash.omit'
 import { pathToRegexp } from 'path-to-regexp'
 
 const falseParams = /n(o)?|f(alse)?|0/i
@@ -6,28 +7,52 @@ const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
 const trueParams = /y(es)?|t(rue)?|1/i
 
+const processBool = (value, vars) => {
+  if (value.match(trueParams)) {
+    return true
+  }
+  else if (value.match(falseParams)) {
+    return false
+  }
+  else {
+    res.status(404).send({ message : `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.` })
+    return false
+  }
+}
+
 // TODO: this doesn't work and I don't know why...
-const processParams = ({ parameters = [] }) => (req, res, next) => {
+const processParams = ({ parameters = [], validParams }) => (req, res, next) => {
   const source = req.method === 'POST'
     ? req.body
     : req.query
   if (source === undefined) return true
+  const vars = Object.assign({}, req.params)
+  req.vars = vars
   
-  for (const p of parameters.filter(p => p.isBoolean)) {
-    const value = source[p.name]
-    if (value !== undefined) {
-      if (value.match(trueParams)) {
-        source[p.name] = true
-      }
-      else if (value.match(falseParams)) {
-        source[p.name] = false
-      }
-      else {
-        res.status(404).send({ message : `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.` })
-        return false
-      }
-    }
+  const remainder = Object.keys(omit(source, validParams))
+  if (remainder.length > 0) {
+    throw new Error(`Unknown query parameters: ${remainder.join(', ')}.`)
   }
+  
+  for (const p of parameters) {
+    let value = source[p.name]
+    if (value === undefined) continue;
+    
+    if (p.isMultivalue === true) {
+      const currList = vars[p.name] || []
+      currList.push(...value.split(/\s*,\s*/))
+      if (p.isBoolean === true) {
+        currList.forEach((v, i) => arr[i] = processBool(v, ))
+      }
+      value = currList
+    }
+    else if (p.isBoolean === true) {
+      value = processBool(value)
+    }
+    
+    vars[p.name] = value
+  }
+  
   next()
 }
 
@@ -51,7 +76,12 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     
-    app[method]( routablePath, processParams({ parameters }), asyncHandler(handlerFunc))
+    app[method](routablePath,
+                processParams({
+                  parameters,
+                  validParams: parameters && parameters.map(p => p.name) || []
+                }),
+                asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
