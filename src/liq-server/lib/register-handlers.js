@@ -21,7 +21,7 @@ const processBool = (value, vars) => {
 }
 
 // TODO: this doesn't work and I don't know why...
-const processParams = ({ parameters = [], validParams }) => (req, res, next) => {
+const processParams = ({ parameters = [], validParams = []}) => (req, res, next) => {
   const source = req.method === 'POST'
     ? req.body
     : req.query
@@ -31,7 +31,7 @@ const processParams = ({ parameters = [], validParams }) => (req, res, next) => 
   
   const remainder = Object.keys(omit(source, validParams))
   if (remainder.length > 0) {
-    throw new Error(`Unknown query parameters: ${remainder.join(', ')}.`)
+    throw new Error(`Unknown query parameters: ${remainder.join(', ')} while accessing ${req.path}.`)
   }
   
   for (const p of parameters) {
@@ -75,12 +75,10 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const routablePath =
       typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
+    const validParams = parameters && parameters.map(p => p.name)
     
     app[method](routablePath,
-                processParams({
-                  parameters,
-                  validParams: parameters && parameters.map(p => p.name) || []
-                }),
+                processParams({ parameters, validParams }),
                 asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
