@@ -56,6 +56,20 @@ const processParams = ({ parameters = [], validParams = []}) => (req, res, next)
   next()
 }
 
+const processCommandPath = (pathArr) => {
+  let reString = ''
+  for (const pathBit of pathArr) {
+    if (pathBit.endsWith('?')) {
+      reString += `(/${pathBit.slice(0, -1)})?`
+    }
+    else {
+      reString += '/' + pathBit
+    }
+  }
+  
+  return new RegExp(reString)
+}
+
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
@@ -70,10 +84,14 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const methodUpper = method.toUpperCase()
     reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
     
-    // express barfs if there are named capture groups; but we expect named capture groups so we can identify
-    // parameters so we have to remove the bit that names them for express.
-    const routablePath =
-      typeof path === 'string' ? path : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
+    const routablePath = Array.isArray(path)
+      ? processCommandPath(path)
+      : typeof path === 'string'
+        ? path
+        // express barfs if there are named capture groups; but we expect named capture groups so we can identify
+        // parameters so we have to remove the bit that names them for express. The 'slice' removes the leading and
+        // trailing '/'
+        : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     const validParams = parameters && parameters.map(p => p.name)
     
