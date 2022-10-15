@@ -1,7 +1,7 @@
 import { defaultPluginPath, loadPlugins } from '../../lib'
 
 const method = 'put'
-const path = '/server/reload'
+const path = [ 'server', 'reload' ]
 const parameters = [
   {
     name: 'pluginPath',

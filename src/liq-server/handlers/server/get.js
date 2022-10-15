@@ -6,7 +6,7 @@ import * as sysPath from 'node:path'
 import { safeJSONParse } from '../../lib/load-playground'
 
 const method = 'get'
-const path = '/server'
+const path = [ 'server' ]
 
 const func = ({ app, cache, reporter }) => (req, res) => {
   let versionInfo = cache.get(func) // we assume versions are stable while running
@@ -17,7 +17,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     // const dirpath = import.meta.url.replace('file://', '').split(path.sep)
     const dirpath = __dirname
     const pkgLocations = [
-      sysPath.join(dirpath, '..', '..', 'package.json'), // production
+      sysPath.join(dirpath, '..', 'package.json'), // production
       sysPath.join(dirpath, '..', '..', '..', 'package.json') // testing
     ]
     const pkgPath = pkgLocations.find((testPath) => {
