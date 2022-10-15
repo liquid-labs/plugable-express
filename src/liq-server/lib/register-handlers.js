@@ -88,7 +88,6 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       throw new Error(`A handler from '${sourcePkg}' for endpoint '${path.toString()}' is not a string. Only string paths are allowed.`)
     } */
     const methodUpper = method.toUpperCase()
-    reporter.log(`registering handler for path: ${methodUpper}:${path.toString()}`)
     
     const routablePath = Array.isArray(path)
       ? processCommandPath(app, path)
@@ -98,6 +97,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         // parameters so we have to remove the bit that names them for express. The 'slice' removes the leading and
         // trailing '/'
         : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
+    reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     const validParams = parameters && parameters.map(p => p.name)
     

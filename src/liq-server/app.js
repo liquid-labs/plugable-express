@@ -32,12 +32,10 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.addCommandPath = (commandPath) => {
     let frontier = app.commandPaths
     for (const pathBit of commandPath) {
-      if (pathBit in frontier) {
-        frontier = frontier[pathBit]
-      }
-      else {
+      if (!(pathBit in frontier)) {
         frontier[pathBit] = {}
       }
+      frontier = frontier[pathBit]
     }
   }
   
