@@ -14,7 +14,7 @@ liq-server-stop() {
   if (( ${STATUS} == ${LIQ_SERVER_STATUS_RECOVERABLE} )) || \
     (( ${STATUS} == ${LIQ_SERVER_STATUS_RUNNING} )); then
     local RESULT
-    RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/)"
+    RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/server)"
     sleep 1
     set +e
     liq-server-status > /dev/null

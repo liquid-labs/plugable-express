@@ -27,6 +27,18 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
 
   app.handlers = []
   app.helpData = {}
+  app.commandPaths = {}
+  app.addCommandPath = (commandPath) => {
+    let frontier = app.commandPaths
+    for (const pathBit of commandPath) {
+      if (pathBit in frontier) {
+        frontier = frontier[pathBit]
+      }
+      else {
+        frontier[pathBit] = {}
+      }
+    }
+  }
   
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg:'@liquid-labs/liq-core', handlers }))

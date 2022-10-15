@@ -44,6 +44,6 @@ liq-server-start() {
     echo "Server faild to start after ${MAX_ATTEMPTS} attempts. Check status manually or kill and restart." >&2
   fi
   echo "Registering server api..."
-  curl -X OPTIONS http://127.0.0.1:32600/* | jq > "${HOME}/.liq/core-api.json"
+  curl http://127.0.0.1:32600/server/api | jq > "${HOME}/.liq/core-api.json"
   return ${LIQ_SERVER_STATUS_RUNNING}
 }

@@ -3,10 +3,10 @@ import http from 'http'
 import * as os from 'os'
 import * as sysPath from 'path'
 
-import { safeJSONParse } from '../lib/load-playground'
+import { safeJSONParse } from '../../lib/load-playground'
 
 const method = 'get'
-const path = '/'
+const path = '/server'
 
 const func = ({ app, cache, reporter }) => (req, res) => {
   let versionInfo = cache.get(func) // we assume versions are stable while running
