@@ -56,7 +56,7 @@ const processParams = ({ parameters = [], validParams = []}) => (req, res, next)
   next()
 }
 
-const processCommandPath = (app, pathArr) => {
+const processCommandPath = (app, pathArr, parameters) => {
   const commandPath = []
   let reString = ''
   for (const pathBit of pathArr) {
@@ -71,7 +71,7 @@ const processCommandPath = (app, pathArr) => {
     }
   }
   reString += '[/#?]?$'
-  app.addCommandPath(commandPath)
+  app.addCommandPath(commandPath, parameters)
   
   return new RegExp(reString)
 }
@@ -90,7 +90,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const methodUpper = method.toUpperCase()
     
     const routablePath = Array.isArray(path)
-      ? processCommandPath(app, path)
+      ? processCommandPath(app, path, parameters)
       : typeof path === 'string'
         ? path
         // express barfs if there are named capture groups; but we expect named capture groups so we can identify

@@ -29,7 +29,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.handlers = []
   app.helpData = {}
   app.commandPaths = {}
-  app.addCommandPath = (commandPath) => {
+  app.addCommandPath = (commandPath, parameters) => {
     let frontier = app.commandPaths
     for (const pathBit of commandPath) {
       if (!(pathBit in frontier)) {
@@ -37,6 +37,11 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
       }
       frontier = frontier[pathBit]
     }
+    
+    if (frontier['_parameters'] !== undefined) {
+      throw new Error(`Non-unique command path: ${commandPath.join('/')}`)
+    }
+    frontier['_parameters'] = parameters
   }
   
   reporter.log('Loading core handlers...')
