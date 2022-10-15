@@ -23,8 +23,9 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.use(express.urlencoded({ extended: true })) // handle POST body params
   app.use(fileUpload({ parseNested: true }))
   
-  options.cache = new WeakCache()
-
+  const cache = new WeakCache()
+  options.cache = cache
+  
   app.handlers = []
   app.helpData = {}
   app.commandPaths = {}
@@ -75,7 +76,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
     loadPlugins(app, options)
   }
   
-  return app
+  return { app, cache }
 }
 
 export { appInit }

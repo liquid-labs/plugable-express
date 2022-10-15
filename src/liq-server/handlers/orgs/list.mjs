@@ -3,7 +3,7 @@ import omit from 'lodash.omit'
 import { commonOutputConfig, commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
-// const path = new RegExp('/orgs(?:/list)?')
+// const path = new RegExp('/orgs(?:/list)?[/#?]?$')
 const path = [ 'orgs', 'list?' ]
 const parameters = [ ...commonOutputParams() ]
 const validParams = parameters.map(p => p.name)

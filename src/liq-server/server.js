@@ -1,6 +1,6 @@
 const serverData = {}
 
-const start = ( { app, options }) => {
+const start = ( { app, cache, options } ) => {
   const { PORT, reporter } = options
   const server = app.listen(PORT, (err) => {
     if (err) {
@@ -15,6 +15,7 @@ const start = ( { app, options }) => {
   // support clean shutdown via sigterm
   process.on('SIGTERM', () => {
     server.close(() => {
+      cache.release()
       reporter.log('Server shut down.')
     })
   })

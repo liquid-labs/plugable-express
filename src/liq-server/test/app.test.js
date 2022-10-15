@@ -1,4 +1,4 @@
-/* global beforeAll describe expect jest test */
+/* global afterAll beforeAll describe expect jest test */
 import * as path from 'path'
 import request from 'supertest'
 
@@ -8,7 +8,7 @@ import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
 import projectA01Package from './data/playground-simple/orgA/projectA01/package.json'
 
-const COMMAND_COUNT = 14
+const COMMAND_COUNT = 16
 
 const mockLogOptions = () => {
   const logs = []
@@ -25,11 +25,14 @@ const registrationRegExp = /^registering handler for path: [A-Z]+:/
 describe('app', () => {
   describe('default setup provides useful info', () => {
     const testOptions = mockLogOptions()
+    let cache
 
     beforeAll(() => {
-      model.initialize(testOptions)
-      appInit(Object.assign(testOptions, { model }))
+      model.initialize(testOptions);
+      ({ cache } = appInit(Object.assign(testOptions, { model })));
     })
+    
+    afterAll(() => { cache.release() })
 
     test('describes registered paths', () => {
       expect(testOptions.logs.filter((msg) =>
@@ -44,15 +47,17 @@ describe('app', () => {
   })
 
   describe('custom plugins', () => {
-    let app
+    let app, cache
     const testOptions = mockLogOptions()
 
     beforeAll(() => {
       model.initialize(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
-      testOptions.skipCorePlugins = false
-      app = appInit(testOptions)
+      testOptions.skipCorePlugins = false;
+      ({ app, cache } = appInit(testOptions));
     })
+    
+    afterAll(() => cache.release())
 
     test('are registered', () => {
       expect(testOptions.logs.filter((msg) =>
@@ -69,12 +74,14 @@ describe('app', () => {
 
   // TODO: this should move (which will break it up, but OK) to the individual handler dirs to keep tests near the target.
   describe('response testing', () => {
-    let app
+    let app, cache
     beforeAll(() => {
       const testOptions = mockLogOptions()
-      model.initialize(testOptions)
-      app = appInit(Object.assign(testOptions, { model }))
+      model.initialize(testOptions);
+      ({ app, cache } = appInit(Object.assign(testOptions, { model })));
     })
+    
+    afterAll(() => { cache.release() })
 
     test.each`
     path | result

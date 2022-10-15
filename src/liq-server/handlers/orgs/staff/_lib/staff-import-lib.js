@@ -1,3 +1,6 @@
+// because we handle requests asyncronously (?) this gets run in a worker thread and 'structuredClone' is not natively /
+// available in worker threads as of node 18.9
+import structuredClone from 'core-js-pure/actual/structured-clone'
 import * as field from './staff-import-fields'
 
 // validation data and functions
@@ -281,17 +284,14 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, finalizati
 }
 
 const finalizeAllRecords = ({ finalizedRecords, finalizationCookie }) => {
-  console.error(`finalizedRecords in finalizeAllRecords: ${JSON.stringify(finalizedRecords, null, '  ')}`) // DEBUG
   // for (const { email, roles } of finalizedRecords) {
   for (const finalizedRecord of structuredClone(finalizedRecords)) {
-    console.error(`in iteration: ${finalizedRecord.email} has roles ${JSON.stringify(finalizedRecord.roles)}`) // DEBUG
     const singularRole = finalizationCookie[finalizedRecord.email]
     if (singularRole) {
       for (const { email: testEmail, roles: testRoles } of finalizedRecords) {
         if (finalizedRecord.email === testEmail) continue
         const i = testRoles.findIndex((r) => r.name === singularRole)
         if (i !== -1) {
-          console.error(`splicing at ${i}`) // DEBUG
           testRoles.splice(i, 1)
         }
       }

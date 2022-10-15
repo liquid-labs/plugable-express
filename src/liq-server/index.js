@@ -9,11 +9,11 @@ const config = initializeConfiguration([defaults/*, options */ ])
 
 model.initialize(config)
 
-const app = appInit(Object.assign({ model }, config))
+const { app, cache } = appInit(Object.assign({ model }, config))
 
 const serverOptions = {
   PORT : config[LIQ_PORT],
   reporter : config.reporter || console
 }
 
-server.start({ app, options: serverOptions })
+server.start({ app, cache, options: serverOptions })

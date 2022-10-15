@@ -70,6 +70,7 @@ const processCommandPath = (app, pathArr) => {
       reString += '/' + pathBit
     }
   }
+  reString += '[/#?]?$'
   app.addCommandPath(commandPath)
   
   return new RegExp(reString)

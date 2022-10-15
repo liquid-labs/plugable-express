@@ -22,10 +22,11 @@ testOptions.logs = logs
 
 describe('PUT:/orgs/:orgKey/staff', () => {
   let app
+  let cache
   let count = 1
   beforeEach(() => {
-    model.initialize(testOptions)
-    app = appInit(defaultTestOptions(Object.assign({ model }, testOptions)))
+    model.initialize(testOptions);
+    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))));
     // confirm initial setup
     expect(model.orgs.orgA.staff.list()).toHaveLength(3)
   })
@@ -34,6 +35,8 @@ describe('PUT:/orgs/:orgKey/staff', () => {
     count += 1
     fs.copyFileSync(origStaffJSON, staffJSONDest)
     logs.splice(0, logs.length)
+    
+    cache.release()
   })
   
   test("deletes", async () => {
@@ -61,9 +64,9 @@ describe('PUT:/orgs/:orgKey/staff', () => {
       expect(newDev).toEqual(origDev)
     }
     catch (err) {
-      console.error(logs.join("\n"))
-      console.error(body)
-      console.error(text)
+      // console.error(logs.join("\n"))
+      // console.error(body)
+      // console.error(text)
       throw err
     }
   })
