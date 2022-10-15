@@ -21,7 +21,13 @@ liq-server-start() {
   PACKAGE_ROOT="$(dirname ${MY_DIR})"
   
   cd "${PACKAGE_ROOT}" && NODE_PATH="${PACKAGE_ROOT}/node_modules" node "${NODE_SCRIPT}" &
-  local SERVER_PID=$!
+  # Not sure why '$!' doesn't work, but for whatever reason, it refers to this script, not the just started process.
+  # E.g.:
+  # 16012 bash /opt/homebrew/bin/liq-server start
+  # not
+  # 16013 node /opt/homebrew/lib/node_modules/@liquid-labs/liq-core/dist/liq-server.js
+  # local SERVER_PID=$!
+  local SERVER_PID=$(eval pgrep ${LIQ_SERVER_PGREP_MATCH})
   echo "${SERVER_PID}" > "${LIQ_SERVER_PID_FILE}"
   
   pgrep -q -F "${LIQ_SERVER_PID_FILE}" || {

@@ -14,7 +14,7 @@ liq-server-stop() {
   if (( ${STATUS} == ${LIQ_SERVER_STATUS_RECOVERABLE} )) || \
     (( ${STATUS} == ${LIQ_SERVER_STATUS_RUNNING} )); then
     local RESULT
-    RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/server)"
+    RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/server/stop)"
     sleep 1
     set +e
     liq-server-status > /dev/null
@@ -30,25 +30,25 @@ liq-server-stop() {
         return 0
       fi
     else
-      echoerr "Server did not respond favorable to shutdown request. (${RESULT})"
-      return liq-server-lib-try-kill
+      echoerr "Server did not respond favorably to shutdown request. (${RESULT})"
+      liq-server-lib-try-kill
     fi
   elif (( ${STATUS} == ${LIQ_SERVER_STATUS_UNRECOVERABLE} )); then
     echowarn "Server is in an unrecoverable state."
-    return liq-server-lib-try-kill
+    liq-server-lib-try-kill
   fi
 }
 
 liq-server-lib-try-kill() {
   local PID_FILE PID_GREP
   PID_FILE=$(cat "${LIQ_SERVER_PID_FILE}")
-  PID_GREP=$(pgrep ${LIQ_SERVER_PGREP_MATCH})
+  PID_GREP=$(eval pgrep ${LIQ_SERVER_PGREP_MATCH} || true)
   
   if [[ -z "${PID_GREP}" ]]; then
     echoerrandexit "Cannot find processing to kill using 'pgrep ${LIQ_SERVER_PGREP_MATCH}'"
     return ${LIQ_SERVER_STATUS_UNRECOVERABLE}
   elif [[ -n ${PID_FILE} ]] && (( ${PID_FILE} != ${PID_GREP} )); then
-    echoerr "Pidfile and pgrep PIDs do not match. Bailing out."
+    echoerr "Pidfile (${PID_FILE}) and pgrep (${PID_GREP}) PIDs do not match. Bailing out."
     return ${LIQ_SERVER_STATUS_UNRECOVERABLE}
   else # we will try and kill the found process, but may want to give a warning
     if [[ -z "${PID_FILE}" ]]; then
