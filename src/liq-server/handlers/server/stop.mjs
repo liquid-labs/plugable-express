@@ -1,5 +1,5 @@
 const method = 'unbind'
-const path = new RegExp('/(?:quit)?')
+const path = new RegExp('/server(?:/stop)?[/#?]?$')
 
 const func = ({ cache }) => (req, res) => {
   res.send('Shutting down...')
