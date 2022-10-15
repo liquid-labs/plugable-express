@@ -1,9 +1,9 @@
 /* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
-import { appInit } from '../../app'
-import { model } from '../../model'
-import { CURR_VER, defaultTestOptions } from '../../test/lib/test-utils'
+import { appInit } from '../../../app'
+import { model } from '../../../model'
+import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
 
 describe('GET:/server', () => {
   let app
