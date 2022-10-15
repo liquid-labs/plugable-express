@@ -1,7 +1,7 @@
-import * as fs from 'fs'
-import http from 'http'
-import * as os from 'os'
-import * as sysPath from 'path'
+import * as fs from 'node:fs'
+import http from 'node:http'
+import * as os from 'node:os'
+import * as sysPath from 'node:path'
 
 import { safeJSONParse } from '../../lib/load-playground'
 
@@ -17,8 +17,8 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     // const dirpath = import.meta.url.replace('file://', '').split(path.sep)
     const dirpath = __dirname
     const pkgLocations = [
-      sysPath.join(dirpath, '..', 'package.json'), // production
-      sysPath.join(dirpath, '..', '..', 'package.json') // testing
+      sysPath.join(dirpath, '..', '..', 'package.json'), // production
+      sysPath.join(dirpath, '..', '..', '..', 'package.json') // testing
     ]
     const pkgPath = pkgLocations.find((testPath) => {
       return fs.existsSync(testPath)
