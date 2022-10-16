@@ -42,6 +42,7 @@
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.54",
     "@liquid-labs/orgs-model": "file:.yalc/@liquid-labs/orgs-model",
+    "@liquid-labs/regex-repo": "^1.0.0-alpha.5",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "chalk": "^4.1.2",
     "core-js-pure": "^3.25.5",

@@ -8,6 +8,7 @@ import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
 import { loadPlugins, registerHandlers } from './lib'
+import * as pathElements from './lib/path-elements'
 
 const PLUGIN_LABEL = 'plugin:liq-core'
 
@@ -26,6 +27,10 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
   
+  app.pathElements = {
+    orgKey: pathElements.orgKey,
+    staffKey: pathElements.staffKey
+  }
   app.handlers = []
   app.helpData = {}
   app.commandPaths = {}

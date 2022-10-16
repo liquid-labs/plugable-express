@@ -56,14 +56,24 @@ const processParams = ({ parameters = [], validParams = []}) => (req, res, next)
   next()
 }
 
-const processCommandPath = (app, pathArr, parameters) => {
+const processCommandPath = ({ app, model, pathArr, parameters }) => {
   const commandPath = []
   let reString = ''
   for (const pathBit of pathArr) {
-    if (pathBit.endsWith('?')) {
+    // TODO: you cannot currently combine a typed path variable with '?'
+    if (pathBit.startsWith(':')) {
+      const pathVar = pathBit.slice(1)
+      const varUtils = app.pathElements[pathVar]
+      if (varUtils === undefined) {
+        throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
+      }
+      const { bitReString } = varUtils({ model })
+      reString += `/(?<${pathVar}>${bitReString})`
+    }
+    else if (pathBit.endsWith('?')) {
       const cleanBit = pathBit.slice(0, -1)
       commandPath.push(cleanBit)
-      reString += `(/${cleanBit})?`
+      reString += `(?:/${cleanBit})?`
     }
     else {
       commandPath.push(pathBit)
@@ -75,6 +85,11 @@ const processCommandPath = (app, pathArr, parameters) => {
   
   return new RegExp(reString)
 }
+
+// express barfs if there are named capture groups in the path RE. However, we really want to use named capture groups
+// so we define our paths with them (for future use) and remove them here. The 'slice' removes the leading and trailing
+// '/'
+const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
@@ -89,14 +104,11 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     } */
     const methodUpper = method.toUpperCase()
     
-    const routablePath = Array.isArray(path)
-      ? processCommandPath(app, path, parameters)
-      : typeof path === 'string'
-        ? path
-        // express barfs if there are named capture groups; but we expect named capture groups so we can identify
-        // parameters so we have to remove the bit that names them for express. The 'slice' removes the leading and
-        // trailing '/'
-        : new RegExp(path.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
+    const routablePath = typeof path === 'string'
+      ? path
+      : Array.isArray(path)
+        ? cleanReForExpress(processCommandPath({ app, model, pathArr: path, parameters }))
+        : cleanReForExpress(path)
     reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     const validParams = parameters && parameters.map(p => p.name)

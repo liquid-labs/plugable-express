@@ -1,9 +1,9 @@
-import omit from 'lodash.omit'
-
 import { commonOutputConfig, commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
-const path = '/orgs/:orgKey/staff(/list)?'
+const path = [ 'orgs', ':orgKey', 'staff', 'list?' ]
+// const path = '/orgs/:orgKey/staff(/list)?'
+
 const parameters = [
   {
     name: 'all',
@@ -25,12 +25,7 @@ const mdFormatter = (staff, title) =>
   `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`).join("\n")}\n`
 
 const func = ({ model, reporter }) => (req, res) => {
-  const remainder = Object.keys(omit(req.query, validParams))
-  if (remainder.length > 0) {
-    throw new Error(`Unknown query parameters listing staff: ${remainder.join(', ')}.`)
-  }
-  
-  const org = getOrgFromKey({ model, params: req.params, res })
+  const org = getOrgFromKey({ model, orgKey: req.vars['0'], res })
   if (org === false) {
     return
   }
