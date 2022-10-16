@@ -21,12 +21,24 @@ const processBool = (value, vars) => {
 }
 
 // TODO: this doesn't work and I don't know why...
-const processParams = ({ parameters = [], validParams = []}) => (req, res, next) => {
+const processParams = ({ parameters = [], path, validParams = []}) => (req, res, next) => {
   const source = req.method === 'POST'
     ? req.body
     : req.query
   if (source === undefined) return true
-  const vars = Object.assign({}, req.params)
+  // TODO: why not process param values as well?
+  const vars = Object.assign({}, req.params) // 'source' vars will be added as they are processed
+  if (Array.isArray(path)) {
+    const mapArr = []
+    for (const pathBit of path) {
+      if (pathBit.startsWith(':')) {
+        const name = pathBit.slice(1)
+        mapArr.push(name)
+      }
+    }
+    
+    mapArr.forEach((n, i, arr) => vars[n] = vars[i])
+  }
   req.vars = vars
   
   const remainder = Object.keys(omit(source, validParams))
@@ -114,7 +126,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const validParams = parameters && parameters.map(p => p.name)
     
     app[method](routablePath,
-                processParams({ parameters, validParams }),
+                processParams({ parameters, path, validParams }),
                 asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)

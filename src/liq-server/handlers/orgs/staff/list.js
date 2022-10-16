@@ -25,7 +25,7 @@ const mdFormatter = (staff, title) =>
   `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`).join("\n")}\n`
 
 const func = ({ model, reporter }) => (req, res) => {
-  const org = getOrgFromKey({ model, orgKey: req.vars['0'], res })
+  const org = getOrgFromKey({ model, params: req.vars, res })
   if (org === false) {
     return
   }
