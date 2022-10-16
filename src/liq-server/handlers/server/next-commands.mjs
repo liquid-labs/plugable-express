@@ -27,8 +27,23 @@ const func = ({ app, model }) => (req, res) => {
       frontier = frontier[command]
     }
     else {
-      res.status(400).json({ message: `Unknown terminal command of: '${cmdsWalked.join("', '")}'.`})
-      return
+      const constructedFrontier = {}
+      
+      for (const fKey of Object.keys(frontier)) {
+        if (fKey.startsWith(':')) {
+          const elementConfig = app.pathElements[fKey.slice(1)] // this should already be validated
+          const { bitReString } = elementConfig({ model })
+          if (command.match(new RegExp(bitReString))) {
+            Object.assign(constructedFrontier, frontier[fKey])
+          }
+        }
+      }
+      
+      if (Object.keys(constructedFrontier).length === 0) {
+        res.status(400).json({ message: `Unknown/unmatched terminal path component of: '${cmdsWalked.join("', '")}'.`})
+        return
+      }
+      frontier = constructedFrontier
     }
   }
   
