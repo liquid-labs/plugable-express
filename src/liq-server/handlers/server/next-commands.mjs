@@ -9,7 +9,7 @@ const parameters = [
   }
 ]
 
-const func = ({ app }) => (req, res) => {
+const func = ({ app, model }) => (req, res) => {
   const { command = '/'} = req.vars
   
   const [ commandPath, optionString ] = command.split(/\s*--\s*/)
@@ -32,9 +32,22 @@ const func = ({ app }) => (req, res) => {
     }
   }
   
-  const nextCommands = Object.keys(frontier).sort()
+  const nextCommands = Object.keys(frontier)
+    .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
+    .reduce((acc, k) => {
+      if (k.startsWith(':')) {
+        const elementConfig = app.pathElements[k.slice(1)] // this should already be validated
+        const { optionsFetcher } = elementConfig({ model })
+        acc.push(...optionsFetcher())
+      }
+      else {
+        acc.push(k)
+      }
+      
+      return acc
+    }, [])
+  
   if (nextCommands[0] === '_parameters') {
-    
     if (optionString === undefined) {
       nextCommands.splice(0, 1, '--')
     }

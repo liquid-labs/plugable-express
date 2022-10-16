@@ -80,6 +80,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
         throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
       }
       const { bitReString } = varUtils({ model })
+      commandPath.push(pathBit) // with leading ':'
       reString += `/(?<${pathVar}>${bitReString})`
     }
     else if (pathBit.endsWith('?')) {
