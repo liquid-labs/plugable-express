@@ -9,8 +9,8 @@ BASH_ROLLUP:=$(NPM_BIN)/bash-rollup
 
 LIQ_SERVER_SRC:=src/liq-server
 LIQ_SERVER_FILES:=$(shell find $(LIQ_SERVER_SRC) \( -name "*.js" -o -name "*.mjs" \) -not -path "*/test/*" -not -name "*.test.js")
-LIQ_SERVER_TEST_SRC_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js")
-LIQ_SERVER_TEST_BUILT_FILES=$(patsubst $(LIQ_SERVER_SRC)/%, test-staging/%, $(LIQ_SERVER_TEST_SRC_FILES))
+LIQ_SERVER_TEST_SRC_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js" -o -name "*.mjs")
+LIQ_SERVER_TEST_BUILT_FILES=$(patsubst %.mjs, %.js, $(patsubst $(LIQ_SERVER_SRC)/%, test-staging/%, $(LIQ_SERVER_TEST_SRC_FILES)))
 LIQ_SERVER_TEST_SRC_DATA:=$(shell find $(LIQ_SERVER_SRC) -path "*/data/*" -type f -o -name "*.csv")
 LIQ_SERVER_TEST_BUILT_DATA:=$(patsubst $(LIQ_SERVER_SRC)%, test-staging/%, $(LIQ_SERVER_TEST_SRC_DATA))
 LIQ_SERVER_BIN:=dist/liq-server.js
