@@ -1,5 +1,7 @@
 import omit from 'lodash.omit'
 
+import { optionsTokenizer } from './lib/options-tokenizer'
+
 const method = 'get'
 const path = [ 'server', 'next-commands' ]
 const parameters = [
@@ -67,8 +69,8 @@ const func = ({ app, model }) => (req, res) => {
       nextCommands.splice(0, 1, '--')
     }
     else if (optionString || optionString === '') {
-      const currOptions = optionString.match(/[a-zA-Z0-9]+(?:=(?:'[^']*'|"[^"]*"|\S+|\s+))?/g) || []
-      const currOptNames = currOptions.map((o) => o.split('=')[0])
+      const currOptions = optionsTokenizer(optionString)
+      const currOptNames = currOptions.map((o) => o[0])
       const options = (frontier['_parameters'] || []).map((o) => o.name)
       const remainder = options.filter((o) => !currOptNames.includes(o.split('=')[0]))
       remainder.sort()
