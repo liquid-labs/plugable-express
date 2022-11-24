@@ -79,7 +79,7 @@ const func = ({ app, model }) => (req, res) => {
     }
   }
 
-  res.json(nextCommands)
+  res.json(nextCommands.sort())
 }
 
 export { func, method, parameters, path }
