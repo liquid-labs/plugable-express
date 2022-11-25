@@ -18,8 +18,19 @@ const func = ({ app, model }) => (req, res) => {
   
   let frontier = app.commandPaths
   const cmdsWalked = []
-  const cmdsLeft = commandPath.split('/')
-  cmdsLeft.shift() // drop '' from leading '/'
+  let cmdsLeft
+  if (commandPath.indexOf('/') === -1) { // then it's the CLI form
+    cmdsLeft = commandPath.split(/\s+/)
+    if (cmdsLeft.length !== 0 && cmdsLeft[0].startsWith('liq')) {
+      cmdsLeft.shift() // drop any leading 'liq' that we might see in this form
+    }
+  }
+  else { // command is in URL form
+    cmdsLeft = commandPath.split('/')
+    cmdsLeft.shift() // drop '' from leading '/'
+  }
+  console.log(cmdsLeft)
+    
   while (cmdsLeft.length > 0) {
     const command = cmdsLeft.shift()
     if (command === '') break;
