@@ -29,7 +29,6 @@ const func = ({ app, model }) => (req, res) => {
     cmdsLeft = commandPath.split('/')
     cmdsLeft.shift() // drop '' from leading '/'
   }
-  console.log(cmdsLeft)
     
   while (cmdsLeft.length > 0) {
     const command = cmdsLeft.shift()
