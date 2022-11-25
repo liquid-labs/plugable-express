@@ -18,7 +18,6 @@ const parameters = [
   },
   ...commonOutputParams()
 ]
-const validParams = parameters.map(p => p.name)
 
 const mdFormatter = (staff, title) =>
   `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`).join("\n")}\n`
