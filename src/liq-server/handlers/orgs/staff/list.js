@@ -2,7 +2,6 @@ import { commonOutputConfig, commonOutputParams, formatOutput, getOrgFromKey } f
 
 const method = 'get'
 const path = [ 'orgs', ':orgKey', 'staff', 'list?' ]
-// const path = '/orgs/:orgKey/staff(/list)?'
 
 const parameters = [
   {
