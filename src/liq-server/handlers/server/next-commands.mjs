@@ -18,6 +18,7 @@ const func = ({ app, model }) => (req, res) => {
   
   let frontier = app.commandPaths
   const cmdsWalked = []
+  const prevElements = {}
   let cmdsLeft
   if (commandPath.indexOf('/') === -1) { // then it's the CLI form
     cmdsLeft = commandPath.split(/\s+/)
@@ -43,8 +44,10 @@ const func = ({ app, model }) => (req, res) => {
       
       for (const fKey of Object.keys(frontier)) {
         if (fKey.startsWith(':')) {
-          const elementConfig = app.pathElements[fKey.slice(1)] // this should already be validated
-          const { bitReString } = elementConfig({ model })
+          const typeKey = fKey.slice(1)
+          const elementConfig = app.pathElements[typeKey] // this should already be validated
+          prevElements[typeKey] = command
+          const { bitReString } = elementConfig({ model, prevElements })
           if (command.match(new RegExp(bitReString))) {
             Object.assign(constructedFrontier, frontier[fKey])
           }
@@ -64,7 +67,7 @@ const func = ({ app, model }) => (req, res) => {
     .reduce((acc, k) => {
       if (k.startsWith(':')) {
         const elementConfig = app.pathElements[k.slice(1)] // this should already be validated
-        const { optionsFetcher } = elementConfig({ model })
+        const { optionsFetcher } = elementConfig({ model, prevElements })
         acc.push(...optionsFetcher())
       }
       else {
