@@ -27,7 +27,10 @@ const processParams = ({ parameters = [], path, validParams = []}) => (req, res,
     : req.query
   if (source === undefined) return true
   // TODO: why not process param values as well?
-  const vars = Object.assign({}, req.params) // 'source' vars will be added as they are processed
+  const vars = {}
+  for (const k in Object.keys(req.params)) { // 'source' vars will be added as they are processed
+    vars[k] = decodeURIComponent(req.params[k])
+  }
   if (Array.isArray(path)) {
     const mapArr = []
     for (const pathBit of path) {
@@ -62,7 +65,7 @@ const processParams = ({ parameters = [], path, validParams = []}) => (req, res,
       value = processBool(value)
     }
     
-    vars[p.name] = value
+    vars[p.name] = decodeURIComponent(value)
   }
   
   next()
