@@ -27,10 +27,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
   
-  app.pathElements = {
-    orgKey: pathElements.orgKey,
-    staffKey: pathElements.staffKey
-  }
+  app.pathElements = pathElements
   app.handlers = []
   app.helpData = {}
   app.commandPaths = {}
