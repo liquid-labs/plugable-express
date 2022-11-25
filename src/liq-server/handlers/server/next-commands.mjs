@@ -89,7 +89,16 @@ const func = ({ app, model }) => (req, res) => {
     }
   }
 
-  res.json(nextCommands.sort())
+  nextCommands.sort()
+
+  const format = req.accepts(['json', 'text'])
+  
+  switch (format) {
+    case 'text':
+      res.send(nextCommands.join('\n')); break
+    default: // json
+      res.json(nextCommands)
+  }
 }
 
 export { func, method, parameters, path }
