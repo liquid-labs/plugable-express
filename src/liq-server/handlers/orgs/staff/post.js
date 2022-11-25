@@ -13,7 +13,7 @@ import {
 } from './_lib/staff-import-lib'
 
 const method = 'post'
-const path = '/orgs/:orgKey/staff(/refresh)?'
+const path = [ 'orgs', ':orgKey', 'staff', 'refresh?' ]
 const parameters = [
   {
     name: 'files',
