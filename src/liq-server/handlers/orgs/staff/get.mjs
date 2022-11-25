@@ -4,7 +4,7 @@ import { commonOutputParams, getOrgFromKey } from '@liquid-labs/liq-handlers-lib
 
 const method = 'get'
 // '%40' == '@''
-const path = '/orgs/:orgKey/staff/:staffId(.+%40[^/]+)'
+const path = [ 'orgs', ':orgKey', 'staff', ':staffKey' ]
 const parameters = [
   {
     name: 'ownRolesOnly',
@@ -25,9 +25,9 @@ const func = ({ model, reporter }) => (req, res) => {
     return
   }
   
-  const { staffId, fields, ownRolesOnly=false } = req.vars
+  const { staffKey, fields, ownRolesOnly=false } = req.vars
   
-  const staffMember = org.staff.get(staffId, { ownRolesOnly, rawData: true })
+  const staffMember = org.staff.get(staffKey, { ownRolesOnly, rawData: true })
   if (fields !== undefined && Array.isArray(fields) && fields.length > 0) {
     res.json(pick(staffMember, fields))
   }
