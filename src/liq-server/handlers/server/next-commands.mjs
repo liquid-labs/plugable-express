@@ -55,7 +55,7 @@ const func = ({ app, model }) => (req, res) => {
       }
       
       if (Object.keys(constructedFrontier).length === 0) {
-        res.status(400).json({ message: `Unknown/unmatched terminal path component of: '${cmdsWalked.join("', '")}'.`})
+        res.status(400).json({ message: `Unknown/unmatched final path component of: '${cmdsWalked.join("', '")}'.`})
         return
       }
       frontier = constructedFrontier
