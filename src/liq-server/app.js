@@ -8,7 +8,7 @@ import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
 import { loadPlugins, registerHandlers } from './lib'
-import * as pathElements from './lib/path-elements'
+import { commonPathResolvers } from './lib/path-resolvers'
 
 const PLUGIN_LABEL = 'plugin:liq-core'
 
@@ -27,9 +27,9 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
   
-  app.pathElements = pathElements
   app.handlers = []
   app.helpData = {}
+  
   app.commandPaths = {}
   app.addCommandPath = (commandPath, parameters) => {
     let frontier = app.commandPaths
@@ -44,6 +44,14 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
       throw new Error(`Non-unique command path: ${commandPath.join('/')}`)
     }
     frontier['_parameters'] = parameters
+  }
+  
+  app.commonPathResolvers = commonPathResolvers
+  app.addCommonPathResolver = (key, resolver) => {
+    if (key in commonPathResolvers) {
+      throw new Error(`'${key}' is already registered as a path resolver.`)
+    }
+    commonPathResolvers[key] = resolver
   }
   
   reporter.log('Loading core handlers...')

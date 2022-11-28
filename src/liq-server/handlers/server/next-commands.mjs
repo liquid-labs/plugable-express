@@ -11,6 +11,9 @@ const parameters = [
   }
 ]
 
+const CLI_STYLE = ' '
+const URL_STYLE = '/'
+
 const func = ({ app, model }) => (req, res) => {
   const { command = '/'} = req.vars
   
@@ -19,56 +22,60 @@ const func = ({ app, model }) => (req, res) => {
   let frontier = app.commandPaths
   const cmdsWalked = []
   const prevElements = {}
+  let cmdSep
   let cmdsLeft
   if (commandPath.indexOf('/') === -1) { // then it's the CLI form
+    cmdSep = CLI_STYLE
     cmdsLeft = commandPath.split(/\s+/)
     if (cmdsLeft.length !== 0 && cmdsLeft[0].startsWith('liq')) {
       cmdsLeft.shift() // drop any leading 'liq' that we might see in this form
     }
   }
   else { // command is in URL form
+    cmdSep = URL_STYLE
     cmdsLeft = commandPath.split('/')
     cmdsLeft.shift() // drop '' from leading '/'
   }
     
   while (cmdsLeft.length > 0) {
     const command = cmdsLeft.shift()
-    if (command === '') break;
+    if (command === '') break; // TODO: ???
     
     cmdsWalked.push(command)
     if (command in frontier) {
       frontier = frontier[command]
     }
-    else {
-      const constructedFrontier = {}
-      
+    else { // the frontier says ':orgKey' and we have 'orgA' or whatever
+      let foundVariablePathElement = null
       for (const fKey of Object.keys(frontier)) {
         if (fKey.startsWith(':')) {
+          if (foundVariablePathElement !== null) {
+            throw new Error(`Illegal multiple variable path branch possibilities: ${cmdsWalked.join(cmdSep)}${cmdSep}(${foundVariablePathElement}|${fKey})`)
+          }
+          foundVariablePathElement = fKey
           const typeKey = fKey.slice(1)
-          const elementConfig = app.pathElements[typeKey] // this should already be validated
-          prevElements[typeKey] = command
-          const { bitReString } = elementConfig({ model, prevElements })
+          prevElements[typeKey] = command // save the value of the variable
+          const elementConfig = app.commonPathResolvers[typeKey]
+          const { bitReString } = elementConfig
           if (command.match(new RegExp(bitReString))) {
-            Object.assign(constructedFrontier, frontier[fKey])
+            frontier = frontier[fKey]
           }
         }
       }
       
-      if (Object.keys(constructedFrontier).length === 0) {
+      if (foundVariablePathElement === null) {
         res.status(400).json({ message: `Unknown/unmatched final path component of: '${cmdsWalked.join("', '")}'.`})
         return
       }
-      frontier = constructedFrontier
     }
   }
   
   const nextCommands = Object.keys(frontier)
-    .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
     .reduce((acc, k) => {
       if (k.startsWith(':')) {
-        const elementConfig = app.pathElements[k.slice(1)] // this should already be validated
-        const { optionsFetcher } = elementConfig({ model, prevElements })
-        acc.push(...optionsFetcher())
+        const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
+        const { optionsFetcher } = elementConfig
+        acc.push(...optionsFetcher({ model, ...prevElements }))
       }
       else if (k !== '') { // this happens because the root command is '', but it doesn't make sense to reflect it back
         acc.push(k)
@@ -76,6 +83,8 @@ const func = ({ app, model }) => (req, res) => {
       
       return acc
     }, [])
+    // TODO: v is that necessary? Doesn't '_parameters' occur on it's own?
+    .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
   
   if (nextCommands[0] === '_parameters') {
     if (optionString === undefined) {
@@ -90,9 +99,8 @@ const func = ({ app, model }) => (req, res) => {
       
       nextCommands.splice(0, nextCommands.length, ...remainder)
     }
+    nextCommands.sort()
   }
-
-  nextCommands.sort()
 
   const format = req.accepts(['json', 'text'])
   

@@ -75,14 +75,18 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   const commandPath = []
   let reString = ''
   for (const pathBit of pathArr) {
-    // TODO: you cannot currently combine a typed path variable with '?'
-    if (pathBit.startsWith(':')) {
+    /*if (typeof pathBit !== 'string') {
+      const { varName, bitReString } = pathBit
+      commandPath.push(':' + varName)
+      reString += `/?<${pathVar}>${bitReString}`
+    } // then it's a string
+    else */ if (pathBit.startsWith(':')) {
       const pathVar = pathBit.slice(1)
-      const varUtils = app.pathElements[pathVar]
-      if (varUtils === undefined) {
+      const pathUtils = app.commonPathResolvers[pathVar]
+      if (pathUtils === undefined) {
         throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
       }
-      const { bitReString } = varUtils({ model })
+      const { bitReString } = pathUtils
       commandPath.push(pathBit) // with leading ':'
       reString += `/(?<${pathVar}>${bitReString})`
     }
