@@ -35,7 +35,7 @@ describe('GET:/server/next-commands', () => {
   
   for (const testArray of [ testArrayUrl, testArrayCli ]) {
     test.each(testArray)('%s -> %p', async (command, nextCommands) => {
-      const { status, body, headers } = await request(app)
+      const { body } = await request(app)
         .get('/server/next-commands') // it reads weird, but this MUST go first
         .query({ command })
         .set('Accept', 'application/json')
