@@ -70,7 +70,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
       throw err
     }
   })
-/*
+
   test("adds", async () => {
     const filePath = path.join(__dirname, 'staff-delete.csv');
     const { body, headers, status, text } = await request(app)
@@ -91,6 +91,5 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/text\/plain/)
     expect(text).toMatch(new RegExp(`liq-server: ${CURR_VER}`))
-  })
-*/
+  })*/
 })
