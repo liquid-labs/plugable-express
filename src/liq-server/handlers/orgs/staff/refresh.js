@@ -12,7 +12,7 @@ import {
   validateAndNormalizeRecords
 } from './_lib/staff-import-lib'
 
-const method = 'post'
+const method = 'post' // semantically, should be 'put', but 'post' necessary (?) to support file upload
 const path = [ 'orgs', ':orgKey', 'staff', 'refresh?' ]
 const parameters = [
   {
