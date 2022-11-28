@@ -20,7 +20,7 @@ testOptions.reporter.log = jest.fn((msg) => { logs.push(msg) })
 testOptions.reporter.error = testOptions.reporter.log
 testOptions.logs = logs
 
-describe('PUT:/orgs/:orgKey/staff', () => {
+describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   let app
   let cache
   let count = 1
