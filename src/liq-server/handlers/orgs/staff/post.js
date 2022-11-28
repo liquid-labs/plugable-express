@@ -31,7 +31,7 @@ const parameters = [
 
 const func = ({ model }) => (req, res) => {
   // if the org path is invalid, then there's no point in doing other work
-  const { orgKey } = req.params
+  const { orgKey } = req.vars
   const org = model.orgs[orgKey]
   if (!org) {
     res.status(400).json({ message: `Could not locate org '${orgKey}'.` })
