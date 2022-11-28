@@ -70,7 +70,7 @@ const func = ({ app, model }) => (req, res) => {
         const { optionsFetcher } = elementConfig({ model, prevElements })
         acc.push(...optionsFetcher())
       }
-      else {
+      else if (k !== '') { // this happens because the root command is '', but it doesn't make sense to reflect it back
         acc.push(k)
       }
       
