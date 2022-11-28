@@ -6,7 +6,6 @@ import { appInit } from '../app'
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
-import projectA01Package from './data/playground-simple/orgA/projectA01/package.json'
 
 const COMMAND_COUNT = 17
 
@@ -69,28 +68,6 @@ describe('app', () => {
       const { status, body } = await request(app).get('/foo')
       expect(status).toBe(200)
       expect(body).toEqual(fooOutput)
-    })
-  })
-
-  // TODO: this should move (which will break it up, but OK) to the individual handler dirs to keep tests near the target.
-  describe('response testing', () => {
-    let app, cache
-    beforeAll(() => {
-      const testOptions = mockLogOptions()
-      model.initialize(testOptions);
-      ({ app, cache } = appInit(Object.assign(testOptions, { model })));
-    })
-    
-    afterAll(() => { cache.release() })
-
-    test.each`
-    path | result
-    ${'/playground/projects/orgA/projectA01/packageJSON'} | ${projectA01Package}
-    ${'/playground/orgs/orgA/projects/projectA01/packageJSON'} | ${projectA01Package}
-    `("'GET $path' gets the package.json contents", async({ path, result }) => {
-      const { status, body } = await request(app).get(path)
-      expect(status).toBe(200)
-      expect(body).toEqual(result)
     })
   })
 })

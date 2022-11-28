@@ -8,6 +8,15 @@ const orgKey = ({ model }) => {
   return { bitReString, optionsFetcher }
 }
 
+const projectName = ({ model, prevElements }) => {
+  const { orgKey } = prevElements || {} // when called in the initial setup, 'prevElements' is not provided
+  // TODO: this is a guess; no wifi to check allowable github project names atm
+  const bitReString = '[a-zA-Z0-9][a-zA-Z0-9-_]*'
+  const optionsFetcher = () => Object.keys(model.playground.orgs[orgKey].projects)
+    
+  return { bitReString, optionsFetcher }
+}
+
 const staffKey = ({ model, prevElements }) => {
   const { orgKey } = prevElements || {} // when called in the initial setup, 'prevElements' is not provided
   const org = model?.orgs[orgKey]
@@ -21,5 +30,6 @@ const staffKey = ({ model, prevElements }) => {
 
 export {
   orgKey,
+  projectName,
   staffKey
 }
