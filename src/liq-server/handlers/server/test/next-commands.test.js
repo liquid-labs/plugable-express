@@ -3,7 +3,7 @@ import request from 'supertest'
 
 import { appInit } from '../../../app'
 import { model } from '../../../model'
-import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
+import { defaultTestOptions } from '../../../test/lib/test-utils'
 
 describe('GET:/server/next-commands', () => {
   let app
