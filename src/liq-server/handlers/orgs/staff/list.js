@@ -44,7 +44,7 @@ const func = ({ model, reporter }) => (req, res) => {
     reporter,
     req,
     res,
-    ...commonOutputConfig(org.staff.constructor.itemConfig, req.query)
+    ...commonOutputConfig(org.staff.constructor.itemConfig, req.vars)
   })
 }
 
