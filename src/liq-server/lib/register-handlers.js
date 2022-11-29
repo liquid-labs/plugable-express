@@ -75,12 +75,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   const commandPath = []
   let reString = ''
   for (const pathBit of pathArr) {
-    /*if (typeof pathBit !== 'string') {
-      const { varName, bitReString } = pathBit
-      commandPath.push(':' + varName)
-      reString += `/?<${pathVar}>${bitReString}`
-    } // then it's a string
-    else */ if (pathBit.startsWith(':')) {
+    if (pathBit.startsWith(':')) {
       const pathVar = pathBit.slice(1)
       const pathUtils = app.commonPathResolvers[pathVar]
       if (pathUtils === undefined) {
