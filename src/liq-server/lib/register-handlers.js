@@ -152,7 +152,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const pathParams = typeof path === 'string'
       ? path.match(pathParamRegExp)
       : path.toString().match(regexParamRegExp)
-    if (!Object.isFrozen(parameters)) { // use as a proxy instead of testing each param seperately
+    if (!Object.isFrozen(parameters)) { // use parameters as a proxy instead of testing each param seperately
       for (const pathParam of pathParams || []) {
         const paramName = pathParam.startsWith(':')
           ? pathParam.substring(1)
@@ -173,7 +173,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         if (paramDef.inPath === undefined && paramDef.inQuery === undefined) {
           paramDef.inQuery = true
         }
-        Object.freeze(paramDef)
+        Object.freeze(paramDef) // the paramDef is fully specified and shouldn't be changed here on out
       }
     }
 
@@ -212,6 +212,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       app.helpData[nickName] = [ help, endpointDef.parameters ]
     }
     
+    // lockdown our internal setup
     Object.freeze(endpointDef)
     Object.freeze(parameters)
   }
