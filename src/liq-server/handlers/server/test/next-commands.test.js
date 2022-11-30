@@ -24,8 +24,9 @@ describe('GET:/server/next-commands', () => {
     [ '/orgs/list --', [ 'fields=', 'format=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
     [ '/orgs/list -- fields', [ 'fields=' ]],
     [ '/orgs/list -- fields=', [ 'commonName', 'key', 'legalName' ]],
-    // output does not
+    [ '/orgs/list -- out', [ 'output', 'output=' ]],
     [ '/orgs/list -- output', [ 'output', 'output=' ]],
+    // output does not have a resolver
     [ '/orgs/list -- output=', [ ]],
     [ '/orgs/list -- output=/users/foo/bar', [ 'fields=', 'format=', 'noHeaders', 'writeFileLocally' ]],
     [ '/orgs/list -- noHeaders output=/users/foo/bar', [ 'fields=', 'format=', 'writeFileLocally' ]],
