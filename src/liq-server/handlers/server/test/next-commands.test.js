@@ -20,17 +20,29 @@ describe('GET:/server/next-commands', () => {
     [ '/', [ 'orgs', 'playground', 'server' ]],
     [ '/orgs', [ 'list', 'orgA' ]],
     [ '/orgs/list', [ '--' ]],
-    [ '/orgs/list --', [ 'fields', 'format', 'noHeaders', 'output' ]],
-    [ '/orgs/list -- fields', [ 'format', 'noHeaders', 'output' ]],
+    // fields has a resolver
+    [ '/orgs/list --', [ 'fields=', 'format=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list -- fields', [ 'fields=' ]],
+    [ '/orgs/list -- fields=', [ 'commonName', 'key', 'legalName' ]],
+    // output does not
+    [ '/orgs/list -- output', [ 'output', 'output=' ]],
+    [ '/orgs/list -- output=', [ ]],
+    [ '/orgs/list -- output=/users/foo/bar', [ 'fields=', 'format=', 'noHeaders', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders output=/users/foo/bar', [ 'fields=', 'format=', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders', [ 'fields=', 'format=', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders ', [ 'fields=', 'format=', 'output', 'output=', 'writeFileLocally' ]],
     [ '/orgs/orgA', [ 'staff' ]]
   ]
   const testArrayCli = testArrayUrl.map((r) => {
-    let cliCmd = r[0]
-    if (!cliCmd.match(/^\s*$/)) {
-      cliCmd = cliCmd.slice(1).replaceAll('/', ' ')
+    const hasSep = r[0].match(/ --/)
+    let [ cmdPath, options ] = r[0].split('--')
+    if (!cmdPath.match(/^\s*$/)) {
+      cmdPath = cmdPath.slice(1).replaceAll('/', ' ')
     }
-    
-    return [ cliCmd, r[1]]
+    let cliPath = cmdPath
+    if (hasSep) cliPath += '--'
+    if (options) cliPath += options
+    return [ cliPath, r[1]]
   })
   
   for (const testArray of [ testArrayUrl, testArrayCli ]) {

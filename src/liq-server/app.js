@@ -43,7 +43,10 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
     if (frontier['_parameters'] !== undefined) {
       throw new Error(`Non-unique command path: ${commandPath.join('/')}`)
     }
-    frontier['_parameters'] = parameters
+    
+    // 'parameters' are deep frozen, so safe to share. We use a function here to future proof in case we need to
+    // unfreeze and then maybe make copies here to prevent clients from changing the shared parameters data.
+    frontier._parameters = () => parameters
   }
   
   app.commonPathResolvers = commonPathResolvers

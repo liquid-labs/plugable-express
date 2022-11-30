@@ -20,17 +20,21 @@ const processBool = (value, vars) => {
   }
 }
 
-// TODO: this doesn't work and I don't know why...
-const processParams = ({ parameters = [], path, validParams = []}) => (req, res, next) => {
+/**
+* Combine and verify parameters. Verified parameters collected on `req.vars`
+*/
+const processParams = ({ parameters = [], path }) => (req, res, next) => {
   const source = req.method === 'POST'
     ? req.body
     : req.query
   if (source === undefined) return true
-  // TODO: why not process param values as well?
+  
+  const validParams = parameters && parameters.map(p => p.name)
   const vars = {}
   for (const k in Object.keys(req.params)) { // 'source' vars will be added as they are processed
     vars[k] = decodeURIComponent(req.params[k])
   }
+  // pull variables out of the path
   if (Array.isArray(path)) {
     const mapArr = []
     for (const pathBit of path) {
@@ -44,18 +48,20 @@ const processParams = ({ parameters = [], path, validParams = []}) => (req, res,
   }
   req.vars = vars
   
+  // checks for unknown parameters and complain
   const remainder = Object.keys(omit(source, validParams))
   if (remainder.length > 0) {
     throw new Error(`Unknown query parameters: ${remainder.join(', ')} while accessing ${req.path}.`)
   }
   
+  // now process flagged variables
   for (const p of parameters) {
     let value = source[p.name]
     if (value === undefined) continue;
     
     if (p.isMultivalue === true) {
       const currList = vars[p.name] || []
-      currList.push(...value.split(/\s*,\s*/))
+      currList.push(...value.split(/\s*(^|[^\\]),\s*/))
       if (p.isBoolean === true) {
         currList.forEach((v, i) => arr[i] = processBool(v, ))
       }
@@ -125,11 +131,11 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         ? cleanReForExpress(processCommandPath({ app, model, pathArr: path, parameters }))
         : cleanReForExpress(path)
     reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
+
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
-    const validParams = parameters && parameters.map(p => p.name)
     
     app[method](routablePath,
-                processParams({ parameters, path, validParams }),
+                processParams({ parameters, path }),
                 asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
@@ -142,41 +148,48 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     }
     let i = 0
     // TODO: see regex path note at top
+    // Build out any missing path parameters.
     const pathParams = typeof path === 'string'
       ? path.match(pathParamRegExp)
       : path.toString().match(regexParamRegExp)
-    for (const pathParam of pathParams || []) {
-      const paramName = pathParam.startsWith(':')
-        ? pathParam.substring(1)
-        : pathParam.slice(2, -1)
-      let paramDef = endpointDef.parameters.find((p) => p.name === paramName)
-      if (paramDef === undefined) {
-        paramDef = { name : paramName }
-        endpointDef.parameters.push(paramDef) // TODO: I assume pushing and sorting more is quicker than unshift and sorting less
+    if (!Object.isFrozen(parameters)) { // use as a proxy instead of testing each param seperately
+      for (const pathParam of pathParams || []) {
+        const paramName = pathParam.startsWith(':')
+          ? pathParam.substring(1)
+          : pathParam.slice(2, -1)
+        let paramDef = endpointDef.parameters.find((p) => p.name === paramName)
+        if (paramDef === undefined) {
+          paramDef = { name : paramName }
+          endpointDef.parameters.push(paramDef) // TODO: I assume pushing and sorting more is quicker than unshift and sorting less
+        }
+        paramDef.required = true
+        paramDef.inPath = true
+        paramDef.position = i
+        paramDef.isSingleValue = true
+        i += 1
       }
-      paramDef.required = true
-      paramDef.inPath = true
-      paramDef.position = i
-      paramDef.isSingleValue = true
-      i += 1
+
+      for (const paramDef of endpointDef.parameters) {
+        if (paramDef.inPath === undefined && paramDef.inQuery === undefined) {
+          paramDef.inQuery = true
+        }
+        Object.freeze(paramDef)
+      }
     }
 
-    for (const paramDef of endpointDef.parameters) {
-      if (paramDef.inPath === undefined && paramDef.inQuery === undefined) {
-        paramDef.inQuery = true
-      }
+    // sort path parameters first
+    if (!Object.isFrozen(endpointDef.parameters)) { // This can happen while testing or reloading
+      endpointDef.parameters.sort((a, b) => {
+        if (a.inPath === true && b.inQuery === true) {
+          return -1
+        }
+        else if (b.inPath === true && a.inQuery === true) {
+          return 1
+        }
+        else if (a.inPath) /* sort by position */ return a.position > b.position ? 1 : -1 // position is never equal
+        else /* query param; sort by name */ return a.name.localeCompare(b.name)
+      })
     }
-
-    endpointDef.parameters.sort((a, b) => {
-      if (a.inPath === true && b.inQuery === true) {
-        return -1
-      }
-      else if (b.inPath === true && a.inQuery === true) {
-        return 1
-      }
-      else if (a.inPath) /* sort by position */ return a.position > b.position ? 1 : -1 // position is never equal
-      else /* query param; sort by name */ return a.name.localeCompare(b.name)
-    })
 
     // a little cleanup and annotation
     endpointDef.method = methodUpper
@@ -198,6 +211,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     if (nickName !== undefined) {
       app.helpData[nickName] = [ help, endpointDef.parameters ]
     }
+    
+    Object.freeze(endpointDef)
+    Object.freeze(parameters)
   }
 }
 
