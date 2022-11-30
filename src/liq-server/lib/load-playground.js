@@ -15,8 +15,11 @@ const filterLiqCotents = ({ files, basePath, reporter = console }) =>
     return true
   })
 
+/**
+* Given a root playground path, loads the playground model.
+*/
 const loadPlayground = ({
-  LIQ_PLAYGROUND_PATH = `${process.env.HOME}/.liq/playground`,
+  LIQ_PLAYGROUND_PATH = process.env.LIQ_PLAYGROUND_PATH || `${process.env.HOME}/.liq/playground`,
   reporter = console
 }) => {
   reporter.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)

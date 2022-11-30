@@ -9,9 +9,14 @@ const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
 const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
 /**
-*
+* Given an app, model, cache, reporter, and plugin path, loads plugins from the path.
 */
-const loadPlugins = async (app, { model, cache, reporter, pluginPath = defaultPluginPath }) => {
+const loadPlugins = async (app, {
+  model,
+  cache,
+  reporter,
+  pluginPath = process.env.LIQ_PLUGIN_PATH || defaultPluginPath
+}) => {
   const pluginPkg = path.join(pluginPath, 'package.json')
   const pluginDir = path.join(pluginPath, 'node_modules')
   reporter.log(`Searching for plugins (in ${path.dirname(pluginDir)})...`)
