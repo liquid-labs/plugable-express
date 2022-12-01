@@ -16,7 +16,7 @@ const parameters = [
     isMultivalue: true,
     description: "An array or comma separated list of role names. The resultis must have at least one of the indicated roles."
   },
-  ...commonOutputParams()
+  ...commonOutputParams
 ]
 
 const mdFormatter = (staff, title) =>
