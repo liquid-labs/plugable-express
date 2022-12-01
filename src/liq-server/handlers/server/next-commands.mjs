@@ -15,7 +15,10 @@ const CLI_STYLE = ' '
 const URL_STYLE = '/'
 
 const func = ({ app, model }) => (req, res) => {
-  const { command = '/'} = req.vars
+  try {
+  const format = req.accepts(['json', 'text'])
+  const { command = '/'} = req.query
+  console.log(`command: '${command}'`)
   
   const [ commandPath, optionString ] = command.split(/\s*--\s*/)
   
@@ -38,13 +41,16 @@ const func = ({ app, model }) => (req, res) => {
   }
   
   let optionsSpec
+  let unmatchedFinalCommand = null
+  let finalOptions
   while (cmdsLeft.length > 0) {
-    const command = cmdsLeft.shift()
-    if (command === '') break; // TODO: ???
+    finalOptions = []
+    const commandBit = cmdsLeft.shift().replace(/\s+$/, '')
+    if (commandBit === '') break; // TODO: ???
     
-    cmdsWalked.push(command)
-    if (command in frontier) {
-      frontier = frontier[command]
+    cmdsWalked.push(commandBit)
+    if (commandBit in frontier) {
+      frontier = frontier[commandBit]
     }
     else { // the frontier says ':orgKey' and we have 'orgA' or whatever
       // TODO: document: you may only have one variable option element at any particular node in the tree
@@ -56,53 +62,76 @@ const func = ({ app, model }) => (req, res) => {
           }
           foundVariablePathElement = fKey
           const typeKey = fKey.slice(1)
-          prevElements[typeKey] = command // save the value of the variable
+          prevElements[typeKey] = commandBit // save the value of the variable
           const elementConfig = app.commonPathResolvers[typeKey]
-          const { bitReString } = elementConfig
-          if (command.match(new RegExp(bitReString))) {
+          const { bitReString, optionsFetcher } = elementConfig
+          finalOptions = optionsFetcher({ model, ...prevElements })
+          if (command.match(new RegExp(bitReString)) && finalOptions.includes(commandBit)) {
             frontier = frontier[fKey]
+          }
+          else {
+            foundVariablePathElement = null
           }
         }
       }
       
-      // if it's not in the frontier as a command nme, then it should be a variable match. Otherwise, it's unknown.
       if (foundVariablePathElement === null) {
-        res.status(400).json({ message: `Unknown/unmatched final path component of: '${cmdsWalked.join("', '")}'.`})
-        return
+        if (cmdsLeft.length === 0) {
+          console.log('unmatched frontier:', frontier)
+          unmatchedFinalCommand = commandBit
+        }
+        else { // we don't have anything for an unmatched middle command
+          switch (format) {
+            case 'text':
+              res.send(); break
+            default: // json
+              res.json([])
+          }
+          console.log('BAILED; cmdsLeft:', cmdsLeft, 'foundVariablePathElement:', foundVariablePathElement) // DEBUG
+          return
+        }
       }
     }
   }
   
-  let inSomeOptions = false
-  let nextCommands = Object.keys(frontier)
-    .reduce((acc, k) => {
-      if (k.startsWith(':')) {
-        const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
-        const { optionsFetcher } = elementConfig
-        acc.push(...optionsFetcher({ model, ...prevElements }))
-      }
-      // the blank happens because the root command is '', but it doesn't make sense to reflect it back
-      // '_' vars are either hidden (if actually options) or internal vars
-      else if (k !== '' && !k.startsWith('_')) {
-        acc.push(k)
-      }
-      else if (k === '_parameters') {
-        inSomeOptions = true
-      }
-      // else it's '' or a '_' var that isn't _parameters
-      
-      return acc
-    }, [])
-    // TODO: v is that necessary? Doesn't '_parameters' occur on it's own?
-    .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
-  
-  try {
-  if (inSomeOptions === true) {
-    nextCommands = nextOptions({ command, nextCommands, optionString, paramsSpec: frontier._parameters() })
+  let nextCommands
+  if (unmatchedFinalCommand && command.endsWith(unmatchedFinalCommand)) {
+    nextCommands = Object.keys(frontier).concat(finalOptions).filter((k) => k.startsWith(unmatchedFinalCommand))
   }
-} catch (e) { console.error(e) }
-
-  const format = req.accepts(['json', 'text'])
+  else {
+    let inSomeOptions = false
+    nextCommands = Object.keys(frontier)
+      .reduce((acc, k) => {
+        if (k.startsWith(':')) {
+          const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
+          const { optionsFetcher } = elementConfig
+          acc.push(...optionsFetcher({ model, ...prevElements }))
+        }
+        // the blank happens because the root command is '', but it doesn't make sense to reflect it back
+        // '_' vars are either hidden (if actually options) or internal vars
+        else if (k !== '' && !k.startsWith('_')) {
+          acc.push(k)
+        }
+        else if (k === '_parameters') {
+          inSomeOptions = true
+        }
+        // else it's '' or a '_' var that isn't _parameters
+        
+        return acc
+      }, [])
+      // TODO: v is that necessary? Doesn't '_parameters' occur on it's own?
+      .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
+    
+    const lastCmd = cmdsWalked.length === 0 ? '' : cmdsWalked[cmdsWalked.length - 1]
+    if (inSomeOptions === true) {
+      nextCommands = nextOptions({ command, lastCmd, nextCommands, optionString, paramsSpec: frontier._parameters() })
+    }
+    else if (!command.endsWith(cmdSep) && cmdsWalked.length > 0) {
+      nextCommands = [ cmdsWalked.pop() ]
+    }
+  }
+  
+  console.log('nextCommands:', nextCommands) // DEBUG
   
   switch (format) {
     case 'text':
@@ -110,6 +139,8 @@ const func = ({ app, model }) => (req, res) => {
     default: // json
       res.json(nextCommands)
   }
+  console.log('DONE!') // DEBUG
+} catch (e) { console.error(e); throw e }
 }
 
 export { func, method, parameters, path }

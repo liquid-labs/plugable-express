@@ -18,21 +18,31 @@ describe('GET:/server/next-commands', () => {
   const testArrayUrl = [
     [ '', [ 'orgs', 'playground', 'server' ]],
     [ '/', [ 'orgs', 'playground', 'server' ]],
-    [ '/orgs', [ 'list', 'orgA' ]],
-    [ '/orgs/list', [ '--' ]],
+    [ '/o', [ 'orgs' ]],
+    [ '/org', [ 'orgs' ]],
+    [ '/orgs/', [ 'list', 'orgA' ]],
+    [ '/orgs/li', [ 'list' ]],
+    [ '/orgs/or', [ 'orgA' ]],
+    [ '/orgs/list', [ 'list' ]],
+    [ '/orgs/list ', [ '--' ]],
     // fields has a resolver
-    [ '/orgs/list --', [ 'fields=', 'format=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list --', [ '--' ]],
+    [ '/orgs/list -- ', [ 'fields=', 'format=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
     [ '/orgs/list -- fields', [ 'fields=' ]],
     [ '/orgs/list -- fields=', [ 'commonName', 'key', 'legalName' ]],
+    [ '/orgs/list -- fields=common', [ 'commonName' ]],
     [ '/orgs/list -- out', [ 'output', 'output=' ]],
     [ '/orgs/list -- output', [ 'output', 'output=' ]],
     // output does not have a resolver
     [ '/orgs/list -- output=', [ ]],
-    [ '/orgs/list -- output=/users/foo/bar', [ 'fields=', 'format=', 'noHeaders', 'writeFileLocally' ]],
-    [ '/orgs/list -- noHeaders output=/users/foo/bar', [ 'fields=', 'format=', 'writeFileLocally' ]],
-    [ '/orgs/list -- noHeaders', [ 'fields=', 'format=', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list -- output=/users/foo/bar', [ ]],
+    [ '/orgs/list -- output=/users/foo/bar ', [ 'fields=', 'format=', 'noHeaders', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders output=/users/foo/bar', [ ]],
+    [ '/orgs/list -- noHeaders output=/users/foo/bar ', [ 'fields=', 'format=', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders', [ 'noHeaders' ]],
     [ '/orgs/list -- noHeaders ', [ 'fields=', 'format=', 'output', 'output=', 'writeFileLocally' ]],
-    [ '/orgs/orgA', [ 'staff' ]]
+    [ '/orgs/orgA', [ 'orgA' ]],
+    [ '/orgs/orgA/', [ 'staff' ]]
   ]
   const testArrayCli = testArrayUrl.map((r) => {
     const hasSep = r[0].match(/ --/)
@@ -47,7 +57,7 @@ describe('GET:/server/next-commands', () => {
   })
   
   for (const testArray of [ testArrayUrl, testArrayCli ]) {
-    test.each(testArray)('%s -> %p', async (command, nextCommands) => {
+    test.each(testArray)("'%s' -> %p", async (command, nextCommands) => {
       const { body } = await request(app)
         .get('/server/next-commands') // it reads weird, but this MUST go first
         .query({ command })
