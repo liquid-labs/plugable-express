@@ -60,7 +60,7 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
 
 const nextOptions = ({ command, lastCmd, nextCommands, optionString, paramsSpec }) => {
   if (optionString === undefined) { // possible start of options; also there may be other commands options
-    if (command.endsWith(' ')) nextCommands.splice(0, 1, '--') // '--' always separated by ' '
+    if (command.endsWith(' ')) nextCommands.splice(0, 0, '--') // '--' always separated by ' '
     else nextCommands = [ lastCmd ]
   }
   else if (optionString === '' && command.endsWith(' --')) {
