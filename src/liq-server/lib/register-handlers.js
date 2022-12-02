@@ -103,11 +103,6 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   }
   reString += '[/#?]?$'
   app.addCommandPath(commandPath, parameters)
-  // set up help paths
-  if (commandPath.length !== 1 && commandPath[0] !== 'help') {
-    app.addCommandPath(['help', ...commandPath])
-    app.addCommandPath([...commandPath, 'help'])
-  }
   
   return new RegExp(reString)
 }
@@ -120,7 +115,7 @@ const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(re
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
-    const { func, help, method, nickName, parameters, path/*, pathParams */ } = handler
+    const { func, method, parameters, path/*, pathParams */ } = handler
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
@@ -210,11 +205,6 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     catch (e) {
       reporter.error(`Exception while attempting to process path '${path}'. Perhaps there are special characters that need escaping; try '([*])' where '*' is your special character. Error message: ${e.message}`)
       throw e
-    }
-
-    app.handlers.push(endpointDef)
-    if (nickName !== undefined) {
-      app.helpData[nickName] = [ help, endpointDef.parameters ]
     }
     
     // lockdown our internal setup
