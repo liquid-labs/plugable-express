@@ -33,8 +33,8 @@ const terminalFormatterGen = ({
   if (parameters) {
     output += `\n\n<h2>Parameters<rst>`
     output += parameters.reduce((output, p) => {
-      output += '\n\n- <em>' + p.name + '<rst>:\n'
-      output += parameterCharacteristics(p, { indent, width }) + '\n'
+      output += '\n\n- <em>' + p.name + '<rst>: ('
+      output += parameterCharacteristics(p, { indent, width }) + ')\n'
       output += p.description, { indent, width, formatTerminal:true } + '\n'
       return output
     }, '')
