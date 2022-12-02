@@ -22,9 +22,10 @@ const terminalFormatterGen = ({
   tH1='<canaryYellow><underscore>',
   tH2 = '<richYellow><underscore>',
   tSubtitle='<dim>',
-  tEm = '<yellow>'
+  tEm = '<yellow>',
+  tDanger = '<bgRed><white><bold>'
 }={}) => ({ name, path, summary, parameters, description, references }, title) => {
-  let output = `<h1>${printPath(path)}<rst>\n\n`
+  let output = `<h1>${name}: ${printPath(path)}<rst>\n\n`
   
   if (summary) {
     output += summary
@@ -57,6 +58,7 @@ const terminalFormatterGen = ({
     .replaceAll(/<h2>/g, tH2)
     .replaceAll(/<subtitle>/g, tSubtitle)
     .replaceAll(/<em>/g, tEm)
+    .replaceAll(/<danger>/g, tDanger)
     .replaceAll(/`([^`]*)`/g, '<bgForestGreen><white>$1<rst>')
   
   output = wrap(output, { width, indent, ignoreTags: true, smartIndent: true })
