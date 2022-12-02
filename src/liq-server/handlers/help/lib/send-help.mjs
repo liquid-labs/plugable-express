@@ -1,28 +1,20 @@
-import { commonOutputConfig, commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
+import { commonOutputConfig, formatOutput } from '@liquid-labs/liq-handlers-lib'
 
 import { mdFormatterGen } from './formatter-md'
 import { terminalFormatterGen } from './formatter-terminal'
 import { textFormatterGen } from './formatter-text'
 
-const helpParameters = [
-  {
-    name: 'summaryOnly',
-    isBoolean: true,
-    required: false,
-    description: 'Displays the endpoint name, path, and summary only. Use this option for prose output and the `fields` parameter to achive a similar effect for data output.'
-  },
-  ...commonOutputParams
-]
-Object.freeze(helpParameters)
-
 const allHelpFields = [ 'description', 'method', 'name', 'parameters', 'path', 'references', 'summary' ]
 const defaultHelpFields = allHelpFields
 
-const sendHelp = ({ help, method, path }) => {
+const sendHelp = ({ help, method, path, parameters }) => {
+  const sortedParameters = [...parameters]
+  sortedParameters.sort((a,b) => a.name.localeCompare(b.name))
+  
   const func = ({ model, reporter }) => (req, res) => {
     formatOutput({
       basicTitle : 'Help',
-      data : { method, parameters: helpParameters, path, ...help },
+      data : { method, parameters: sortedParameters, path, ...help },
       mdFormatter: mdFormatterGen(),
       terminalFormatter: terminalFormatterGen(),
       textFormatter: textFormatterGen(),
@@ -37,11 +29,7 @@ const sendHelp = ({ help, method, path }) => {
     })
   }
   
-  
-  return {
-    func,
-    parameters: helpParameters
-  }
+  return func
 }
 
 export { sendHelp }
