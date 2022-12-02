@@ -19,6 +19,6 @@ describe('wrap', () => {
   })
   
   test('formats `code`', () => {
-    expect(wrap('foo `bar` baz', { formatTerminal: true })).toEqual('foo <reverse>bar<rst> baz')
+    expect(wrap('foo `bar` baz', { formatTerminal: true })).toEqual('foo <bgForestGreen><white>bar<rst> baz')
   })
 })

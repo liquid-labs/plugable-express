@@ -1,7 +1,7 @@
 const indSpace = ({ hangingIndent, indent, lines }) =>
   lines.length > 0 || !hangingIndent ? ' '.repeat(indent) : ''
   
-const format4Terminal = (text) => text.replaceAll(/`([^`]*)`/g, '<dBgGreen><white>$1<rst>')
+const format4Terminal = (text) => text.replaceAll(/`([^`]*)`/g, '<bgForestGreen><white>$1<rst>')
 
 const wrap = (text, { hangingIndent=false, indent=0, width=80, formatTerminal=false }={}) => {
   if (!text) return ''

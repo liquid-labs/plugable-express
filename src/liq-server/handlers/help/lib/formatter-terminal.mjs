@@ -3,7 +3,7 @@ import { wrap } from './wrap'
 
 // TODO: support nesting with incrementing headers and adding indent levels
 const parameterCharacteristics = (p, wrapOps = {}) => {
-  let typeInfo = '<bold>' + (p.required ? 'REQUIRED' : 'OPTIONAL') + '<rst><em>'
+  let typeInfo = '<fgc:118><bold>' + (p.required ? 'REQUIRED' : 'OPTIONAL') + '<rst><fgc:118>'
   typeInfo += ', ' + (p.isMultivalue ? 'multi-value' : 'single value')
   const type = p.isBoolean ? 'boolean'
     : p.isInteger ? 'integer'
@@ -19,8 +19,8 @@ const indent = 2
 const terminalFormatterGen = ({
   width=80,
   nesting=0,
-  tH1='<bYellow>',
-  tH2 = '<yellow><underscore>',
+  tH1='<canaryYellow><underscore>',
+  tH2 = '<richYellow><underscore>',
   tSubtitle='<dim>',
   tEm = '<yellow>'
 }={}) => ({ name, path, summary, parameters, description, references }, title) => {
