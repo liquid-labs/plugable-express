@@ -103,6 +103,11 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   }
   reString += '[/#?]?$'
   app.addCommandPath(commandPath, parameters)
+  // set up help paths
+  if (commandPath.length !== 1 && commandPath[0] !== 'help') {
+    app.addCommandPath(['help', ...commandPath])
+    app.addCommandPath([...commandPath, 'help'])
+  }
   
   return new RegExp(reString)
 }

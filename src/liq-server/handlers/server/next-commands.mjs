@@ -18,7 +18,6 @@ const func = ({ app, model }) => (req, res) => {
   try {
   const format = req.accepts(['json', 'text'])
   const { command = '/'} = req.query
-  console.log(`command: '${command}'`)
   
   const [ commandPath, optionString ] = command.split(/\s*--\s*/)
   
@@ -77,7 +76,6 @@ const func = ({ app, model }) => (req, res) => {
       
       if (foundVariablePathElement === null) {
         if (cmdsLeft.length === 0) {
-          console.log('unmatched frontier:', frontier)
           unmatchedFinalCommand = commandBit
         }
         else { // we don't have anything for an unmatched middle command
@@ -87,7 +85,6 @@ const func = ({ app, model }) => (req, res) => {
             default: // json
               res.json([])
           }
-          console.log('BAILED; cmdsLeft:', cmdsLeft, 'foundVariablePathElement:', foundVariablePathElement) // DEBUG
           return
         }
       }
@@ -131,15 +128,12 @@ const func = ({ app, model }) => (req, res) => {
     }
   }
   
-  console.log('nextCommands:', nextCommands) // DEBUG
-  
   switch (format) {
     case 'text':
       res.send(nextCommands.join('\n')); break
     default: // json
       res.json(nextCommands)
   }
-  console.log('DONE!') // DEBUG
 } catch (e) { console.error(e); throw e }
 }
 

@@ -7,7 +7,7 @@ import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
 
-const COMMAND_COUNT = 17
+const COMMAND_COUNT = 16
 
 const mockLogOptions = () => {
   const logs = []

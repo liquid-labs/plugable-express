@@ -16,8 +16,8 @@ describe('GET:/server/next-commands', () => {
   afterAll(() => { cache.release() })
   
   const testArrayUrl = [
-    [ '', [ 'orgs', 'playground', 'server' ]],
-    [ '/', [ 'orgs', 'playground', 'server' ]],
+    [ '', [ 'help', 'orgs', 'playground', 'server' ]],
+    [ '/', [ 'help', 'orgs', 'playground', 'server' ]],
     [ '/o', [ 'orgs' ]],
     [ '/org', [ 'orgs' ]],
     [ '/orgs/', [ 'list', 'orgA' ]],
@@ -27,7 +27,7 @@ describe('GET:/server/next-commands', () => {
     [ '/orgs/list ', [ '--' ]],
     // fields has a resolver
     [ '/orgs/list --', [ '--' ]],
-    [ '/orgs/list -- ', [ 'fields=', 'format=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list -- ', [ 'fields=', 'format=', 'nesting=', 'noHeaders', 'output', 'output=', 'writeFileLocally' ]],
     [ '/orgs/list -- fields', [ 'fields=' ]],
     [ '/orgs/list -- fields=', [ 'commonName', 'key', 'legalName' ]],
     [ '/orgs/list -- fields=common', [ 'commonName' ]],
@@ -36,11 +36,11 @@ describe('GET:/server/next-commands', () => {
     // output does not have a resolver
     [ '/orgs/list -- output=', [ ]],
     [ '/orgs/list -- output=/users/foo/bar', [ ]],
-    [ '/orgs/list -- output=/users/foo/bar ', [ 'fields=', 'format=', 'noHeaders', 'writeFileLocally' ]],
+    [ '/orgs/list -- output=/users/foo/bar ', [ 'fields=', 'format=', 'nesting=', 'noHeaders', 'writeFileLocally' ]],
     [ '/orgs/list -- noHeaders output=/users/foo/bar', [ ]],
-    [ '/orgs/list -- noHeaders output=/users/foo/bar ', [ 'fields=', 'format=', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders output=/users/foo/bar ', [ 'fields=', 'format=', 'nesting=', 'writeFileLocally' ]],
     [ '/orgs/list -- noHeaders', [ 'noHeaders' ]],
-    [ '/orgs/list -- noHeaders ', [ 'fields=', 'format=', 'output', 'output=', 'writeFileLocally' ]],
+    [ '/orgs/list -- noHeaders ', [ 'fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally' ]],
     [ '/orgs/orgA', [ 'orgA' ]],
     [ '/orgs/orgA/', [ 'staff' ]]
   ]
