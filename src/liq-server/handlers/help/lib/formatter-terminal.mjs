@@ -31,13 +31,14 @@ const terminalFormatterGen = ({
   }
   
   if (parameters) {
-    output += `\n\n<h2>Parameters<rst>\n`
+    output += `\n\n<h2>Parameters<rst>`
     output += parameters.reduce((output, p) => {
-      output += '\n- <em>' + p.name + '<rst>:\n'
+      output += '\n\n- <em>' + p.name + '<rst>:\n'
       output += parameterCharacteristics(p, { indent, width }) + '\n'
       output += p.description, { indent, width, formatTerminal:true } + '\n'
       return output
     }, '')
+    output += '\n'
   }
 
   if (description) {
