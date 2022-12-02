@@ -6,10 +6,13 @@ import { handlers as taskHandlers } from './tasks'
 
 import * as heartbeat from './heartbeat'
 
-const handlers = [...helpHandlers]
-handlers.push(...orgsHandlers)
-handlers.push(...pgHandlers)
-handlers.push(...srvrHandlers)
-handlers.push(...taskHandlers)
+const handlers = [
+  heartbeat,
+  ...helpHandlers,
+  ...orgsHandlers,
+  ...pgHandlers,
+  ...srvrHandlers,
+  ...taskHandlers
+]
 
 export { handlers }
