@@ -1,6 +1,3 @@
-const indSpace = ({ hangingIndent, indent, lines }) =>
-  lines.length > 0 || !hangingIndent ? ' '.repeat(indent) : ''
-
 const tagBreakers = [ '<', ' ', '\n' ]
 const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
   if (ignoreTags === false) return width - indent
@@ -40,34 +37,50 @@ const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
 
 const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartIndent=false, width=80,  }={}) => {
   if (!text) return ''
-  text = text.replace(/\s+$/, '') // we'll trim the front inside the while loop
+  // text = text.replace(/\s+$/, '') // we'll trim the front inside the while loop
   
   const lines = []
   
+  let newPp = true
+  let inList = false
   for (let iLine of text.split('\n')) {
     if (iLine.length === 0) {
       lines.push('')
+      newPp = true
+      inList = false
       continue
+    }
+    if (newPp && iLine.startsWith('-')) {
+      inList = true
     }
     
     while (iLine.length > 0) { // usually we 'break' the flow, but this could happen if we trim the text exactly.
-      const ew = getEffectiveWidth({ text: iLine, width, indent, ignoreTags })
+      const effectiveIndent = hangingIndent && newPp
+        ? indent
+        : smartIndent && inList && !newPp
+          ? indent
+          : 0
+      const spcs = ' '.repeat(effectiveIndent)
+      const ew = getEffectiveWidth({ text: iLine, width, indent: spcs, ignoreTags })
       iLine = iLine.replace(/^\s+/, '')
-      const spcs = indSpace({ hangingIndent, indent, lines })
+      
       if (ew >= iLine.length) {
         lines.push(spcs + iLine)
+        newPp = false
         // lines.push('a23456790' + '123456790'.repeat(7))
         break
       }
       else if (iLine.charAt(ew) === ' ') {
         lines.push(spcs + iLine.slice(0, ew))
         iLine = iLine.slice(ew)
+        newPp = false
         // lines.push('b23456790' + '123456790'.repeat(7))
         continue
       }
       else if (iLine.charAt(ew-1) === '-') {
         lines.push(spcs + iLine.slice(0, ew))
         iLine = iLine.slice(ew)
+        newPp = false
         // lines.push('c23456790' + '123456790'.repeat(7))
         continue
       }
@@ -80,8 +93,10 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
       lines.push(spcs + iLine.slice(0, i))
       // lines.push('d23456790' + '123456790'.repeat(7))
       iLine = iLine.slice(i)
-    }
-  }
+
+      newPp = false
+    } // while input line
+  } // for each input line
   
   return lines.join('\n')
 }
