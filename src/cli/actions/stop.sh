@@ -12,6 +12,7 @@ liq-server-stop() {
   [[ -n "${QUIET}" ]] || echofmt "Stopping..."
   
   if (( ${STATUS} == ${LIQ_SERVER_STATUS_RECOVERABLE} )) || \
+    (( ${STATUS} == ${LIQ_SERVER_STATUS_WORKING} )) || \
     (( ${STATUS} == ${LIQ_SERVER_STATUS_RUNNING} )); then
     local RESULT
     RESULT="$(curl -I -o /dev/null -s -w "%{http_code}" -X UNBIND http:/127.0.0.1:32600/server/stop)"
@@ -36,6 +37,8 @@ liq-server-stop() {
   elif (( ${STATUS} == ${LIQ_SERVER_STATUS_UNRECOVERABLE} )); then
     echowarn "Server is in an unrecoverable state."
     liq-server-lib-try-kill
+  else
+    echoerr "Unknown server status '${STATUS}'; bailing out."
   fi
 }
 
