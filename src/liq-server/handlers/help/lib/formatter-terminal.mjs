@@ -2,7 +2,7 @@ import { printPath } from './print-path'
 import { wrap } from './wrap'
 
 // TODO: support nesting with incrementing headers and adding indent levels
-const parameterCharacteristics = (p, wrapOps = {}) => {
+const parameterCharacteristics = (p) => {
   let typeInfo = '<fgc:118><bold>' + (p.required ? 'REQUIRED' : 'OPTIONAL') + '<rst><fgc:118>'
   typeInfo += ', ' + (p.isMultivalue ? 'multi-value' : 'single value')
   const type = p.isBoolean ? 'boolean'
@@ -12,7 +12,7 @@ const parameterCharacteristics = (p, wrapOps = {}) => {
   typeInfo += ', ' + type + '<rst>'
   const matcher = p.matcher ? '<em>matcher: ' + p.matcher.toString() + '<rst>' : ''
   
-  return wrap(typeInfo, wrapOps) + (p.matcher ? '\n' + wrap(matcher, wrapOps) : '')
+  return typeInfo + (p.matcher ? '\n' + matcher : '')
 }
 
 const indent = 2
@@ -35,14 +35,14 @@ const terminalFormatterGen = ({
     output += parameters.reduce((output, p) => {
       output += '\n- <em>' + p.name + '<rst>:\n'
       output += parameterCharacteristics(p, { indent, width }) + '\n'
-      output += wrap(p.description, { indent, width, formatTerminal:true }) + '\n'
+      output += p.description, { indent, width, formatTerminal:true } + '\n'
       return output
     }, '')
   }
 
   if (description) {
     output += `\n<h2>Description<rst>\n\n`
-    output += wrap(description, { width, formatTerminal:true }) + '\n'
+    output += description, { width, formatTerminal:true } + '\n'
   }
   
   if (references) {
@@ -52,11 +52,15 @@ const terminalFormatterGen = ({
     })
   }
   
-  return output
-    .replaceAll(/<h1>/g, tH1)
+  output = output.replaceAll(/<h1>/g, tH1)
     .replaceAll(/<h2>/g, tH2)
     .replaceAll(/<subtitle>/g, tSubtitle)
     .replaceAll(/<em>/g, tEm)
+    .replaceAll(/`([^`]*)`/g, '<bgForestGreen><white>$1<rst>')
+  
+  output = wrap(output, { width, indent, ignoreTags: true, smartIndent: true })
+  
+  return output
 }
 
 export { terminalFormatterGen }
