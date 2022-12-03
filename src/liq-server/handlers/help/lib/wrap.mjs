@@ -1,27 +1,31 @@
 const tagBreakers = [ '<', ' ', '\n' ]
+/**
+* Determines the effective considering any indent and invisible tags.
+*/
 const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
   if (ignoreTags === false) return width - indent
   else {
+    width = width - indent // adjust width
     let charCount = 0
     let tagChars = 0
     let sawLtAt=-1
-    for (let cursor = 0; cursor < text.length; cursor += 1) {
-      if (cursor + 1 + indent - tagChars === width) {
-        return width - indent + tagChars
-      }
-      
+    let cursor = 0
+    //         v have we run out of text?         v once we've counted width chars, we're done
+    for (; cursor < text.length && charCount < width; cursor += 1) {
       const char = text.charAt(cursor)
-      if (sawLtAt > -1) {
+      if (sawLtAt > -1) { // maybe in a tag
         if (char === '>') {
           tagChars += cursor - sawLtAt + 1
+          sawLtAt = -1
         }
-        else if (tagBreakers.includes(char)) {
-          charCount += 1
-          cursor = sawLtAt + 1
+        else if (tagBreakers.includes(char)) { // false alarm, not really a tag
+          // charCount += cursor - sawLtAt + 1
+          charCount += 1 // count the '<'
+          cursor = sawLtAt + 1 // reset the cursor
           sawLtAt = -1
         }
       }
-      else { // haven's seen '<', just consuming chars
+      else { // not in a tag
         if (char === '<') {
           sawLtAt = cursor
         }
@@ -30,8 +34,14 @@ const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
         }
       }
     }
+    if (sawLtAt > -1) { // then we've run off the end without finding a closing tag
+      charCount += cursor - sawLtAt + 1
+      if ((charCount - tagChars) > width) { // then we had a '<' and then chars to the end of the line
+        return width + tagChars
+      }
+    }
     
-    return width - indent + tagChars
+    return charCount + tagChars
   }
 }
 
@@ -55,13 +65,16 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
     }
     
     while (iLine.length > 0) { // usually we 'break' the flow, but this could happen if we trim the text exactly.
-      const effectiveIndent = hangingIndent && newPp
+      // determine how many spaces to add before the current line
+      const effectiveIndent = !hangingIndent && !smartIndent
         ? indent
-        : smartIndent && inList && !newPp
+        : hangingIndent && !newPp
           ? indent
-          : 0
+          : smartIndent && inList && !newPp
+            ? indent
+            : 0
       const spcs = ' '.repeat(effectiveIndent)
-      const ew = getEffectiveWidth({ text: iLine, width, indent: spcs, ignoreTags })
+      const ew = getEffectiveWidth({ text: iLine, width, indent: effectiveIndent, ignoreTags })
       iLine = iLine.replace(/^\s+/, '')
       
       if (ew >= iLine.length) {
@@ -88,7 +101,12 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
       const iSpace = iLine.lastIndexOf(' ', ew)
       const iDash = iLine.lastIndexOf('-', ew) + 1
       let i = iSpace > iDash ? iSpace : iDash
-      i = i === -1 ? width - 1 : i
+      if (i === -1) { // then there is no ' ' or '-' to break on and we force a hard break.
+        i = ew - 1
+      }
+      if (i > iLine.length) {
+        i = iLine.length
+      }
       
       lines.push(spcs + iLine.slice(0, i))
       // lines.push('d23456790' + '123456790'.repeat(7))

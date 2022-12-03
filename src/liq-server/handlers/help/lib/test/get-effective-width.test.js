@@ -11,7 +11,10 @@ describe('getEffectiveWidth', () => {
     [ '12<4<67>90', true, 5, 0, 9 ],
     [ '12< <67>90', true, 5, 0, 9 ],
     [ '123 <foo>56 89', true, 5, 0, 10 ],
-    [ '12<4><7>89', true, 5, 0, 11 ],
+    [ '12<4><7>90', true, 5, 0, 10 ],
+    [ '1<foo>23 56 89', true, 5, 0, 10],
+    [ '<foo>67 90', true, 5, 0, 10],
+    [ '<23456789', true, 5, 1, 4]
   ])("Using '%s', ignore tags: %p, width: %i, indent: %i yields EW '%i'", (text, ignoreTags, width, indent, ew) => {
     expect(getEffectiveWidth({ text, width, indent, ignoreTags })).toEqual(ew)
   })
