@@ -25,7 +25,7 @@ const terminalFormatterGen = ({
   tEm = '<yellow>',
   tDanger = '<bgRed><white><bold>'
 }={}) => ({ name, path, summary, parameters, description, references }, title) => {
-  let output = `<h1>${name}: ${printPath(path)}<rst>\n\n`
+  let output = `<h1>${name}\n${printPath(path)}<rst>\n\n`
   
   if (summary) {
     output += summary
