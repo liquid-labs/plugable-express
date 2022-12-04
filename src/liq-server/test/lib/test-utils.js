@@ -3,6 +3,8 @@ import * as path from 'path'
 
 import { initReporter } from '../../lib/reporter'
 
+const COMMAND_COUNT = 18
+
 const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simple')
 
 const defaultTestOptions = ({
@@ -21,4 +23,4 @@ const bits = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.jso
 const packageJSON = JSON.parse(bits)
 const CURR_VER=packageJSON.version
 
-export { CURR_VER, defaultTestOptions }
+export { COMMAND_COUNT, CURR_VER, defaultTestOptions }

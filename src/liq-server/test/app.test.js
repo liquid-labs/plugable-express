@@ -4,10 +4,8 @@ import request from 'supertest'
 
 import { appInit } from '../app'
 import { model } from '../model'
-import { defaultTestOptions } from './lib/test-utils'
+import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
-
-const COMMAND_COUNT = 17
 
 const mockLogOptions = () => {
   const logs = []

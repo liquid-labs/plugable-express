@@ -210,6 +210,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     // lockdown our internal setup
     Object.freeze(endpointDef)
     Object.freeze(parameters)
+    app.handlers.push(endpointDef)
   }
 }
 
