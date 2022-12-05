@@ -146,13 +146,15 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
       endpointDef.parameters = []
     }
-    let i = 0
-    // TODO: see regex path note at top
-    // Build out any missing path parameters.
-    const pathParams = typeof path === 'string'
-      ? path.match(pathParamRegExp)
-      : path.toString().match(regexParamRegExp)
+    
     if (!Object.isFrozen(parameters)) { // use parameters as a proxy instead of testing each param seperately
+      let i = 0
+      // TODO: see regex path note at top
+      // Build out any missing path parameters.
+      const pathParams = typeof path === 'string'
+        ? path.match(pathParamRegExp)
+        : path.toString().match(regexParamRegExp)
+    
       for (const pathParam of pathParams || []) {
         const paramName = pathParam.startsWith(':')
           ? pathParam.substring(1)
