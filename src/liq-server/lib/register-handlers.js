@@ -125,14 +125,15 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     } */
     const methodUpper = method.toUpperCase()
     
+    // this must come before processCommandPath to give the function the option of registering variable name parameters
+    const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
+    
     const routablePath = typeof path === 'string'
       ? path
       : Array.isArray(path)
         ? cleanReForExpress(processCommandPath({ app, model, pathArr: path, parameters }))
         : cleanReForExpress(path)
     reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
-
-    const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
     
     app[method](routablePath,
                 processParams({ parameters, path }),
