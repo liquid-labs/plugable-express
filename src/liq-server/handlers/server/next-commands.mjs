@@ -15,7 +15,7 @@ const CLI_STYLE = ' '
 const URL_STYLE = '/'
 
 const func = ({ app, model }) => (req, res) => {
-  try {
+try {
   const format = req.accepts(['json', 'text'])
   const { command = '/'} = req.query
   
@@ -26,7 +26,9 @@ const func = ({ app, model }) => (req, res) => {
   const prevElements = {}
   let cmdSep
   let cmdsLeft
-  if (commandPath.indexOf('/') === -1) { // then it's the CLI form
+  let firstSpace = commandPath.indexOf(' ')
+  let firstSlash = commandPath.indexOf('/')
+  if (commandPath.indexOf('/') === -1 || (firstSpace !== -1 && firstSpace < firstSlash)) { // then it's the CLI form
     cmdSep = CLI_STYLE
     cmdsLeft = commandPath.split(/\s+/)
     if (cmdsLeft.length !== 0 && cmdsLeft[0].startsWith('liq')) {
@@ -64,8 +66,8 @@ const func = ({ app, model }) => (req, res) => {
           prevElements[typeKey] = commandBit // save the value of the variable
           const elementConfig = app.commonPathResolvers[typeKey]
           const { bitReString, optionsFetcher } = elementConfig
-          finalOptions = optionsFetcher({ model, ...prevElements })
-          if (command.match(new RegExp(bitReString)) && finalOptions.includes(commandBit)) {
+          finalOptions = optionsFetcher({ currToken: commandBit, model, ...prevElements })
+          if (commandBit.match(new RegExp(bitReString)) && finalOptions.includes(commandBit)) {
             frontier = frontier[fKey]
           }
           else {
@@ -96,13 +98,15 @@ const func = ({ app, model }) => (req, res) => {
     nextCommands = Object.keys(frontier).concat(finalOptions).filter((k) => k.startsWith(unmatchedFinalCommand))
   }
   else {
-    let inSomeOptions = false
+    let maybeOptions = false
     nextCommands = Object.keys(frontier)
       .reduce((acc, k) => {
         if (k.startsWith(':')) {
           const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
           const { optionsFetcher } = elementConfig
-          acc.push(...optionsFetcher({ model, ...prevElements }))
+          const fOpts = optionsFetcher({ currToken: '', model, ...prevElements })
+          acc.push(...fOpts)
+          // acc.push(...optionsFetcher({ currToken: '', model, ...prevElements }))
         }
         // the blank happens because the root command is '', but it doesn't make sense to reflect it back
         // '_' vars are either hidden (if actually options) or internal vars
@@ -110,7 +114,7 @@ const func = ({ app, model }) => (req, res) => {
           acc.push(k)
         }
         else if (k === '_parameters') {
-          inSomeOptions = true
+          maybeOptions = true
         }
         // else it's '' or a '_' var that isn't _parameters
         
@@ -120,7 +124,7 @@ const func = ({ app, model }) => (req, res) => {
       .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
     
     const lastCmd = cmdsWalked.length === 0 ? '' : cmdsWalked[cmdsWalked.length - 1]
-    if (inSomeOptions === true) {
+    if (maybeOptions === true) {
       nextCommands = nextOptions({ command, lastCmd, nextCommands, optionString, paramsSpec: frontier._parameters() })
     }
     else if (!command.endsWith(cmdSep) && cmdsWalked.length > 0) {
