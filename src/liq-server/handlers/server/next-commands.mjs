@@ -40,6 +40,9 @@ try {
     cmdsLeft = commandPath.split('/')
     cmdsLeft.shift() // drop '' from leading '/'
   }
+  if (cmdsLeft[cmdsLeft.length - 1].match(/^\s*$/)) { // TODO: this may not be necessary
+    cmdsLeft.pop()
+  }
   
   let optionsSpec
   let unmatchedFinalCommand = null
@@ -67,7 +70,7 @@ try {
           const elementConfig = app.commonPathResolvers[typeKey]
           const { bitReString, optionsFetcher } = elementConfig
           finalOptions = optionsFetcher({ currToken: commandBit, model, ...prevElements })
-          if (commandBit.match(new RegExp(bitReString)) && finalOptions.includes(commandBit)) {
+          if (commandBit.match(new RegExp('^' + bitReString + '$')) && finalOptions.includes(commandBit)) {
             frontier = frontier[fKey]
           }
           else {
