@@ -83,7 +83,7 @@ try {
         else { // we don't have anything for an unmatched middle command
           switch (format) {
             case 'text':
-              res.send(); break
+              res.type('txt').send(); break
             default: // json
               res.json([])
           }
@@ -134,7 +134,7 @@ try {
   
   switch (format) {
     case 'text':
-      res.send(nextCommands.join('\n')); break
+      res.type('txt').send(nextCommands.join('\n')); break
     default: // json
       res.json(nextCommands)
   }
