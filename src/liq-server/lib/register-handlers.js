@@ -132,7 +132,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       ? path
       : Array.isArray(path)
         ? cleanReForExpress(processCommandPath({ app, model, pathArr: path, parameters }))
-        : cleanReForExpress(path)
+        : cleanReForExpress(path) // then it's a regular expression
     reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
     
     app[method](routablePath,
@@ -141,7 +141,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
-    endpointDef.path = path.toString()
+    endpointDef.path = routablePath.toString()
 
     if (!parameters) {
       reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
@@ -201,9 +201,9 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     try {
       // endpointDef.matcher = '^\/' + endpointDef.path.replace(pathParamRegExp, '[^/]+') + '[/#?]?$'
       // TODO: see regex path note at top
-      endpointDef.matcher = typeof path === 'string'
-        ? pathToRegexp(path).toString().slice(1, -2)
-        : path.toString().slice(1, -1)
+      endpointDef.matcher = typeof routablePath === 'string'
+        ? pathToRegexp(routablePath).toString().slice(1, -2)
+        : routablePath.toString().slice(1, -1)
     }
     catch (e) {
       reporter.error(`Exception while attempting to process path '${path}'. Perhaps there are special characters that need escaping; try '([*])' where '*' is your special character. Error message: ${e.message}`)
