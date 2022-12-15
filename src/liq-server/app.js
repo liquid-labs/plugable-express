@@ -55,6 +55,8 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
     }
     commonPathResolvers[key] = resolver
   }
+
+  app.liqHome = () => process.env.LIQ_HOME || process.env.HOME + '/.liq'
   
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg:'@liquid-labs/liq-core', handlers }))

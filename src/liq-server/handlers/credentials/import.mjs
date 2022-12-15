@@ -59,7 +59,7 @@ const func = ({ app, cache, model, reporter }) => {
   }
 
   return (req, res) => {
-    const liqHome = process.env.LIQ_HOME || `${HOME}/.liq`
+    const liqHome = app.liqHome()
     const dbPath = `${liqHome}/credentials.json`
 
     const credentialsDb = credDb.loadDb({ cache, cacheKey: CREDS_DB_CACHE_KEY, path: dbPath })

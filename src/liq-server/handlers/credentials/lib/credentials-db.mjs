@@ -12,3 +12,6 @@ const loadDb = ({ cache, cacheKey, path }) => {
 	return db
 }
 
+export {
+	loadDb
+}
