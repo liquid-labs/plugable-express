@@ -19,7 +19,7 @@ const parameters = [
     name: 'leaveInPlace',
     isBoolean: true,
     excludes: [ 'moveToStorage' ],
-    description: 'Leaves the credentials file in place. See [`moveToStorage`](#param-moveToStorage).'
+    description: 'Leaves the credentials file in place (the default). See [`moveToStorage`](#param-moveToStorage).'
   },
   {
     name: 'moveToStorage',

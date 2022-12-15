@@ -5,7 +5,7 @@ import shell from 'shelljs'
 import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
 import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
-import { checkGitHubSSHAccess } from './lib/github-lib'
+import { checkGitHubAPIAccess, checkGitHubSSHAccess } from './lib/github-lib'
 
 const DEFAULT_LICENSE='UNLICENSED'
 const DEFAULT_VERSION='1.0.0-alpha.0'
@@ -31,6 +31,11 @@ const parameters = [
     description: 'The project name (sans org qualifier).'
   },
   {
+  	name: 'public',
+  	isBoolean: true,
+  	description: 'By default, project repositories are created private. If `public` is set to true, then the repository will be made public.'
+  },
+  {
   	name: 'version',
   	isSingleValue: true,
   	description: `The version string to use for the newly initialized package \`version\` field. Defaults to '${DEFAULT_VERSION}'.`
@@ -43,23 +48,58 @@ const func = ({ app, model, reporter }) => async (req, res) => {
     return
   }
 
-  const { description, license, name, orgKey, version=DEFAULT_VERSION } = req.vars
+  const { description, license, name, orgKey, public : publicRepo, version=DEFAULT_VERSION } = req.vars
   const orgGithubName = org.getSetting('ORG_GITHUB_NAME')
   if (!orgGithubName) {
   	res.status(400).type('text/plain').send(`'ORG_GITHUB_NAME' not defined for org '${orgKey}'.`)
+  	return
   }
 
-  if (!checkGitHubSSHAccess({ res })) return // it will handle user feedback
+  if (!checkGitHubSSHAccess({ res })) return // the check will handle user feedback
+  if (!(await checkGitHubAPIAccess({ res }))) return // ditto
   // else we are good to proceed
+  const cleanupFuncs = []
+	const cleanup = async ({ msg, res, status }) => {
+		let failures = []
+		let success = true
+		for (const [func, desc] of cleanupFuncs) {
+			try {
+				success = await func() && success
+				if (!success) failures.push(desc)
+			}
+			catch (e) {
+				console.log(e)
+				failures.push(desc)
+			}
+		}
+		if (res) {
+			res.status(status).type('text/plain')
+	  		.send(msg + '\n\n'
+	  			+ 'Cleanup appears to have ' + (failures.length === 0 ? 'succeeded' : 'failed;\n' + failures.join(' failed\n') + ' failed'))
+		}
+
+		return failures.length === 0
+	}
 
   // set up the staging directory
   const stagingDir = `${app.liqHome()}/tmp/liq-core/project-staging/${name}`
   await fs.mkdir(stagingDir, { recursive: true })
 
+  cleanupFuncs.push([
+  	async () => { 
+	  	await fs.rm(stagingDir, { recursive: true })
+	  	return true
+	  },
+	  'remove staging dir'
+  ])
+
   const initResult = shell.exec(`cd "${stagingDir}" && git init --quiet . && npm init -y > /dev/null`)
   if (initResult.code !== 0) {
-  	res.status(500).type('text/plain')
-  		.send(`There was an error initalizing the local project in staging dir '${stagingDir}' (${initResult.code}):\n${initResult.stderr}`)
+  	await cleanup({ 
+  		msg: `There was an error initalizing the local project in staging dir '${stagingDir}' (${initResult.code}):\n${initResult.stderr}`,
+  		res,
+  		status: 500
+  	})
   	return
   }
 
@@ -86,7 +126,46 @@ const func = ({ app, model, reporter }) => async (req, res) => {
 
   writeFJSON({ data: packageJSON, file: packagePath, noMeta: true })
 
-  res.status(501).type('text/plain').send(qualifiedName)
+  const initCommitResult = shell.exec(`cd "${stagingDir}" && git add package.json && git commit -m "packaage initialization"`)
+
+  const creationOpts = '--remote-name origin'
+  	+ ` -d "${description}"`
+  	+ (publicRepo === true ? '' : ' --private')
+  const hubCreateResult = shell.exec(`cd "${stagingDir}" && hub create ${creationOpts} ${qualifiedName}`)
+  if (hubCreateResult.code !== 0) {
+  	await cleanup({
+  		msg: `There was an error initalizing the github repo '${qualifiedName}' (${hubCreateResult.code}):\n${hubCreateResult.stderr}`,
+  		res,
+  		status: 500
+  	})
+  	return
+  }
+
+  cleanupFuncs.push([
+  	async () => {
+  		const delResult = shell.exec(`hub delete -y ${qualifiedName}`)
+  		return delResult.code === 0
+  	},
+  	'delete GitHu repo'
+	])
+
+  let retry = 3 // will try a total of four times
+  let pushResult = shell.exec(`git push --all origin`)
+  while (pushResult.code !== 0 && retry > 0) {
+  	await new Promise(resolve => setTimeout(resolve, 1000))
+		pushResult = shell.exec(`git push --all origin`)
+		retry -= 1
+  }
+  if (pushResult.code !== 0) {
+  	await cleanup({ msg: 'Could not push local staging dir changes to GitHub.', res, status: 500 })
+  	return
+  }
+
+  await cleanup({
+  	msg: 'Cleaning up partial work.',
+  	res,
+  	status: 501
+  })
 }
 
 export {
