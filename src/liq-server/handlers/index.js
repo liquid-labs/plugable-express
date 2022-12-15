@@ -1,3 +1,4 @@
+import { handlers as credentials } from './credentials'
 import { handlers as helpHandlers } from './help'
 import { handlers as orgsHandlers } from './orgs'
 import { handlers as pgHandlers } from './playground'
@@ -8,6 +9,7 @@ import * as heartbeat from './heartbeat'
 
 const handlers = [
   heartbeat,
+  ...credentials,
   ...helpHandlers,
   ...orgsHandlers,
   ...pgHandlers,

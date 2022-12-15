@@ -35,11 +35,19 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
     || (command.endsWith(lastOptionName) && lastOptionParamDef?.isBoolean === true)
   if (lockedIn) {
     const residualOpts = parameterNames.filter((o) => !currOptNames.includes(o))
+    const exclusions = currOptNames.reduce((acc, o) => {
+      const excludes = paramsSpec.find((p) => p.name === o)?.excludes
+      if (excludes) {
+        acc.push(...excludes)
+      }
+      return acc
+    }, [])
+
     for (const rOpt of residualOpts) {
-      options.push(...parameterOptions({ paramDef: paramsSpec.find((p) => p.name === rOpt)}))
+      if (!exclusions.includes(rOpt)) {
+        options.push(...parameterOptions({ paramDef: paramsSpec.find((p) => p.name === rOpt)}))
+      }
     }
-    
-    // options.push(...parameterNames.filter((o) => !currOptNames.includes(o)))
   }
   else { // check to see if we can match the last command
     if (lastOptionParamDef) { // matched, but not locked in
