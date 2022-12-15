@@ -1,3 +1,6 @@
+import * as credDb from './lib/credentials-db'
+import { CREDS_DB_CACHE_KEY } from './lib/constants'
+
 const method = 'put'
 const path = [ 'credentials', ':credential', 'import' ]
 const parameters = [
@@ -35,7 +38,7 @@ const CRED_SPECS = [
 ]
 const CRED_TYPES = CRED_SPECS.map((cs) => cs.key)
 
-const func = ({ app, model, reporter }) => {
+const func = ({ app, cache, model, reporter }) => {
   app.commonPathResolvers['credential'] = {
     optionsFetcher: ({ currToken='' }) => {
       const results = []
@@ -56,6 +59,11 @@ const func = ({ app, model, reporter }) => {
   }
 
   return (req, res) => {
+    const liqHome = process.env.LIQ_HOME || `${HOME}/.liq`
+    const dbPath = `${liqHome}/credentials.json`
+
+    const credentialsDb = credDb.loadDb({ cache, cacheKey: CREDS_DB_CACHE_KEY, path: dbPath })
+
     res.status(505).type('text/plain').send('Not implemented.')
   }
 }

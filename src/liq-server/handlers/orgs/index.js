@@ -1,6 +1,12 @@
-import { handlers } from './staff'
+import { handlers as projectHandlers } from './projects'
+import { handlers as staffHandlers } from './staff'
+
 import * as orgList from './list'
 
-handlers.push(orgList)
+const handlers = [
+	orgList,
+	...projectHandlers,
+	...staffHandlers
+]
 
 export { handlers }
