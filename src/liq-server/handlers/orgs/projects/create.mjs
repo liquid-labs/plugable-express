@@ -58,7 +58,7 @@ const func = ({ app, model, reporter }) => async (req, res) => {
 
   const initResult = shell.exec(`cd "${stagingDir}" && git init --quiet . && npm init -y > /dev/null`)
   if (initResult.code !== 0) {
-  	res.status(500).type('text/plain')
+  	res.status(500).type('text/terminal')
   		.send(`There was an error initalizing the local project in staging dir '${stagingDir}' (${initResult.code}):\n${initResult.stderr}`)
   	return
   }
@@ -86,7 +86,7 @@ const func = ({ app, model, reporter }) => async (req, res) => {
 
   writeFJSON({ data: packageJSON, file: packagePath, noMeta: true })
 
-  res.status(501).type('text/plain').send(qualifiedName)
+  res.status(501).type('text/terminal').send(qualifiedName)
 }
 
 export {
