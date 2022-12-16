@@ -20,7 +20,13 @@ const parameters = [
 ]
 
 const mdFormatter = (staff, title) =>
-  `# ${title}\n\n${staff.map((s) => `* ${s.givenName}, ${s.surname} <${s.email}>`).join("\n")}\n`
+  `# ${title}\n\n${staff.map((s) => `- ${s.familyName}, ${s.givenName} <${s.email}>`).join("\n")}\n`
+
+const textFormatter = (staff, title) =>
+  `${title}\n------------------\n\n${staff.map((s) => `- ${s.familyName}, ${s.givenName} <${s.email}>`).join("\n")}\n`
+
+const terminalFormatter = (staff, title) =>
+  `<bold>${title}<rst>\n\n${staff.map((s) => `- ${s.familyName}, ${s.givenName} <<underscore>${s.email}<rst>>`).join("\n")}\n`
 
 const func = ({ model, reporter }) => (req, res) => {
   const org = getOrgFromKey({ model, params: req.vars, res })
@@ -41,6 +47,8 @@ const func = ({ model, reporter }) => (req, res) => {
     basicTitle : 'Staff Report',
     data : staff,
     mdFormatter,
+    terminalFormatter,
+    textFormatter,
     reporter,
     req,
     res,
