@@ -57,6 +57,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   }
 
   app.liqHome = () => process.env.LIQ_HOME || process.env.HOME + '/.liq'
+  app.liqPlayground = () => app.liqHome() + '/playground'
   
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg:'@liquid-labs/liq-core', handlers }))
