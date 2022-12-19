@@ -60,18 +60,23 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     if (value === undefined) continue;
     
     if (p.isMultivalue === true) {
-      const currList = vars[p.name] || []
-      currList.push(...value.split(/\s*(^|[^\\]),\s*/))
-      if (p.isBoolean === true) {
-        currList.forEach((v, i) => arr[i] = processBool(v, ))
+      if (!Array.isArray(value)) {
+        value = value.split(/\s*(^|[^\\]),\s*/)
       }
-      value = currList
+      value = p.isBoolean === true
+        ? value.map((v) => processBool(v))
+        : value.map((v) => decodeURIComponent(v))
     }
-    else if (p.isBoolean === true) {
-      value = processBool(value)
+    else if (Array.isArray(value)) {
+      throw new Error(`Non-multivalue parameter '${p.name}' cannot be specified more than once.`)
     }
-    
-    vars[p.name] = decodeURIComponent(value)
+    else { // single value var
+      value = p.isBoolean === true
+        ? processBool(value)
+        : decodeURIComponent(value)
+    }
+
+    vars[p.name] = value
   }
   
   next()
