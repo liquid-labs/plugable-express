@@ -128,7 +128,7 @@ try {
     
     const lastCmd = cmdsWalked.length === 0 ? '' : cmdsWalked[cmdsWalked.length - 1]
     if (maybeOptions === true) {
-      nextCommands = nextOptions({ command, lastCmd, nextCommands, optionString, paramsSpec: frontier._parameters() })
+      nextCommands = nextOptions({ command, lastCmd, model, nextCommands, optionString, paramsSpec: frontier._parameters(), prevElements })
     }
     else if (!command.endsWith(cmdSep) && cmdsWalked.length > 0) {
       nextCommands = [ cmdsWalked.pop() ]
