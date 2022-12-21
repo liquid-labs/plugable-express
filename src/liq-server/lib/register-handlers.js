@@ -60,8 +60,8 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     if (value === undefined) continue;
     
     if (p.isMultivalue === true) {
-      if (!Array.isArray(value)) {
-        value = value.split(/\s*(^|[^\\]),\s*/)
+      if (!Array.isArray(value)) { // then it's a string
+        value = value.split(/\s*(?<!\\),\s*/) // split on non-escaped commas
       }
       value = p.isBoolean === true
         ? value.map((v) => processBool(v))
