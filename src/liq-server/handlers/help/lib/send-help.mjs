@@ -1,4 +1,4 @@
-import { commonOutputConfig, formatOutput } from '@liquid-labs/liq-handlers-lib'
+import { formatOutput } from '@liquid-labs/liq-handlers-lib'
 
 import { mdFormatterGen } from './formatter-md'
 import { terminalFormatterGen } from './formatter-terminal'
@@ -15,6 +15,8 @@ const sendHelp = ({ help, method, path, parameters }) => {
     formatOutput({
       basicTitle : 'Help',
       data : { method, parameters: sortedParameters, path, ...help },
+      allFields: allHelpFields,
+      defaultFields: defaultHelpFields,
       mdFormatter: mdFormatterGen(),
       terminalFormatter: terminalFormatterGen(),
       textFormatter: textFormatterGen(),
@@ -22,10 +24,7 @@ const sendHelp = ({ help, method, path, parameters }) => {
       reporter,
       req,
       res,
-      ...commonOutputConfig({
-        allFields: allHelpFields,
-        defaultFields: defaultHelpFields,
-      }, req.query)
+      ...req.vars
     })
   }
   

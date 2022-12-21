@@ -31,6 +31,11 @@ const parameters = [
     description: 'The project name (sans org qualifier).'
   },
   {
+  	name: 'noFork',
+  	isBoolean: true,
+  	description: 'Suppresses default behavior of proactively creating workspace fork for public repos.'
+  },
+  {
   	name: 'public',
   	isBoolean: true,
   	description: 'By default, project repositories are created private. If `public` is set to true, then the repository will be made public.'
@@ -47,8 +52,9 @@ const func = ({ app, model, reporter }) => async (req, res) => {
   if (org === false) {
     return
   }
+  const report = []
 
-  const { description, license, name, orgKey, public : publicRepo, version=DEFAULT_VERSION } = req.vars
+  const { description, license, name, orgKey, noFork=false, public : publicRepo=false, version=DEFAULT_VERSION } = req.vars
   const orgGithubName = org.getSetting('ORG_GITHUB_NAME')
   if (!orgGithubName) {
   	res.status(400).type('text/plain').send(`'ORG_GITHUB_NAME' not defined for org '${orgKey}'.`)
@@ -126,7 +132,16 @@ const func = ({ app, model, reporter }) => async (req, res) => {
 
   writeFJSON({ data: packageJSON, file: packagePath, noMeta: true })
 
-  const initCommitResult = shell.exec(`cd "${stagingDir}" && git add package.json && git commit -m "packaage initialization"`)
+  const initCommitResult = shell.exec(`cd "${stagingDir}" && git add package.json && git commit -m "package initialization"`)
+  if (initCommitResult.code !== 0) {
+  	await cleanup({
+  		msg: `Could not make initial project commit for '${qualifiedName}'.`,
+  		res,
+  		status: 500
+  	})
+  	return
+  }
+  report.push(`Initialized local repository for project '${qualifiedName}'.`)
 
   const creationOpts = '--remote-name origin'
   	+ ` -d "${description}"`
@@ -140,6 +155,7 @@ const func = ({ app, model, reporter }) => async (req, res) => {
   	})
   	return
   }
+  report.push(`Created GitHub repo '${qualifiedName}'.`)
 
   cleanupFuncs.push([
   	async () => {
@@ -160,6 +176,15 @@ const func = ({ app, model, reporter }) => async (req, res) => {
   	await cleanup({ msg: 'Could not push local staging dir changes to GitHub.', res, status: 500 })
   	return
   }
+
+  if (publicRepo === true && noFork === false) {
+  	const forkResult = shell.exec('hub fork --remote-name workspace')
+  	if (forkResult.code === 0) report.push(`Created personal workspace fork for '${qualifiedName}'.`)
+  	else report.push('Failed to create personal workspace fork.')
+  }
+
+
+  await fs.rename(stagingDir, app.liqPlayground() + '/' + qualifiedName)
 
   await cleanup({
   	msg: 'Cleaning up partial work.',

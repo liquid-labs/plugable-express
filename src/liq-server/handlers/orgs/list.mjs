@@ -1,6 +1,6 @@
 import omit from 'lodash.omit'
 
-import { commonOutputConfig, commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
+import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 // const path = new RegExp('/orgs(?:/list)?[/#?]?$')
@@ -20,14 +20,13 @@ const func = ({ model, reporter }) => (req, res) => {
   formatOutput({
     basicTitle : 'Org Report',
     data : orgs,
+    allFields,
+    defaultFields,
     mdFormatter,
     reporter,
     req,
     res,
-    ...commonOutputConfig({
-      allFields,
-      defaultFields,
-    }, req.query)
+    ...req.vars
   })
 }
 

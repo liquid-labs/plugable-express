@@ -1,4 +1,4 @@
-import { commonOutputConfig, commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
+import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 const path = [ 'orgs', ':orgKey', 'staff', 'list?' ]
@@ -77,7 +77,8 @@ const func = ({ model, reporter }) => (req, res) => {
     reporter,
     req,
     res,
-    ...commonOutputConfig(org.staff.constructor.itemConfig, req.vars)
+    ...org.staff.constructor.itemConfig, 
+    ...req.vars
   })
 }
 
