@@ -3,9 +3,9 @@
 
 default: all
 
-NPM_BIN:=$(shell npm bin)
-CATALYST_SCRIPTS:=$(NPM_BIN)/catalyst-scripts
-BASH_ROLLUP:=$(NPM_BIN)/bash-rollup
+NPM_BIN:=npm exec
+CATALYST_SCRIPTS:=$(NPM_BIN) catalyst-scripts
+BASH_ROLLUP:=$(NPM_BIN) bash-rollup
 
 LIQ_SERVER_SRC:=src/liq-server
 LIQ_SERVER_FILES:=$(shell find $(LIQ_SERVER_SRC) \( -name "*.js" -o -name "*.mjs" \) -not -path "*/test/*" -not -name "*.test.js")
