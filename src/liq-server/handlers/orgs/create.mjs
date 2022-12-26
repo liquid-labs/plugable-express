@@ -3,7 +3,7 @@ import * as fs from 'node:fs/promises'
 import { Organization } from '@liquid-labs/orgs-model'
 
 const method = 'post'
-const path = [ 'orgs', ':newOrgKey', 'create?' ]
+const path = [ 'orgs', 'create', ':newOrgKey' ]
 const parameters = [
   {
     name: 'commonName',
@@ -27,7 +27,7 @@ const mdFormatter = (orgs, title) =>
 const func = ({ app }) => {
   app.addCommonPathResolver('newOrgKey', {
     bitReString: '[a-zA-Z0-9][a-zA-Z0-9-]*',
-    optionsFetcher: () => []
+    optionsFetcher: ({ currToken, newOrgKey }) => newOrgKey ? [ newOrgKey ] : []
   })
 
   return async (req, res) => {
@@ -38,7 +38,12 @@ const func = ({ app }) => {
 
     const rootFile = localRootDir + '/org.json'
 
-    const newOrg = Organization.initializeOrganization({ dataPath: localDataRoot, commonName, legalName, orgKey: newOrgKey })
+    const newOrg = Organization.initializeOrganization({ 
+      commonName, 
+      dataPath: localDataRoot, 
+      legalName, 
+      orgKey: newOrgKey 
+    })
   }
 }
 
