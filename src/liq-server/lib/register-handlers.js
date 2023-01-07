@@ -2,6 +2,11 @@ import asyncHandler from 'express-async-handler'
 import omit from 'lodash.omit'
 import { pathToRegexp } from 'path-to-regexp'
 
+import { commonOutputParams } from '@liquid-labs/liq-handlers-lib'
+import { sendHelp } from '../handlers/help/lib/send-help'
+
+const helpParameters = [ ...commonOutputParams ]
+
 const falseParams = /n(o)?|f(alse)?|0/i
 const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
@@ -84,7 +89,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
 
 const processCommandPath = ({ app, model, pathArr, parameters }) => {
   const commandPath = []
-  let reString = ''
+  let reString = '^'
   for (const pathBit of pathArr) {
     if (pathBit.startsWith(':')) {
       const pathVar = pathBit.slice(1)
@@ -120,7 +125,7 @@ const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(re
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     // TODO: make use of 'pathParams' and ensure conformity between the path definition and our defined pathParams
-    const { func, method, parameters, path/*, pathParams */ } = handler
+    const { func, help, method, parameters, path/*, pathParams */ } = handler
     if (path === undefined || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
@@ -145,6 +150,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
                 asyncHandler(handlerFunc))
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
+
 
     endpointDef.path = routablePath.toString()
 
@@ -219,7 +225,36 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     Object.freeze(endpointDef)
     Object.freeze(parameters)
     app.handlers.push(endpointDef)
-  }
+
+    if (help !== undefined) {
+      if (!Array.isArray(path)) throw new Error(`Endpoint '${path}' defines help and must use an array style path.`)
+
+      const helpPrefix = [...path]
+      helpPrefix.unshift('help')
+      // const helpPostfix = [...path]
+      // helpPostfix.push('help')
+
+      for (const helpPathTmpl of [ helpPrefix/*, helpPostfix */ ]) {
+        const helpPath = helpPathTmpl.map((b) => b.startsWith(':') ? b.slice(1) : b)
+        const routableHelpPath =
+          cleanReForExpress(processCommandPath({ app, model, pathArr: helpPath, parameters: helpParameters }))
+        const helpFunc = sendHelp({ help, method, path, parameters }) // from the main endpoint
+        app['get'](routableHelpPath,
+                    processParams({ parameters: helpParameters, path: helpPath }),
+                    asyncHandler(helpFunc({ model, reporter })))
+
+        const helpEndpointDef = {
+           method: 'GET',
+           parameters: helpParameters,
+           path: routableHelpPath.toString(),
+           sourcePkg: sourcePkg,
+           matcher: routableHelpPath.toString().slice(1, -1)
+        }
+        Object.freeze(helpEndpointDef)
+        app.handlers.push(helpEndpointDef)
+      }
+    }
+  } // for (const handler of handlers) {...}
 }
 
 export {

@@ -11,7 +11,7 @@ const sendHelp = ({ help, method, path, parameters }) => {
   const sortedParameters = [...parameters]
   sortedParameters.sort((a,b) => a.name.localeCompare(b.name))
   
-  const func = ({ model, reporter }) => (req, res) => {
+  const func = ({ model, reporter }) => (req, res, next) => {
     formatOutput({
       basicTitle : 'Help',
       data : { method, parameters: sortedParameters, path, ...help },
@@ -20,6 +20,7 @@ const sendHelp = ({ help, method, path, parameters }) => {
       mdFormatter: mdFormatterGen(),
       terminalFormatter: terminalFormatterGen(),
       textFormatter: textFormatterGen(),
+      next,
       noDateMark : true,
       reporter,
       req,

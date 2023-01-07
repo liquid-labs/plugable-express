@@ -52,16 +52,20 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
   const lines = []
   
   let newPp = true
-  let inList = false
+  let inList = 0
   for (let iLine of text.split('\n')) {
     if (iLine.length === 0) {
       lines.push('')
       newPp = true
-      inList = false
+      inList = 0
       continue
     }
-    if (newPp && iLine.startsWith('-')) {
-      inList = true
+    else if (iLine.startsWith('-')) {
+      // count the depth of indentation (sub-lists)
+      inList = iLine.replace(/^(-+).*/, '$1').length
+      // and change sublist marker '--' (etc) to single list marker since indentation will be added later
+      iLine = iLine.replace(/^-+/, '-')
+      newPp = true
     }
     
     while (iLine.length > 0) { // usually we 'break' the flow, but this could happen if we trim the text exactly.
@@ -70,9 +74,11 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
         ? indent
         : hangingIndent && !newPp
           ? indent
-          : smartIndent && inList && !newPp
-            ? indent
-            : 0
+          : smartIndent && inList > 0 && !newPp
+            ? inList * indent
+            : smartIndent && inList > 1 && newPp
+              ? (inList - 1) * indent
+              : 0
       const spcs = ' '.repeat(effectiveIndent)
       const ew = getEffectiveWidth({ text: iLine, width, indent: effectiveIndent, ignoreTags })
       iLine = iLine.replace(/^\s+/, '')

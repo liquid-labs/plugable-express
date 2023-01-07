@@ -2,6 +2,13 @@ import pick from 'lodash.pick'
 
 import { commonOutputParams, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
+const help = {
+  name: "Staff detail",
+  summary: "Retrieves details of the specified staff member.",
+  description: "<danger>Partial implementation.<rst> By default, this method retrieves the full detail record by default, including all implied roles. Use <code>ownRolesOnly<rst> to include only directly assigned roles."
+}
+
+
 const method = 'get'
 // '%40' == '@''
 const path = [ 'orgs', ':orgKey', 'staff', ':staffKey' ]
@@ -36,4 +43,4 @@ const func = ({ model, reporter }) => (req, res) => {
   }
 }
 
-export { func, parameters, path, method }
+export { func, help, parameters, path, method }

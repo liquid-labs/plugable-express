@@ -3,29 +3,24 @@ import { wrap } from './wrap'
 
 // TODO: support nesting with incrementing headers and adding indent levels
 const parameterCharacteristics = (p) => {
-  let typeInfo = '<fgc:118><bold>' + (p.required ? 'REQUIRED' : 'OPTIONAL') + '<rst><fgc:118>'
+  let typeInfo = '<dim>' + (p.required ? '<underline>REQUIRED<rst><dim>' : 'optional')
   typeInfo += ', ' + (p.isMultivalue ? 'multi-value' : 'single value')
   const type = p.isBoolean ? 'boolean'
     : p.isInteger ? 'integer'
     : p.isNumber ? 'number'
     : 'string'
-  typeInfo += ', ' + type + '<rst>'
-  const matcher = p.matcher ? '<em>matcher: ' + p.matcher.toString() + '<rst>' : ''
+  typeInfo += ', ' + type
+  typeInfo += p.matcher ? ': ' + p.matcher.toString() : ''
   
-  return typeInfo + (p.matcher ? '\n' + matcher : '')
+  return typeInfo + '<rst>'
 }
 
 const indent = 2
 const terminalFormatterGen = ({
   width=80,
   nesting=0,
-  tH1='<canaryYellow><underscore>',
-  tH2 = '<richYellow><underscore>',
-  tSubtitle='<dim>',
-  tEm = '<yellow>',
-  tDanger = '<bgRed><white><bold>'
 }={}) => ({ name, path, summary, parameters, description, references }, title) => {
-  let output = `<h1>${name}\n${printPath(path)}<rst>\n\n`
+  let output = `\n<h1>${name}<rst>\n\nPath: <em>${printPath(path)}<rst>\n\n`
   
   if (summary) {
     output += summary
@@ -34,16 +29,16 @@ const terminalFormatterGen = ({
   if (parameters) {
     output += `\n\n<h2>Parameters<rst>`
     output += parameters.reduce((output, p) => {
-      output += '\n\n- <em>' + p.name + '<rst>: ('
+      output += '\n- <code><underline>' + p.name + '<rst>: ('
       output += parameterCharacteristics(p, { indent, width }) + ')\n'
-      output += p.description, { indent, width, formatTerminal:true } + '\n'
+      output += p.description
       return output
     }, '')
     output += '\n'
   }
 
   if (description) {
-    output += `\n<h2>Description<rst>\n\n`
+    output += `\n<h2>Description<rst>\n`
     output += description, { width, formatTerminal:true } + '\n'
   }
   
@@ -54,13 +49,8 @@ const terminalFormatterGen = ({
     })
   }
   
-  output = output.replaceAll(/<h1>/g, tH1)
-    .replaceAll(/<h2>/g, tH2)
-    .replaceAll(/<subtitle>/g, tSubtitle)
-    .replaceAll(/<em>/g, tEm)
-    .replaceAll(/<danger>/g, tDanger)
-    .replaceAll(/`([^`]*)`/g, '<bgForestGreen><white>$1<rst>')
-  
+  output += '\n'
+
   output = wrap(output, { width, indent, ignoreTags: true, smartIndent: true })
   
   return output
