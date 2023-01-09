@@ -55,7 +55,7 @@
   "dependencies": {
     "@liquid-labs/federated-json": "^1.0.0-alpha.30",
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
-    "@liquid-labs/liq-handlers-lib": "file:.yalc/@liquid-labs/liq-handlers-lib",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.10",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
     "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",
