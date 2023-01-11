@@ -3,7 +3,7 @@ import request from 'supertest'
 
 import { appInit } from '../../../app'
 import { model } from '../../../model'
-import { COMMAND_COUNT, defaultTestOptions } from '../../../test/lib/test-utils'
+import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib/test-utils'
 
 describe('GET:/server/api', () => {
   let app
@@ -21,6 +21,6 @@ describe('GET:/server/api', () => {
       .set('Accept', 'application/json')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/json/)
-    expect(body.length).toBe(COMMAND_COUNT)
+    expect(body.length).toBe(COMMAND_COUNT + HELP_COUNT)
   })
 })

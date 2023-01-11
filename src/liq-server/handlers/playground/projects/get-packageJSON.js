@@ -1,9 +1,11 @@
-import { getPackageJSON } from '../_shared/get-packageJSON'
-
 const method = 'get'
 
-const path = [ 'playground', 'projects', ':orgKey', ':projectName', 'packageJSON' ]
+const path = [ 'playground', 'projects', ':localOrgKey', ':localProjectName', 'packageJSON' ]
 
-const func = ({ model }) => (req, res) => getPackageJSON({ req, res, model })
+const func = ({ model }) => (req, res) => {
+  const { localOrgKey, orgKey, localProjectName } = req.vars
+    
+  return res.json(model.playground.orgs[localOrgKey].projects[localProjectName].packageJSON)
+}
 
 export { func, path, method }

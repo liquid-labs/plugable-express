@@ -20,7 +20,7 @@ describe('GET:/server/next-commands', () => {
     [ '/', [ 'credentials', 'help', 'orgs', 'playground', 'server' ]],
     [ '/o', [ 'orgs' ]],
     [ '/org', [ 'orgs' ]],
-    [ '/orgs/', [ 'list', 'orgA' ]],
+    [ '/orgs/', [ 'create', 'list', 'orgA' ]],
     [ '/orgs/li', [ 'list' ]],
     [ '/orgs/or', [ 'orgA' ]],
     [ '/orgs/list', [ 'list' ]],

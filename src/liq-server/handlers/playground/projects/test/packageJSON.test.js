@@ -12,7 +12,7 @@ testOptions.reporter.log = jest.fn((msg) => { logs.push(msg) })
 testOptions.reporter.error = testOptions.reporter.log
 testOptions.logs = logs
 
-describe('GET:/playground/projects/:orgKey/:projectName/packageJSON', () => {
+describe('GET:/playground/projects/:localOrgKey/:localProjectName/packageJSON', () => {
   let app
   let cache
   

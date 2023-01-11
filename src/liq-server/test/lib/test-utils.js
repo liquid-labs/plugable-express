@@ -4,6 +4,7 @@ import * as path from 'path'
 import { initReporter } from '../../lib/reporter'
 
 const COMMAND_COUNT = 20
+const HELP_COUNT = 2
 
 const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simple')
 
@@ -23,4 +24,4 @@ const bits = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.jso
 const packageJSON = JSON.parse(bits)
 const CURR_VER=packageJSON.version
 
-export { COMMAND_COUNT, CURR_VER, defaultTestOptions }
+export { COMMAND_COUNT, CURR_VER, defaultTestOptions, HELP_COUNT }

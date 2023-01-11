@@ -3,7 +3,7 @@ import * as sysPath from 'path'
 
 const method = 'patch'
 
-const path = '(/playground)?/projects/:orgKey/:projectName/update'
+const path = [ 'playground', 'projects', ':localOrgKey', ':localProjectName', 'update' ]
 
 const parameters = [
   {
@@ -15,12 +15,11 @@ const parameters = [
 ]
 
 const func = ({ app, model }) => (req, res) => {
-  const { orgKey, projectName } = req.params
-  const { dryRun } = req.query
+  const { dryRun, localOrgKey, localProjectName } = req.vars
   
-  const localProjectPath = sysPath.join(process.env.HOME, '.liq', 'playground', orgKey, projectName)
+  const localProjectPath = sysPath.join(process.env.HOME, '.liq', 'playground', localOrgKey, localProjectName)
   if (!fs.existsSync(localProjectPath)) {
-    res.status(404).json({ message: `Did not find expected local checkout for project '${orgKey}/${projectName}'.`})
+    res.status(404).json({ message: `Did not find expected local checkout for project '${localOrgKey}/${localProjectName}'.`})
     return
   }
   
@@ -29,7 +28,7 @@ const func = ({ app, model }) => (req, res) => {
     workerData: {
       dryRun,
       localProjectPath,
-      projectName: `${orgKey}/${projectName}`
+      localProjectName: `${localOrgKey}/${localProjectName}`
     },
     queueMessage: "Update task has been queued and should be processed shortly.",
     app,

@@ -14,7 +14,7 @@ const parameters = [
 const CLI_STYLE = ' '
 const URL_STYLE = '/'
 
-const func = ({ app, model }) => (req, res) => {
+const func = ({ app, model }) => async (req, res) => {
 try {
   const format = req.accepts(['json', 'text'])
   const { command = '/'} = req.query
@@ -70,6 +70,7 @@ try {
           const elementConfig = app.commonPathResolvers[typeKey]
           const { bitReString, optionsFetcher } = elementConfig
           finalOptions = optionsFetcher({ currToken: commandBit, model, ...prevElements })
+          if (finalOptions?.then) finalOptions = await finalOptions
           if (commandBit.match(new RegExp('^' + bitReString + '$')) && finalOptions.includes(commandBit)) {
             frontier = frontier[fKey]
           }
@@ -102,12 +103,14 @@ try {
   }
   else {
     let maybeOptions = false
-    nextCommands = Object.keys(frontier)
-      .reduce((acc, k) => {
+    nextCommands = await Object.keys(frontier)
+      .reduce(async (acc, k) => {
+        acc = await acc
         if (k.startsWith(':')) {
           const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
           const { optionsFetcher } = elementConfig
-          const fOpts = optionsFetcher({ currToken: '', model, ...prevElements })
+          let fOpts = optionsFetcher({ currToken: '', model, ...prevElements })
+          if (fOpts?.then) fOpts = await fOpts
           acc.push(...fOpts)
           // acc.push(...optionsFetcher({ currToken: '', model, ...prevElements }))
         }
@@ -124,7 +127,7 @@ try {
         return acc
       }, [])
       // TODO: v is that necessary? Doesn't '_parameters' occur on it's own?
-      .sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
+      nextCommands.sort() // nice, and also puts '_parameters' first (remmember, we require unique paths, so there is only ever one)
     
     const lastCmd = cmdsWalked.length === 0 ? '' : cmdsWalked[cmdsWalked.length - 1]
     if (maybeOptions === true) {
