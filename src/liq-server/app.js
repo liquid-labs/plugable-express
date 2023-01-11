@@ -50,9 +50,10 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   
   app.commonPathResolvers = commonPathResolvers
   app.addCommonPathResolver = (key, resolver) => {
-    if (key in commonPathResolvers) {
+    // TODO: It's a good check to avoid hard to debug bugs, but runs afoul of re-loads (or something...)
+    /*if (key in commonPathResolvers) {
       throw new Error(`'${key}' is already registered as a path resolver.`)
-    }
+    }*/
     commonPathResolvers[key] = resolver
   }
 
