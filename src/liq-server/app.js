@@ -30,7 +30,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
     console.log(error)
     res
       .setHeader('content-type', 'text/plain')
-      .send(e.message + ${e.stack ? '\n' + e.stack : ''})
+      .send(e.message + (e.stack ? '\n' + e.stack : ''))
   })
   
   const cache = new WeakCache()
