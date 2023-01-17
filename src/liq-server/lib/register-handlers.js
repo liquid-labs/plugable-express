@@ -1,4 +1,3 @@
-import asyncHandler from 'express-async-handler'
 import omit from 'lodash.omit'
 import { pathToRegexp } from 'path-to-regexp'
 
@@ -147,7 +146,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     
     app[method](routablePath,
                 processParams({ parameters, path }),
-                asyncHandler(handlerFunc))
+                handlerFunc)
     // for or own informational purposes
     const endpointDef = Object.assign({}, handler)
 
@@ -241,7 +240,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         const helpFunc = sendHelp({ help, method, path, parameters }) // from the main endpoint
         app['get'](routableHelpPath,
                     processParams({ parameters: helpParameters, path: helpPath }),
-                    asyncHandler(helpFunc({ model, reporter })))
+                    helpFunc({ model, reporter }))
 
         const helpEndpointDef = {
            method: 'GET',

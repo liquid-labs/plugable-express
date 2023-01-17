@@ -23,6 +23,15 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.use(express.json())
   app.use(express.urlencoded({ extended: true })) // handle POST body params
   app.use(fileUpload({ parseNested: true }))
+  app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error)
+
+    res.status(error.status || 500)
+    console.log(error)
+    res
+      .setHeader('content-type', 'text/plain')
+      .send(e.message + ${e.stack ? '\n' + e.stack : ''})
+  })
   
   const cache = new WeakCache()
   options.cache = cache
