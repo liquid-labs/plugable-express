@@ -2,6 +2,8 @@ import omit from 'lodash.omit'
 
 import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
+import { listParameters } from './_lib/parameters-lib'
+
 const method = 'get'
 const path = [ 'orgs', ':orgKey', 'parameters', 'list?' ]
 const parameters = commonOutputParams // option func setup on 'fields' below
@@ -19,27 +21,11 @@ const terminalFormatter = (parameters, title) =>
 const textFormatter = (parameters, title) =>
   parameters.map((p) => `- ${p.name}: ${p.value}`).join("\n") + '\n'
 
-const allCapsRe = /^[A-Z_]+$/
-
 const func = ({ model, reporter }) => (req, res) => {
   const org = getOrgFromKey({ model, params: req.vars, res })
   if (org === false) return
   
-  const parameters = []
-  const frontier = [{ path: '', struct: org.settings }]
-
-  while (frontier.length > 0) {
-    const { path, struct } = frontier.shift()
-
-    for (const key in struct) {
-      if (key.match(allCapsRe)) {
-        parameters.push({ name: path + '.' + key, value: struct[key] })
-      }
-      else {
-        frontier.push({ path: path + '.' + key, struct: struct[key] })
-      }
-    }
-  }
+  const parameters = listParameters(org)
 
   formatOutput({
     basicTitle : `Org ${org.name} Parameters`,
