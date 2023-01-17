@@ -11,7 +11,10 @@ const DEFAULT_LICENSE='UNLICENSED'
 const DEFAULT_VERSION='1.0.0-alpha.0'
 
 const method = 'post'
-const path = [ 'orgs', ':orgKey', 'projects', 'create?' ]
+const paths = [
+  [ 'projects', ':orgKey', ':newProjectName', 'create?' ],
+  [ 'orgs', ':orgKey', 'projects', ':newProjectName', 'create?' ]
+]
 const parameters = [
 	{
 		name: 'description',
@@ -24,12 +27,6 @@ const parameters = [
 		isSingleValue: true,
 		description: `Sets the license string for the newly created package. If not provided, then defaults to org setting 'ORG_DEFAULT_LICENSE' if set and '${DEFAULT_LICENSE}' otherwise.`
 	},
-  {
-    name: 'name',
-    isSingleValue: true,
-    required: true,
-    description: 'The project name (sans org qualifier).'
-  },
   {
   	name: 'noFork',
   	isBoolean: true,
@@ -47,14 +44,27 @@ const parameters = [
   }
 ]
 
-const func = ({ app, model, reporter }) => async (req, res) => {
-	const org = getOrgFromKey({ model, params: req.vars, res })
-  if (org === false) {
-    return
+const func = ({ app, model, reporter }) => {
+  app.commonPathResolvers['newProjectName'] = {
+    optionsFetcher: () => [],
+    bitReString: '[a-zA-Z][a-zA-Z0-9-]*'
   }
+
+  return async (req, res) => {
+	const org = getOrgFromKey({ model, params: req.vars, res })
+  if (org === false) return
+  
   const report = []
 
-  const { description, license, name, orgKey, noFork=false, public : publicRepo=false, version=DEFAULT_VERSION } = req.vars
+  const {
+    description,
+    license,
+    orgKey,
+    newProjectName,
+    noFork=false,
+    public : publicRepo=false,
+    version=DEFAULT_VERSION
+  } = req.vars
   const orgGithubName = org.getSetting('ORG_GITHUB_NAME')
   if (!orgGithubName) {
   	res.status(400).type('text/plain').send(`'ORG_GITHUB_NAME' not defined for org '${orgKey}'.`)
@@ -88,7 +98,7 @@ const func = ({ app, model, reporter }) => async (req, res) => {
 	}
 
   // set up the staging directory
-  const stagingDir = `${app.liqHome()}/tmp/liq-core/project-staging/${name}`
+  const stagingDir = `${app.liqHome()}/tmp/liq-core/project-staging/${newProjectName}`
   await fs.mkdir(stagingDir, { recursive: true })
 
   cleanupFuncs.push([
@@ -112,7 +122,7 @@ const func = ({ app, model, reporter }) => async (req, res) => {
   const packagePath = stagingDir + '/package.json'
   const packageJSON = readFJSON(packagePath)
 
-  const qualifiedName = orgGithubName + '/' + name
+  const qualifiedName = orgGithubName + '/' + newProjectName
 	const repoFragment = 'github.com/' + qualifiedName
   const repoURL = `git+ssh://git@${repoFragment}.git`
   const bugsURL = `https://${repoFragment}/issues`
@@ -191,11 +201,11 @@ const func = ({ app, model, reporter }) => async (req, res) => {
   	res,
   	status: 501
   })
-}
+}}
 
 export {
 	func,
 	method,
 	parameters,
-	path
+	paths
 }
