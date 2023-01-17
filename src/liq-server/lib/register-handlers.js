@@ -137,7 +137,6 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
 
     for (const path of paths || [ aPath ]) { 
-      console.log(path) // DEBUG
       const routablePath = typeof path === 'string'
         ? path
         : Array.isArray(path)
