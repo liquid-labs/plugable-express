@@ -1,3 +1,4 @@
+// TODO: this handler should move to liq-projects
 import * as fs from 'node:fs/promises'
 
 import shell from 'shelljs'
@@ -12,8 +13,8 @@ const DEFAULT_VERSION='1.0.0-alpha.0'
 
 const method = 'post'
 const paths = [
-  [ 'projects', ':orgKey', ':newProjectName', 'create?' ],
-  [ 'orgs', ':orgKey', 'projects', ':newProjectName', 'create?' ]
+  [ 'projects', ':orgKey', ':newProjectName', 'create' ],
+  [ 'orgs', ':orgKey', 'projects', ':newProjectName', 'create' ]
 ]
 const parameters = [
 	{
