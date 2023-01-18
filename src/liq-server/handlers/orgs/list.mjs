@@ -11,8 +11,11 @@ const defaultFields = [ 'key', 'commonName', 'legalName' ]
 const allFields = [ ...defaultFields ]
 parameters.find((o) => o.name === 'fields').optionsFunc = () => allFields
 
-const mdFormatter = (orgs, title) =>
-  `# ${title}\n\n${orgs.map((o) => `* ${o.name}`).join("\n")}\n`
+const mdFormatter = (orgs, title) => `# ${title}\n\n${orgs.map((o) => `* ${o.name}`).join("\n")}\n`
+
+const terminalFormatter = (orgs) => orgs.map((o) => `${o.commonName} (<em>${o.key}<rst>)`).join('\n')
+
+const textFormatter = (orgs) => orgs.map((o) => `${o.commonName} (${o.key})`).join('\n')
 
 const func = ({ model, reporter }) => (req, res) => {
   let orgs = Object.values(model.orgs)
@@ -23,6 +26,8 @@ const func = ({ model, reporter }) => (req, res) => {
     allFields,
     defaultFields,
     mdFormatter,
+    terminalFormatter,
+    textFormatter,
     reporter,
     req,
     res,
