@@ -53,7 +53,7 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/federated-json": "^1.0.0-alpha.30",
+    "@liquid-labs/federated-json": "^1.0.0-alpha.31",
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.10",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
