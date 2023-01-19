@@ -5,7 +5,7 @@ import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 import { listParameters } from './_lib/parameters-lib'
 
 const method = 'get'
-const path = [ 'orgs', ':orgKey', 'parameters', ':parameterKey' ]
+const path = [ 'orgs', ':orgKey', 'parameters', ':parameterKey', 'detail' ]
 const parameters = []
 
 const func = ({ app, model, reporter }) => {
@@ -38,7 +38,7 @@ const func = ({ app, model, reporter }) => {
 
   switch (responseType) {
   case 'text/terminal':
-    res.send('<code>' + parameterKey + '<rst>: ' + value); break
+    res.send('<code>' + parameterKey + '<rst>: <em>' + value + '<rst>'); break
   case 'text/plain':
     res.send(parameterKey + ': ' + value); break
   case 'application/json':
