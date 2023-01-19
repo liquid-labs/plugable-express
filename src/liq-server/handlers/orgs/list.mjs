@@ -5,7 +5,7 @@ import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/li
 const method = 'get'
 // const path = new RegExp('/orgs(?:/list)?[/#?]?$')
 const path = [ 'orgs', 'list?' ]
-const parameters = commonOutputParams // option func setup on 'fields' below
+const parameters = commonOutputParams() // option func setup on 'fields' below
 
 const defaultFields = [ 'key', 'commonName', 'legalName' ]
 const allFields = [ ...defaultFields ]

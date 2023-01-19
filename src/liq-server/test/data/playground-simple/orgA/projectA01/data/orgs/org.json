@@ -5,6 +5,10 @@
         {
           "path": ".staff",
           "file": "${ORG_DATA_PATH}/../staff.json"
+        },
+        {
+          "path": ".settings",
+          "file": "${ORG_DATA_PATH}/orgs/settings.yaml"
         }
       ]
     }

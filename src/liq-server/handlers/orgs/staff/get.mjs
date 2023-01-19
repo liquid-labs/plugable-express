@@ -19,7 +19,7 @@ const parameters = [
     isBoolean: true,
     description: "If true, only includes directly assigned roles in the results (if any). If false (default), then all roles both direct and implied are included in the results."
   },
-  ...commonOutputParams
+  ...commonOutputParams()
 ]
 
 /* const mdFormatter = (staff, title) =>

@@ -4,7 +4,7 @@ import { pathToRegexp } from 'path-to-regexp'
 import { commonOutputParams } from '@liquid-labs/liq-handlers-lib'
 import { sendHelp } from '../handlers/help/lib/send-help'
 
-const helpParameters = [ ...commonOutputParams ]
+const helpParameters = commonOutputParams()
 
 const falseParams = /n(o)?|f(alse)?|0/i
 const pathParamRegExp = /:[a-zA-Z0-9_]+/g

@@ -55,7 +55,7 @@
   "dependencies": {
     "@liquid-labs/federated-json": "^1.0.0-alpha.31",
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
-    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.10",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.12",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
     "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",
@@ -63,7 +63,6 @@
     "find-plugins": "^1.1.7",
     "js-yaml": "^4.1.0",
     "json-diff": "^0.9.0",
-    "resolve": "^1.20.0",
-    "shelljs": "^0.8.5"
+    "resolve": "^1.20.0"
   }
 }

@@ -1,4 +1,5 @@
 import omit from 'lodash.omit'
+import structuredClone from 'core-js-pure/actual/structured-clone'
 
 import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
@@ -6,7 +7,7 @@ import { listParameters } from './_lib/parameters-lib'
 
 const method = 'get'
 const path = [ 'orgs', ':orgKey', 'parameters', 'list?' ]
-const parameters = commonOutputParams // option func setup on 'fields' below
+const parameters = commonOutputParams() // option func setup on 'fields' below
 
 const defaultFields = [ 'name', 'value' ]
 const allFields = [ ...defaultFields ]

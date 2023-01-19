@@ -11,7 +11,7 @@ const parameters = [
     required: false,
     description: 'Displays the endpoint name, path, and summary only. Use this option for prose output and the `fields` parameter to achive a similar effect for data output.'
   },
-  ...commonOutputParams
+  ...commonOutputParams()
 ]
 Object.freeze(parameters)
 

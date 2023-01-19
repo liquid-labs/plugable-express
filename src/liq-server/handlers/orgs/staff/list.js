@@ -34,7 +34,7 @@ const parameters = [
     description: "If specified, only staff with all the indicated roles are included in the results. May specify multiple times and/or separate roles by comma. May be combined with 'withAnyRole'.",
     optionsFunc: rolesFetcher
   },
-  ...commonOutputParams
+  ...commonOutputParams()
 ]
 
 const mdFormatter = (staff, title) =>
