@@ -1,4 +1,3 @@
-import { handlers as projectHandlers } from './projects'
 import { handlers as staffHandlers } from './staff'
 
 import * as orgCreate from './create'
@@ -13,7 +12,6 @@ const handlers = [
 	paramDetail,
 	paramList,
 	paramSet,
-	...projectHandlers,
 	...staffHandlers
 ]
 
