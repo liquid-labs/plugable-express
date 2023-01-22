@@ -1,5 +1,3 @@
-import omit from 'lodash.omit'
-
 import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'put'
@@ -80,7 +78,7 @@ const func = ({ app, model, reporter }) => {
                 ? Number.parseFloat(value)
                 : value // it's a string!
 
-    org.updateSetting(parameterKey, value)
+    org.updateSetting(parameterKey, parsedValue)
     org.save()
 
     const accepts = ['text/terminal', 'text/plain', 'application/json']
