@@ -13,6 +13,8 @@ const parameterCharacteristics = (p) => {
         : 'string'
   output += ', ' + type + '*\n'
   if (p.matcher) output += '*matcher: ' + p.matcher.toString() + '*'
+
+  return output
 }
 
 const indent = 2
@@ -47,7 +49,9 @@ const mdFormatterGen = ({ width = 80, nesting = 0 } = {}) => ({ name, path, summ
       else {
         output += `- *${r.name}*` + (r.description ? `: ${r.description}` : '')
       }
-    })
+
+      return output
+    }, output)
   }
 
   return output

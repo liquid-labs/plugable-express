@@ -6,7 +6,8 @@ import findPlugins from 'find-plugins'
 import { registerHandlers } from './register-handlers'
 
 const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
-const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
+// Everything in the plugin pkg is a plugin in
+// const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
 /**
 * Given an app, model, cache, reporter, and plugin path, loads plugins from the path.

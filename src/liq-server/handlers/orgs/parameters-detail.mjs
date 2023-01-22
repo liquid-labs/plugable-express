@@ -1,5 +1,3 @@
-import omit from 'lodash.omit'
-
 import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 
 import { listParameters } from './_lib/parameters-lib'

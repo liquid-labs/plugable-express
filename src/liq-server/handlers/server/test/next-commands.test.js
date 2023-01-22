@@ -1,4 +1,4 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global afterAll beforeAll describe expect test */
 import request from 'supertest'
 
 import { appInit } from '../../../app'

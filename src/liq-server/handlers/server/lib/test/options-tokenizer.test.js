@@ -1,4 +1,4 @@
-/* global expect */
+/* global describe expect test */
 
 import { optionsTokenizer } from '../options-tokenizer'
 

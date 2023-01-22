@@ -29,9 +29,6 @@ const parameters = [
   }
 ]
 
-const mdFormatter = (orgs, title) =>
-  `# ${title}\n\n${orgs.map((o) => `* ${o.name}`).join('\n')}\n`
-
 const func = ({ app }) => {
   app.addCommonPathResolver('newOrgKey', {
     bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
@@ -44,9 +41,7 @@ const func = ({ app }) => {
 
     await fs.mkdir(localRootDir, { recursive : true })
 
-    const rootFile = localRootDir + '/org.json'
-
-    const newOrg = Organization.initializeOrganization({
+    /* const newOrg = */Organization.initializeOrganization({
       commonName,
       dataPath : localDataRoot,
       legalName,

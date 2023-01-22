@@ -1,13 +1,12 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global afterEach beforeEach describe expect jest test */
 import * as fs from 'fs'
 import * as path from 'path'
 
-import omit from 'lodash.omit'
 import request from 'supertest'
 
 import { appInit } from '../../../../app'
 import { model } from '../../../../model'
-import { CURR_VER, defaultTestOptions } from '../../../../test/lib/test-utils'
+import { defaultTestOptions } from '../../../../test/lib/test-utils'
 
 const origStaffJSON = path.join(__dirname, '..', '..', '..', '..', '..',
   'src', 'liq-server', 'test', 'data', 'playground-simple', 'orgA', 'projectA01', 'staff.json')
@@ -43,37 +42,30 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     const origCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
     const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
     const filePath = path.join(__dirname, 'staff-delete.csv')
-    const { body, headers, status, text } = await request(app)
+    const { body, headers, status } = await request(app)
       .post('/orgs/orgA/staff/refresh') // it reads weird, but this MUST go first
       .accept('application/json')
       .attach('testFile', filePath)
-    try {
-      expect(status).toBe(200)
-      expect(headers['content-type']).toMatch(/application\/json/)
-      expect(body.message.match(/(updated.*){2}/i))
-      expect(model.orgs.orgA.staff.list()).toHaveLength(2)
 
-      const newCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
-      expect(newCEO._sourceFileName).toBe('staff-delete.csv')
-      delete newCEO._sourceFileName
-      expect(newCEO).toEqual(origCEO)
+    expect(status).toBe(200)
+    expect(headers['content-type']).toMatch(/application\/json/)
+    expect(body.message.match(/(updated.*){2}/i))
+    expect(model.orgs.orgA.staff.list()).toHaveLength(2)
 
-      const newDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
-      expect(newDev._sourceFileName).toBe('staff-delete.csv')
-      delete newDev._sourceFileName
-      expect(newDev).toEqual(origDev)
-    }
-    catch (err) {
-      // console.error(logs.join("\n"))
-      // console.error(body)
-      // console.error(text)
-      throw err
-    }
+    const newCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
+    expect(newCEO._sourceFileName).toBe('staff-delete.csv')
+    delete newCEO._sourceFileName
+    expect(newCEO).toEqual(origCEO)
+
+    const newDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
+    expect(newDev._sourceFileName).toBe('staff-delete.csv')
+    delete newDev._sourceFileName
+    expect(newDev).toEqual(origDev)
   })
 
   test('adds', async() => {
     const filePath = path.join(__dirname, 'staff-delete.csv')
-    const { body, headers, status, text } = await request(app)
+    const { body, headers, status } = await request(app)
       .post('/orgs/orgA/staff') // it reads weird, but this MUST go first
       .accept('application/json')
       .attach('testFile', filePath)

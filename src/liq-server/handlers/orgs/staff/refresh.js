@@ -1,5 +1,3 @@
-import * as StreamPromises from 'stream/promises'
-
 import { importFromCSV } from '@liquid-labs/import-export'
 
 import {
@@ -58,4 +56,4 @@ const func = ({ model }) => (req, res) => {
   })
 }
 
-export { func, path, method }
+export { func, method, path, parameters }

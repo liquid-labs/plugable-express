@@ -1,6 +1,4 @@
-import omit from 'lodash.omit'
-
-import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
+import { commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
 
 const method = 'get'
 // const path = new RegExp('/orgs(?:/list)?[/#?]?$')

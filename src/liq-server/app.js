@@ -1,6 +1,3 @@
-import * as path from 'path'
-
-import chalk from 'chalk'
 import express from 'express'
 import fileUpload from 'express-fileupload'
 
@@ -10,15 +7,13 @@ import { handlers } from './handlers'
 import { loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 
-const PLUGIN_LABEL = 'plugin:liq-core'
-
 /**
 * Options:
 * - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
 *     dependencies are the plugins to be loaded.
 */
 const appInit = ({ skipCorePlugins = false, ...options }) => {
-  const { model, reporter } = options
+  const { reporter } = options
   const app = express()
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
@@ -30,7 +25,7 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
     console.log(error)
     res
       .setHeader('content-type', 'text/plain')
-      .send(e.message + (e.stack ? '\n' + e.stack : ''))
+      .send(error.message + (error.stack ? '\n' + error.stack : ''))
   })
 
   const cache = new WeakCache()

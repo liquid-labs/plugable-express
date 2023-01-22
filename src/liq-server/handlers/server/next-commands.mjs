@@ -1,5 +1,3 @@
-import omit from 'lodash.omit'
-
 import { nextOptions } from './lib/next-options'
 
 const method = 'get'
@@ -44,7 +42,6 @@ const func = ({ app, model }) => async(req, res) => {
       cmdsLeft.pop()
     }
 
-    let optionsSpec
     let unmatchedFinalCommand = null
     let finalOptions
     while (cmdsLeft.length > 0) {

@@ -62,6 +62,8 @@ const func = ({ app, cache, model, reporter }) => {
     const liqHome = app.liqHome()
     const dbPath = `${liqHome}/credentials.json`
 
+    // TODO: use this var
+    // eslint-disable-next-line no-unused-vars
     const credentialsDb = credDb.loadDb({ cache, cacheKey : CREDS_DB_CACHE_KEY, path : dbPath })
 
     res.status(505).type('text/plain').send('Not implemented.')
