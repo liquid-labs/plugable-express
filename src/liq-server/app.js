@@ -18,15 +18,6 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
   app.use(fileUpload({ parseNested : true }))
-  app.use((error, req, res, next) => {
-    if (res.headersSent) return next(error)
-
-    res.status(error.status || 500)
-    console.log(error)
-    res
-      .setHeader('content-type', 'text/plain')
-      .send(error.message + (error.stack ? '\n' + error.stack : ''))
-  })
 
   const cache = new WeakCache()
   options.cache = cache
@@ -70,6 +61,21 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   if (!skipCorePlugins) {
     loadPlugins(app, options)
   }
+
+  // log errors
+  app.use((error, req, res, next) => {
+    console.log(error)
+    next(error)
+  })
+  // generate user response
+  app.use((error, req, res, next) => {
+    if (res.headersSent) return next(error)
+
+    res.status(error.status || 500)
+    res
+      .setHeader('content-type', 'text/plain')
+      .send(error.message + (error.stack ? '\n' + error.stack : ''))
+  })
 
   return { app, cache }
 }
