@@ -14,6 +14,8 @@ const parameterCharacteristics = (p) => {
         : 'string'
   output += ', ' + type + '\n'
   if (p.matcher) output += 'matcher: ' + p.matcher.toString()
+
+  return output
 }
 
 const indent = 2
@@ -30,6 +32,7 @@ const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parame
       output += '\n- ' + p.name + '\n'
       output += wrap(parameterCharacteristics(p), { indent, width }) + '\n\n'
       output += wrap(p.description, { indent, width })
+
       return output
     }, output)
   }
@@ -43,7 +46,8 @@ const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parame
     output += '\n\nReferences\n'
     references.reduce((output, r) => {
       output += `- ${r.name}${r.description ? ': ' : ''}${r.description}${r.description ? ' ' : ''}${r.url}`
-    })
+      return output
+    }, output)
   }
 
   return output
