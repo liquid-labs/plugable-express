@@ -42,14 +42,15 @@ const terminalFormatterGen = ({
 
   if (description) {
     output += '\n<h2>Description<rst>\n'
-    output += description, { width, formatTerminal : true } + '\n'
+    output += wrap(description + '\n', { width, formatTerminal : true })
   }
 
   if (references) {
     output += '\n<h2>References<rst>\n'
     references.reduce((output, r) => {
       output += `- <em>${r.name}<rst>${r.description ? ': ' : ''}${r.description}${r.description ? ' ' : ''}${r.url}`
-    })
+      return output
+    }, output)
   }
 
   output += '\n'
