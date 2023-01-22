@@ -10,12 +10,12 @@ describe('GET:/server/api', () => {
   let cache
   beforeAll(() => {
     model.initialize(defaultTestOptions());
-    ({ app, cache } = appInit(defaultTestOptions({ model })));
+    ({ app, cache } = appInit(defaultTestOptions({ model })))
   })
-  
+
   afterAll(() => { cache.release() })
-  
-  test("returns a description of the API", async() => {
+
+  test('returns a description of the API', async() => {
     const { status, body, headers } = await request(app)
       .get('/server/api') // it reads weird, but this MUST go first
       .set('Accept', 'application/json')

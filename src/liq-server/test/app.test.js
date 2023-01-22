@@ -26,9 +26,9 @@ describe('app', () => {
 
     beforeAll(() => {
       model.initialize(testOptions);
-      ({ cache } = appInit(Object.assign(testOptions, { model })));
+      ({ cache } = appInit(Object.assign(testOptions, { model })))
     })
-    
+
     afterAll(() => { cache.release() })
 
     test('describes registered paths', () => {
@@ -51,9 +51,9 @@ describe('app', () => {
       model.initialize(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = appInit(testOptions));
+      ({ app, cache } = appInit(testOptions))
     })
-    
+
     afterAll(() => cache.release())
 
     test('are registered', () => {

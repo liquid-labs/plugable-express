@@ -1,5 +1,5 @@
 const method = 'unbind'
-const path = [ 'server', 'stop?' ]
+const path = ['server', 'stop?']
 
 const func = ({ cache }) => (req, res) => {
   res.send('Shutting down...')

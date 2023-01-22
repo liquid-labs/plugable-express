@@ -1,5 +1,5 @@
 export const COMPANY = 'company'
-export const EMAIL='email'
+export const EMAIL = 'email'
 export const EMPLOYMENT_STATUS = 'employmentStatus'
 export const END_DATE = 'endDate'
 export const FAMILY_NAME = 'familyName'

@@ -7,12 +7,12 @@ import * as paramList from './parameters-list'
 import * as paramSet from './parameters-set'
 
 const handlers = [
-	orgCreate,
-	orgList,
-	paramDetail,
-	paramList,
-	paramSet,
-	...staffHandlers
+  orgCreate,
+  orgList,
+  paramDetail,
+  paramList,
+  paramSet,
+  ...staffHandlers
 ]
 
 export { handlers }

@@ -5,45 +5,46 @@ import { getOrgFromKey } from '@liquid-labs/liq-handlers-lib'
 import { listParameters } from './_lib/parameters-lib'
 
 const method = 'get'
-const path = [ 'orgs', ':orgKey', 'parameters', ':parameterKey', 'detail' ]
+const path = ['orgs', ':orgKey', 'parameters', ':parameterKey', 'detail']
 const parameters = []
 
 const func = ({ app, model, reporter }) => {
-  app.commonPathResolvers['parameterKey'] = {
-    optionsFetcher: ({ orgKey }) => {
+  app.commonPathResolvers.parameterKey = {
+    optionsFetcher : ({ orgKey }) => {
       const org = model.orgs[orgKey]
       const parameters = listParameters(org)
       return parameters.map((p) => p.name)
     },
-    bitReString: '(?:[.][_a-zA-Z][_a-zA-Z0-9-]*)+'
+    bitReString : '(?:[.][_a-zA-Z][_a-zA-Z0-9-]*)+'
   }
 
   return (req, res) => {
-  const org = getOrgFromKey({ model, params: req.vars, res })
-  if (org === false) return
+    const org = getOrgFromKey({ model, params : req.vars, res })
+    if (org === false) return
 
-  const { parameterKey } = req.vars
-  
-  const value = org.getSetting(parameterKey)
+    const { parameterKey } = req.vars
 
-  const accepts = ['text/terminal', 'text/plain', 'application/json']
-  const responseType = req.accepts(accepts)
-  if (responseType === false) {
-    res.status(406).send(`Cannot provide response for '${req.get('content-type')}'; response can be provided in the following formats: ` + accepts.join(', '))
-    return
+    const value = org.getSetting(parameterKey)
+
+    const accepts = ['text/terminal', 'text/plain', 'application/json']
+    const responseType = req.accepts(accepts)
+    if (responseType === false) {
+      res.status(406).send(`Cannot provide response for '${req.get('content-type')}'; response can be provided in the following formats: ` + accepts.join(', '))
+      return
+    }
+    // else, let's respond!
+
+    res.type(responseType)
+
+    switch (responseType) {
+    case 'text/terminal':
+      res.send('<code>' + parameterKey + '<rst>: <em>' + value + '<rst>'); break
+    case 'text/plain':
+      res.send(parameterKey + ': ' + value); break
+    case 'application/json':
+      res.send({ name : parameterKey, value })
+    }
   }
-  // else, let's respond!
-
-  res.type(responseType)
-
-  switch (responseType) {
-  case 'text/terminal':
-    res.send('<code>' + parameterKey + '<rst>: <em>' + value + '<rst>'); break
-  case 'text/plain':
-    res.send(parameterKey + ': ' + value); break
-  case 'application/json':
-    res.send({ name: parameterKey, value })
-  }
-}}
+}
 
 export { func, parameters, path, method }

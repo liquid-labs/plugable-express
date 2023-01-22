@@ -32,7 +32,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     ? req.body
     : req.query
   if (source === undefined) return true
-  
+
   const validParams = parameters && parameters.map(p => p.name)
   const vars = {}
   for (const k in Object.keys(req.params)) { // 'source' vars will be added as they are processed
@@ -47,22 +47,22 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
         mapArr.push(name)
       }
     }
-    
+
     mapArr.forEach((n, i, arr) => vars[n] = vars[i])
   }
   req.vars = vars
-  
+
   // checks for unknown parameters and complain
   const remainder = Object.keys(omit(source, validParams))
   if (remainder.length > 0) {
     throw new Error(`Unknown query parameters: ${remainder.join(', ')} while accessing ${req.path}.`)
   }
-  
+
   // now process flagged variables
   for (const p of parameters) {
     let value = source[p.name]
-    if (value === undefined) continue;
-    
+    if (value === undefined) continue
+
     if (p.isMultivalue === true) {
       if (!Array.isArray(value)) { // then it's a string
         value = value.split(/\s*(?<!\\),\s*/) // split on non-escaped commas
@@ -82,7 +82,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
 
     vars[p.name] = value
   }
-  
+
   next()
 }
 
@@ -112,19 +112,19 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   }
   reString += '[/#?]?$'
   app.addCommandPath(commandPath, parameters)
-  
+
   return new RegExp(reString)
 }
 
 // express barfs if there are named capture groups in the path RE. However, we really want to use named capture groups
 // so we define our paths with them (for future use) and remove them here. The 'slice' removes the leading and trailing
 // '/'
-const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1,-1))
+const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1, -1))
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     const { func, help, method, parameters, path: aPath, paths } = handler
-    if ((aPath === undefined && paths === undefined)|| method === undefined || func === undefined) {
+    if ((aPath === undefined && paths === undefined) || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
     if (aPath !== undefined && paths !== undefined) {
@@ -132,24 +132,23 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     }
 
     const methodUpper = method.toUpperCase()
-    
+
     // this must come before processCommandPath to give the function the option of registering variable name parameters
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
 
-    for (const path of paths || [ aPath ]) { 
+    for (const path of paths || [aPath]) {
       const routablePath = typeof path === 'string'
         ? path
         : Array.isArray(path)
-          ? cleanReForExpress(processCommandPath({ app, model, pathArr: path, parameters }))
+          ? cleanReForExpress(processCommandPath({ app, model, pathArr : path, parameters }))
           : cleanReForExpress(path) // then it's a regular expression
       reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
-      
+
       app[method](routablePath,
-                  processParams({ parameters, path }),
-                  handlerFunc)
+        processParams({ parameters, path }),
+        handlerFunc)
       // for or own informational purposes
       const endpointDef = Object.assign({}, handler)
-
 
       endpointDef.path = routablePath.toString()
 
@@ -157,7 +156,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
         endpointDef.parameters = []
       }
-      
+
       if (!Object.isFrozen(parameters)) { // use parameters as a proxy instead of testing each param seperately
         let i = 0
         // TODO: see regex path note at top
@@ -165,7 +164,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         const pathParams = typeof path === 'string'
           ? path.match(pathParamRegExp)
           : path.toString().match(regexParamRegExp)
-      
+
         for (const pathParam of pathParams || []) {
           const paramName = pathParam.startsWith(':')
             ? pathParam.substring(1)
@@ -219,7 +218,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         reporter.error(`Exception while attempting to process path '${path}'. Perhaps there are special characters that need escaping; try '([*])' where '*' is your special character. Error message: ${e.message}`)
         throw e
       }
-      
+
       // lockdown our internal setup
       Object.freeze(endpointDef)
       Object.freeze(parameters)
@@ -233,21 +232,21 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         // const helpPostfix = [...path]
         // helpPostfix.push('help')
 
-        for (const helpPathTmpl of [ helpPrefix/*, helpPostfix */ ]) {
+        for (const helpPathTmpl of [helpPrefix]) {
           const helpPath = helpPathTmpl.map((b) => b.startsWith(':') ? b.slice(1) : b)
           const routableHelpPath =
-            cleanReForExpress(processCommandPath({ app, model, pathArr: helpPath, parameters: helpParameters }))
+            cleanReForExpress(processCommandPath({ app, model, pathArr : helpPath, parameters : helpParameters }))
           const helpFunc = sendHelp({ help, method, path, parameters }) // from the main endpoint
-          app['get'](routableHelpPath,
-                      processParams({ parameters: helpParameters, path: helpPath }),
-                      helpFunc({ model, reporter }))
+          app.get(routableHelpPath,
+            processParams({ parameters : helpParameters, path : helpPath }),
+            helpFunc({ model, reporter }))
 
           const helpEndpointDef = {
-             method: 'GET',
-             parameters: helpParameters,
-             path: routableHelpPath.toString(),
-             sourcePkg: sourcePkg,
-             matcher: routableHelpPath.toString().slice(1, -1)
+            method     : 'GET',
+            parameters : helpParameters,
+            path       : routableHelpPath.toString(),
+            sourcePkg  : sourcePkg,
+            matcher    : routableHelpPath.toString().slice(1, -1)
           }
           Object.freeze(helpEndpointDef)
           app.handlers.push(helpEndpointDef)

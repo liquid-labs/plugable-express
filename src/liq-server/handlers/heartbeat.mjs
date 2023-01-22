@@ -1,5 +1,5 @@
 const method = 'get'
-const path = [ '' ]
+const path = ['']
 
 const func = () => (req, res) => {
   res.json(true)

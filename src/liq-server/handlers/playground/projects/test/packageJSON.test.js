@@ -15,21 +15,21 @@ testOptions.logs = logs
 describe('GET:/playground/projects/:localOrgKey/:localProjectName/packageJSON', () => {
   let app
   let cache
-  
+
   beforeAll(() => {
     model.initialize(testOptions);
-    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))));
+    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
   })
   afterEach(() => { cache.release() /* cache has timers that must be stopped */ })
-  
-  test('will retrieve the local package definition', async () => {
+
+  test('will retrieve the local package definition', async() => {
     const { body, headers, status } = await request(app)
       .get('/playground/projects/orgA/projectA01/packageJSON') // it reads weird, but this MUST go first
       .set('Accept', 'application/json')
-      
-      expect(status).toBe(200)
-      expect(headers['content-type']).toMatch(/application\/json/)
-      expect(body).toBeTruthy()
-      expect(body).toStrictEqual(projectA01PackageContents)
+
+    expect(status).toBe(200)
+    expect(headers['content-type']).toMatch(/application\/json/)
+    expect(body).toBeTruthy()
+    expect(body).toStrictEqual(projectA01PackageContents)
   })
 })

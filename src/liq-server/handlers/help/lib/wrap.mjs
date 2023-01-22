@@ -1,4 +1,4 @@
-const tagBreakers = [ '<', ' ', '\n' ]
+const tagBreakers = ['<', ' ', '\n']
 /**
 * Determines the effective considering any indent and invisible tags.
 */
@@ -8,7 +8,7 @@ const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
     width = width - indent // adjust width
     let charCount = 0
     let tagChars = 0
-    let sawLtAt=-1
+    let sawLtAt = -1
     let cursor = 0
     //         v have we run out of text?         v once we've counted width chars, we're done
     for (; cursor < text.length && charCount < width; cursor += 1) {
@@ -40,17 +40,17 @@ const getEffectiveWidth = ({ text, width, indent, ignoreTags }) => {
         return width + tagChars
       }
     }
-    
+
     return charCount + tagChars
   }
 }
 
-const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartIndent=false, width=80,  }={}) => {
+const wrap = (text, { hangingIndent = false, ignoreTags = false, indent = 0, smartIndent = false, width = 80 } = {}) => {
   if (!text) return ''
   // text = text.replace(/\s+$/, '') // we'll trim the front inside the while loop
-  
+
   const lines = []
-  
+
   let newPp = true
   let inList = 0
   for (let iLine of text.split('\n')) {
@@ -67,7 +67,7 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
       iLine = iLine.replace(/^-+/, '-')
       newPp = true
     }
-    
+
     while (iLine.length > 0) { // usually we 'break' the flow, but this could happen if we trim the text exactly.
       // determine how many spaces to add before the current line
       const effectiveIndent = !hangingIndent && !smartIndent
@@ -80,9 +80,9 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
               ? (inList - 1) * indent
               : 0
       const spcs = ' '.repeat(effectiveIndent)
-      const ew = getEffectiveWidth({ text: iLine, width, indent: effectiveIndent, ignoreTags })
+      const ew = getEffectiveWidth({ text : iLine, width, indent : effectiveIndent, ignoreTags })
       iLine = iLine.replace(/^\s+/, '')
-      
+
       if (ew >= iLine.length) {
         lines.push(spcs + iLine)
         newPp = false
@@ -96,14 +96,14 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
         // lines.push('b23456790' + '123456790'.repeat(7))
         continue
       }
-      else if (iLine.charAt(ew-1) === '-') {
+      else if (iLine.charAt(ew - 1) === '-') {
         lines.push(spcs + iLine.slice(0, ew))
         iLine = iLine.slice(ew)
         newPp = false
         // lines.push('c23456790' + '123456790'.repeat(7))
         continue
       }
-      
+
       const iSpace = iLine.lastIndexOf(' ', ew)
       const iDash = iLine.lastIndexOf('-', ew) + 1
       let i = iSpace > iDash ? iSpace : iDash
@@ -113,7 +113,7 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
       if (i > iLine.length) {
         i = iLine.length
       }
-      
+
       lines.push(spcs + iLine.slice(0, i))
       // lines.push('d23456790' + '123456790'.repeat(7))
       iLine = iLine.slice(i)
@@ -121,7 +121,7 @@ const wrap = (text, { hangingIndent=false, ignoreTags=false, indent=0, smartInde
       newPp = false
     } // while input line
   } // for each input line
-  
+
   return lines.join('\n')
 }
 

@@ -42,20 +42,20 @@ const model = {
       model.config = config
     }
     model.playground = loadPlayground(config)
-    
-    const orgsOptions = Object.assign({ playground: model.playground }, config)
+
+    const orgsOptions = Object.assign({ playground : model.playground }, config)
     model.orgs = loadOrgs(orgsOptions)
     model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
 
     // bind the original config to refreshPlayground TODO: this is notnecessary as we save 'config' on 'model'
     model.refreshPlayground = () => {
       model.playground = loadPlayground(config)
-      
+
       return model.playground
     }
-    
+
     model.tasks = {
-      create: ({
+      create : ({
         // required
         runFile,
         workerData,
@@ -63,7 +63,7 @@ const model = {
         req,
         app,
         // optional
-        queueMessage="Task queued.", // highly reccomended
+        queueMessage = 'Task queued.', // highly reccomended
         onError,
         onOnline,
         onMessage,
@@ -79,16 +79,16 @@ const model = {
           }
         }
         worker.unref()
-        
+
         model.tasks.data[threadId] = {
-          startTime: new Date().getTime(),
-          endTime: null,
-          running: false,
-          status: 'not started',
-          actions: [],
-          error: undefined,
-          exitCode: undefined,
-          acknowledged: false
+          startTime    : new Date().getTime(),
+          endTime      : null,
+          running      : false,
+          status       : 'not started',
+          actions      : [],
+          error        : undefined,
+          exitCode     : undefined,
+          acknowledged : false
         }
 
         worker.on('online', () => {
@@ -147,30 +147,30 @@ const model = {
             onExit(worker)
           }
         })
-        
+
         res.json({
-          message: queueMessage,
-          followup: [
+          message  : queueMessage,
+          followup : [
             `${req.protocol}://${req.hostname || req.ip}:${app.serverData.port}/tasks/${worker.threadId}`,
             `liq tasks ${worker.threadId}`
           ]
         })
-        
+
         return worker
       }, // end 'create'
-      remove: (threadId) => {
+      remove : (threadId) => {
         delete model.tasks.data[threadId]
       },
-      data: {}
+      data : {}
     }
-    
+
     // clean out completed, acknowledged tasks and too old tasks
     const staleTaskTimeout = 25 * 60 * 60 * 1000 // a little over a day
     setInterval(() => {
       for (const threadId of Object.keys(model.tasks.data)) {
         const data = model.tasks.data[threadId]
         if ((data[threadId]?.acknowledged === true && data[threadId]?.running === false)
-            || new Date().getTime() - data[threadId]?.startTime > staleTaskTimeout ) {
+            || new Date().getTime() - data[threadId]?.startTime > staleTaskTimeout) {
           model.tasks.remove(threadId)
           // TODO: kill the worker
         }

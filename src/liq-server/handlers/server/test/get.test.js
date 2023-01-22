@@ -10,12 +10,12 @@ describe('GET:/server', () => {
   let cache
   beforeAll(() => {
     model.initialize(defaultTestOptions());
-    ({ app, cache } = appInit(defaultTestOptions({ model })));
+    ({ app, cache } = appInit(defaultTestOptions({ model })))
   })
-  
+
   afterAll(() => { cache.release() })
-  
-  test("processes JSON requests", async() => {
+
+  test('processes JSON requests', async() => {
     const { status, body, headers } = await request(app)
       .get('/server') // it reads weird, but this MUST go first
       .set('Accept', 'application/json')
@@ -23,8 +23,8 @@ describe('GET:/server', () => {
     expect(headers['content-type']).toMatch(/json/)
     expect(body.server).toBe(CURR_VER)
   })
-  
-  test("processes plain text requests", async() => {
+
+  test('processes plain text requests', async() => {
     const { status, text, headers } = await request(app)
       .get('/server') // it reads weird, but this MUST go first
       .set('Accept', 'text/plain')
@@ -32,8 +32,8 @@ describe('GET:/server', () => {
     expect(headers['content-type']).toMatch(/text\/plain/)
     expect(text).toMatch(new RegExp(`liq-server: ${CURR_VER}`))
   })
-  
-  test("results in a 406 with unsupported accept types", async() => {
+
+  test('results in a 406 with unsupported accept types', async() => {
     const { status } = await request(app)
       .get('/server') // it reads weird, but this MUST go first
       .set('Accept', 'application/xml')

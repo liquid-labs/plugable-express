@@ -1,5 +1,5 @@
 import * as help from './help'
 
-const handlers = [ help ]
+const handlers = [help]
 
 export { handlers }

@@ -6,31 +6,31 @@ import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/li
 import { listParameters } from './_lib/parameters-lib'
 
 const method = 'get'
-const path = [ 'orgs', ':orgKey', 'parameters', 'list?' ]
+const path = ['orgs', ':orgKey', 'parameters', 'list?']
 const parameters = commonOutputParams() // option func setup on 'fields' below
 
-const defaultFields = [ 'name', 'value' ]
-const allFields = [ ...defaultFields ]
+const defaultFields = ['name', 'value']
+const allFields = [...defaultFields]
 parameters.find((o) => o.name === 'fields').optionsFunc = () => allFields
 
 const mdFormatter = (parameters, title) =>
-  `# ${title}\n\n${parameters.map((p) => `- _${p.name}_: ${p.value}`).join("\n")}\n`
+  `# ${title}\n\n${parameters.map((p) => `- _${p.name}_: ${p.value}`).join('\n')}\n`
 
 const terminalFormatter = (parameters, title) =>
-  parameters.map((p) => `- <code>${p.name}<rst>: ${p.value}`).join("\n") + '\n'
+  parameters.map((p) => `- <code>${p.name}<rst>: ${p.value}`).join('\n') + '\n'
 
 const textFormatter = (parameters, title) =>
-  parameters.map((p) => `- ${p.name}: ${p.value}`).join("\n") + '\n'
+  parameters.map((p) => `- ${p.name}: ${p.value}`).join('\n') + '\n'
 
 const func = ({ model, reporter }) => (req, res) => {
-  const org = getOrgFromKey({ model, params: req.vars, res })
+  const org = getOrgFromKey({ model, params : req.vars, res })
   if (org === false) return
-  
+
   const parameters = listParameters(org)
 
   formatOutput({
     basicTitle : `Org ${org.name} Parameters`,
-    data : parameters,
+    data       : parameters,
     allFields,
     defaultFields,
     mdFormatter,

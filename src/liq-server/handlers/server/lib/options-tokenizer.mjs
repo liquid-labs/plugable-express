@@ -4,7 +4,7 @@ const qtValueRe = /^(['"]).*\1$/
 const optionsTokenizer = (optionString) =>
   (optionString.match(paramPairRe) || [])
     .map((p) => {
-      let [ name, value=null ] = p.split('=')
+      let [name, value = null] = p.split('=')
       if (value !== null) {
         const match = value.match(qtValueRe)
         if (match) {
@@ -14,8 +14,8 @@ const optionsTokenizer = (optionString) =>
           value.replace(deEscapeRe, qt)
         }
       }
-      
-      return [ name, value ]
+
+      return [name, value]
     })
 
 export { optionsTokenizer }

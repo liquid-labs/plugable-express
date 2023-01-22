@@ -11,15 +11,15 @@ import { initializeConfiguration } from './lib/configurables'
 import { model } from './model'
 import * as server from './server'
 
-const config = initializeConfiguration([defaults/*, options */ ])
+const config = initializeConfiguration([defaults])
 
 model.initialize(config)
 
 const { app, cache } = appInit(Object.assign({ model }, config))
 
 const serverOptions = {
-  PORT : config[LIQ_PORT],
+  PORT     : config[LIQ_PORT],
   reporter : config.reporter || console
 }
 
-server.start({ app, cache, options: serverOptions })
+server.start({ app, cache, options : serverOptions })

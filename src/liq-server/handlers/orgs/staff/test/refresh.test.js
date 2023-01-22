@@ -26,7 +26,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   let count = 1
   beforeEach(() => {
     model.initialize(testOptions);
-    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))));
+    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
     // confirm initial setup
     expect(model.orgs.orgA.staff.list()).toHaveLength(3)
   })
@@ -35,14 +35,14 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     count += 1
     fs.copyFileSync(origStaffJSON, staffJSONDest)
     logs.splice(0, logs.length)
-    
+
     cache.release()
   })
-  
-  test("deletes", async () => {
-    const origCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true })
-    const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData: true })
-    const filePath = path.join(__dirname, 'staff-delete.csv');
+
+  test('deletes', async() => {
+    const origCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
+    const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
+    const filePath = path.join(__dirname, 'staff-delete.csv')
     const { body, headers, status, text } = await request(app)
       .post('/orgs/orgA/staff/refresh') // it reads weird, but this MUST go first
       .accept('application/json')
@@ -50,15 +50,15 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     try {
       expect(status).toBe(200)
       expect(headers['content-type']).toMatch(/application\/json/)
-      expect(body.message.match( /(updated.*){2}/i ))
+      expect(body.message.match(/(updated.*){2}/i))
       expect(model.orgs.orgA.staff.list()).toHaveLength(2)
-      
-      const newCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData: true })
+
+      const newCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
       expect(newCEO._sourceFileName).toBe('staff-delete.csv')
       delete newCEO._sourceFileName
       expect(newCEO).toEqual(origCEO)
-      
-      const newDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData: true })
+
+      const newDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
       expect(newDev._sourceFileName).toBe('staff-delete.csv')
       delete newDev._sourceFileName
       expect(newDev).toEqual(origDev)
@@ -71,15 +71,15 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     }
   })
 
-  test("adds", async () => {
-    const filePath = path.join(__dirname, 'staff-delete.csv');
+  test('adds', async() => {
+    const filePath = path.join(__dirname, 'staff-delete.csv')
     const { body, headers, status, text } = await request(app)
       .post('/orgs/orgA/staff') // it reads weird, but this MUST go first
       .accept('application/json')
       .attach('testFile', filePath)
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/application\/json/)
-    expect(body.message.match( /(updated.*){2}/i ))
+    expect(body.message.match(/(updated.*){2}/i))
     expect(model.orgs.orgA.staff.list()).toHaveLength(2)
   })
 /*
@@ -91,5 +91,5 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/text\/plain/)
     expect(text).toMatch(new RegExp(`liq-server: ${CURR_VER}`))
-  })*/
+  }) */
 })

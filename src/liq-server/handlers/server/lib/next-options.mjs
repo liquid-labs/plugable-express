@@ -3,11 +3,13 @@ import { optionsTokenizer } from './options-tokenizer'
 const nextOptionValueOptions = ({ lastOptionName, lastOptionParamDef, lastOptionValue, model, prevElements }) => {
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
   if (!lastOptionParamDef.optionsFunc) return []
-  const possibleValues = lastOptionParamDef.optionsFunc({ model, ...prevElements}).sort()
-  if (possibleValues.includes(lastOptionValue)) return [ lastOptionValue ]
-  else return !lastOptionValue
-    ? possibleValues //.map((v) => lastOptionName + '=' + v)
-    : possibleValues.filter((v) => v.startsWith(lastOptionValue)) // .map((v) => lastOptionName + '=' + v)
+  const possibleValues = lastOptionParamDef.optionsFunc({ model, ...prevElements }).sort()
+  if (possibleValues.includes(lastOptionValue)) return [lastOptionValue]
+  else {
+    return !lastOptionValue
+      ? possibleValues // .map((v) => lastOptionName + '=' + v)
+      : possibleValues.filter((v) => v.startsWith(lastOptionValue))
+  } // .map((v) => lastOptionName + '=' + v)
 }
 
 const parameterOptions = ({ paramDef }) => {
@@ -18,7 +20,7 @@ const parameterOptions = ({ paramDef }) => {
     options.push(paramDef.name + '=')
   }
   else options.push(paramDef.name + '=')
-  
+
   return options
 }
 
@@ -26,11 +28,11 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
   // we are listing options (not option value options), so the options are the options not already specified
   const currOptNames = currOptNameAndValues.map((o) => o[0])
   const parameterNames = paramsSpec.map((p) => p.name)
-  
+
   const options = []
   // Remember 'command.endsWith("=")' is already handled.
   // Is the command is locked in, then what params not already specified?
-  let lockedIn = command.endsWith(' ') // options always space separated; trivially locked in
+  const lockedIn = command.endsWith(' ') // options always space separated; trivially locked in
     // v if the last option is complete and a boolean, then it's done
     || (command.endsWith(lastOptionName) && lastOptionParamDef?.isBoolean === true)
   if (lockedIn) {
@@ -45,13 +47,13 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
 
     for (const rOpt of residualOpts) {
       if (!exclusions.includes(rOpt)) {
-        options.push(...parameterOptions({ paramDef: paramsSpec.find((p) => p.name === rOpt)}))
+        options.push(...parameterOptions({ paramDef : paramsSpec.find((p) => p.name === rOpt) }))
       }
     }
   }
   else { // check to see if we can match the last command
     if (lastOptionParamDef) { // matched, but not locked in
-      options.push(...parameterOptions({ paramDef: lastOptionParamDef }))
+      options.push(...parameterOptions({ paramDef : lastOptionParamDef }))
     }
     else { // is it a partial match?
       const possibleOptions = parameterNames.filter((p) => p.startsWith(lastOptionName))
@@ -69,10 +71,10 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
 const nextOptions = ({ command, lastCmd, model, nextCommands, optionString, paramsSpec, prevElements }) => {
   if (optionString === undefined) { // possible start of options; also there may be other commands options
     if (command.endsWith(' ')) nextCommands.splice(0, 0, '--') // '--' always separated by ' '
-    else nextCommands = [ lastCmd ]
+    else nextCommands = [lastCmd]
   }
   else if (optionString === '' && command.endsWith(' --')) {
-    nextCommands = [ '--' ]
+    nextCommands = ['--']
   }
   else {
     // Generates a list of [ name, value ] tuples
@@ -84,7 +86,7 @@ const nextOptions = ({ command, lastCmd, model, nextCommands, optionString, para
     const lastOptionValue = lastOptionParamDef && currOptNameAndValues?.[currOptNameAndValues.length - 1][1]
     // first we check if we have a '=' and calculated options
     if (lastOptionParamDef && lastOptionParamDef.isBoolean && command.endsWith(lastOptionName)) {
-      nextCommands = [ lastOptionName ]
+      nextCommands = [lastOptionName]
     }
     else if (command.endsWith('=') || (lastOptionValue && command.endsWith(lastOptionValue))) {
       nextCommands = nextOptionValueOptions({

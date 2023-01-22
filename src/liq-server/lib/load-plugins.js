@@ -11,7 +11,7 @@ const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLU
 /**
 * Given an app, model, cache, reporter, and plugin path, loads plugins from the path.
 */
-const loadPlugins = async (app, {
+const loadPlugins = async(app, {
   model,
   cache,
   reporter,
@@ -21,15 +21,15 @@ const loadPlugins = async (app, {
   const pluginDir = path.join(pluginPath, 'node_modules')
   reporter.log(`Searching for plugins (in ${path.dirname(pluginDir)})...`)
   const pluginOptions = {
-    pkg: pluginPkg,
-    dir: pluginDir,
-    filter: () => true
+    pkg    : pluginPkg,
+    dir    : pluginDir,
+    filter : () => true
   }
-  
+
   const plugins = findPlugins(pluginOptions)
-  
+
   reporter.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
-  
+
   for (const plugin of plugins) {
     const sourcePkg = plugin.pkg.name
     reporter.log(`Loading plugins from ${sourcePkg}...`)
@@ -38,10 +38,10 @@ const loadPlugins = async (app, {
     if (handlers === undefined && setup === undefined) {
       throw new Error(`'liq-core' plugin from '${sourcePkg}' does not export 'handlers' or 'setup'; bailing out.`)
     }
-    
+
     if (setup) reporter.log(`Running setup for ${sourcePkg} plugins...`)
     const setupData = setup ? setup({ model, reporter }) : {}
-    
+
     if (handlers !== undefined) {
       registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })
     }

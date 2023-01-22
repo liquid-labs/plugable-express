@@ -5,17 +5,17 @@ import * as field from './staff-import-fields'
 
 // validation data and functions
 const headerNormalizations = [
-  [ /company/i, field.COMPANY ],
-  [ /e-?mail/i, field.EMAIL ],
-  [ /(?:full|emp(?:loyee)?) *name/i, field.FULL_NAME ],
-  [ /(given|first) *name/i, field.GIVEN_NAME ],
-  [ /(surname|last *name)/i, field.FAMILY_NAME ],
-  [ /nickname/i, field.NICKNAME ],
-  [ /title|designation|role/i, field.ROLES ],
-  [ /start *date/i, field.START_DATE ],
-  [ /end *date/i, field.END_DATE ],
-  [ /employment *status/i, field.EMPLOYMENT_STATUS ],
-  [ /manager/i, field.MANAGER ]
+  [/company/i, field.COMPANY],
+  [/e-?mail/i, field.EMAIL],
+  [/(?:full|emp(?:loyee)?) *name/i, field.FULL_NAME],
+  [/(given|first) *name/i, field.GIVEN_NAME],
+  [/(surname|last *name)/i, field.FAMILY_NAME],
+  [/nickname/i, field.NICKNAME],
+  [/title|designation|role/i, field.ROLES],
+  [/start *date/i, field.START_DATE],
+  [/end *date/i, field.END_DATE],
+  [/employment *status/i, field.EMPLOYMENT_STATUS],
+  [/manager/i, field.MANAGER]
 ]
 
 /**
@@ -34,7 +34,7 @@ const headerValidations = [
       ? null // we have an explicit family name, good
       : newHeaders.indexOf(field.FULL_NAME) > -1
         ? null // we have no family name, but we'll try and extract it, so good for now
-        : `you must provide either '${field.FAMILY_NAME}', '${field.FULL_NAME}', or both.`,
+        : `you must provide either '${field.FAMILY_NAME}', '${field.FULL_NAME}', or both.`
 ]
 
 // record normalization functions
@@ -50,11 +50,11 @@ const normalizeNickname = (rec) => {
     if (match) {
       const newRec = Object.assign({}, rec)
       newRec[field.NICKNAME] = match[1] || match[2]
-      
+
       return newRec
     }
   }
-  
+
   return rec
 }
 
@@ -79,36 +79,33 @@ const normalizeNames = (rec) => {
         newRec[field.FAMILY_NAME] = fullName
         return newRec
       }
-      
+
       const bitsMatch = fullName.match(bitsExtractor)
-      if (!bitsMatch)
-        throw new Error(`Could not extract useful data from ${errorContext(field.FULL_NAME, fullName)}; is it empty?`)
-      
+      if (!bitsMatch) { throw new Error(`Could not extract useful data from ${errorContext(field.FULL_NAME, fullName)}; is it empty?`) }
+
       const updateNames = (extractedFamilyName, extractedGivenName) => {
         // We always need a given name
         if (!extractedGivenName) throw new Error(`Could not identify given name in ${errorContext(field.FULL_NAME, fullName)}.`)
         // If we have an extracted given name and a specified given name, they must match (ignoring case)
-        if (rec[field.GIVEN_NAME] && extractedGivenName.toLowerCase() !== rec[field.GIVEN_NAME].toLowerCase())
-          throw new Error(`Extracted given name '${extractedGivenName}' from full name '${fullName}' but it does not match specified given name '${rec[field.GIVEN_NAME]}'`)
+        if (rec[field.GIVEN_NAME] && extractedGivenName.toLowerCase() !== rec[field.GIVEN_NAME].toLowerCase()) { throw new Error(`Extracted given name '${extractedGivenName}' from full name '${fullName}' but it does not match specified given name '${rec[field.GIVEN_NAME]}'`) }
         // ditto for surname
-        if (rec[field.FAMILY_NAME] && rec[field.FAMILY_NAME] !== extractedFamilyName)
-          throw new Error(`Extracted surname '${extractedGivenName}' from full name '${fullName}' but it does not match specified surname '${rec[field.GIVEN_NAME]}'`)
-          
+        if (rec[field.FAMILY_NAME] && rec[field.FAMILY_NAME] !== extractedFamilyName) { throw new Error(`Extracted surname '${extractedGivenName}' from full name '${fullName}' but it does not match specified surname '${rec[field.GIVEN_NAME]}'`) }
+
         // now, for the updates!
         // If no specified given name, but we have an extracted given name, use it
         if (newRec[field.GIVEN_NAME] === undefined) newRec[field.GIVEN_NAME] = extractedGivenName
         // ditto for surname
         if (newRec[field.FAMILY_NAME] === undefined && extractedFamilyName) newRec[field.FAMILY_NAME] = extractedFamilyName
-        
+
         return newRec
       }
-      
+
       const familyNameFirst = fullName.match(familyNameFirstTest)
       const middleName = `${bitsMatch[2] ? bitsMatch[2] + ' ' : ''}`
       // the 'givenName' is set if there is only one name, which may have multiple parts.
-      const givenName = familyNameFirst || !bitsMatch[1]?
-        middleName + bitsMatch[3] :
-        bitsMatch[1] + middleName
+      const givenName = familyNameFirst || !bitsMatch[1]
+        ? middleName + bitsMatch[3]
+        : bitsMatch[1] + middleName
       // so, if familyName is first, but there is only one match, it's already been used by 'givenName' and 'familyName' ends up being the unmatched first group, or ''
       let familyName = familyNameFirst || !bitsMatch[1] ? bitsMatch[1] : bitsMatch[3]
       if (familyName === '') familyName = null
@@ -117,7 +114,7 @@ const normalizeNames = (rec) => {
     }
     // else we have no fullname and at least a given name, so we can just return the rec
   }
-  
+
   return rec
 }
 
@@ -126,38 +123,38 @@ const normalizeManager = (rec) => {
     rec[field.ROLES] = `${rec[field.ROLES]}/${rec[field.MANAGER]}`
     delete rec[field.MANAGER]
   }
-  
+
   return rec
 }
 
 const stdDateFmt = /^\s*\d{4}[/.-][01]\d[/.-][0123]\d\s*$/
 const indDate = /^\s*(\d{1,2})[/.-]([a-z]+)[/.-](\d{1,4})\s*$/i
 const monthTranslator = {
-  jan: '01',
-  feb: '02',
-  mar: '03',
-  march: '03',
-  apr: '04',
-  may: '05',
-  jun: '06',
-  june: '06',
-  jul: '07',
-  july: '07',
-  aug: '08',
-  sep: '09',
-  oct: '10',
-  nov: '11',
-  dec: '12'
+  jan   : '01',
+  feb   : '02',
+  mar   : '03',
+  march : '03',
+  apr   : '04',
+  may   : '05',
+  jun   : '06',
+  june  : '06',
+  jul   : '07',
+  july  : '07',
+  aug   : '08',
+  sep   : '09',
+  oct   : '10',
+  nov   : '11',
+  dec   : '12'
 }
 const normalizeStartDate = (rec) => {
   const dateS = rec[field.START_DATE]
   if (!dateS || dateS.match(stdDateFmt)) {
     return rec
   }
-  
+
   const match = dateS.match(indDate)
   if (match) {
-    const [ , dayS, monthS, yearS ] = match
+    const [, dayS, monthS, yearS] = match
     rec[field.START_DATE] = `20${yearS}-`
       + monthTranslator[monthS.toLowerCase()] + '-'
       + (dayS.length === 1 ? '0' + dayS : dayS)
@@ -168,13 +165,13 @@ const normalizeStartDate = (rec) => {
       + ('' + guessDate.getDate()).padStart(2, '0') + '-'
       + ('' + (guessDate.getMonth() + 1)).padStart(2, '0')
   }
-  
+
   return rec
 }
 
 const validateAndNormalizeRecords = (records) => {
   return records.map((rec) => {
-    for (const normalizer of [ normalizeNickname, normalizeNames, normalizeManager, normalizeStartDate ]) {
+    for (const normalizer of [normalizeNickname, normalizeNames, normalizeManager, normalizeStartDate]) {
       rec = normalizer(rec)
     }
     return rec
@@ -189,25 +186,24 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, finalizati
   newRecord.roles = []
   const currRecord = org.staff.get(email, { rawData : true })
   let currRoles = structuredClone(currRecord?.roles) || []
-  
-  if (currRecord !== undefined)
-    newRecord = Object.assign({}, currRecord, newRecord)
-  
+
+  if (currRecord !== undefined) { newRecord = Object.assign({}, currRecord, newRecord) }
+
   const titles = titleSpec?.split(/\s*[;]\s*/) || []
-  
+
   const roleErrors = []
   titles.forEach((title, i) => {
     if (!title) return
-    
-    const [ roleName, manager ] = title.split('/')
-    const [ role, qualifier ] = org.roles.get(roleName, { fuzzy: true, includeQualifier: true })
+
+    const [roleName, manager] = title.split('/')
+    const [role, qualifier] = org.roles.get(roleName, { fuzzy : true, includeQualifier : true })
     if (role === undefined) {
       roleErrors.push(`Could not find role for title '${title}' while processing staff record for '${email}' from '${_sourceFileName}'.`)
       return
     }
-    
+
     // TODO: we could skip the pre-emptive creation once we update later processing to ignore / drop non-truthy 'qualifier' entries
-    let roleDef = { name: role.name }
+    let roleDef = { name : role.name }
     if (qualifier !== undefined) roleDef.qualifier = qualifier
     if (manager !== undefined) roleDef.manager = manager
     if (currRecord !== undefined) { // it's an update and we need to reconcile changes in the role
@@ -231,15 +227,15 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, finalizati
         // else no change
       }
     }
-    
+
     newRecord.roles.push(roleDef)
   }) // multi-title forEach loop
-  
+
   if (roleErrors.length > 0) {
     throw new Error(roleErrors.join('\n'))
   }
   // we've now processed the roles from the incoming record, now let's process and reconcile with the existing roles
-  
+
   // now we check if any of the new roles match or 'roll up' existing roles
   if (refreshRoles !== true && refreshRoles !== 'true') {
     for (const newRoleSpec of newRecord.roles) {
@@ -267,19 +263,19 @@ const finalizeRecord = (refreshRoles) => ({ actionSummary, newRecord, finalizati
       }
     }
   }
-  
-  for (const newRole of newRecord.roles.map((r) => org.roles.get(r.name, { rawData: true }))) {
+
+  for (const newRole of newRecord.roles.map((r) => org.roles.get(r.name, { rawData : true }))) {
     if (newRole.singular) {
       finalizationCookie[email] = newRole.name
     }
   }
-  
+
   // clean up data from import that we don't use here
   delete newRecord.title // captured in roles
   delete newRecord.manager // captured in the roles data
   delete newRecord.fullName // decomposed into given and family names
   delete newRecord['Family name'] // TODO: no idea where this is coming from...
-  
+
   return newRecord
 }
 
@@ -305,7 +301,7 @@ const finalizeAllRecords = ({ finalizedRecords, finalizationCookie }) => {
 * #### Returns
 * `true` or an array of human readable screens describing the errors found in the dataset.
 */
-const validateAllRecords = ({ org }) => org.staff.validate({ required: true })
+const validateAllRecords = ({ org }) => org.staff.validate({ required : true })
 
 /**
 * Verifies whether the current record can be deleted automatically. In our case, 'board' and 'logical' staff don't show
