@@ -11,7 +11,7 @@ const pathParamRegExp = /:[a-zA-Z0-9_]+/g
 const regexParamRegExp = /\?<[a-zA-Z0-9_]+>/g
 const trueParams = /y(es)?|t(rue)?|1/i
 
-const processBool = (value, vars) => {
+const processBool = (value, name) => {
   if (value.match(trueParams)) {
     return true
   }
@@ -19,8 +19,7 @@ const processBool = (value, vars) => {
     return false
   }
   else {
-    res.status(404).send({ message : `Could not parse parameter '${p.name}' value '${req.query[p.name]}' as boolean.` })
-    return false
+    throw new Error(`Could not parse parameter '${name}' value '${value}' as boolean.`)
   }
 }
 
@@ -28,18 +27,16 @@ const processBool = (value, vars) => {
 * Combine and verify parameters. Verified parameters collected on `req.vars`
 */
 const processParams = ({ parameters = [], path }) => (req, res, next) => {
-  const source = req.method === 'POST'
-    ? req.body
-    : req.query
-  if (source === undefined) return true
+  const vars = {} // this is where we will collect the combined path, body, and query parameters
 
-  const validParams = parameters && parameters.map(p => p.name)
-  const vars = {}
-  for (const k in Object.keys(req.params)) { // 'source' vars will be added as they are processed
+  // pull variables out of the path; path vars come in as positional, but in an object, like:
+  // { 0: 'path-value' }
+  // first, we decode the values
+  for (const k in Object.keys(req.params)) { // eslint-disable-line guard-for-in
     vars[k] = decodeURIComponent(req.params[k])
   }
-  // pull variables out of the path
-  if (Array.isArray(path)) {
+  // Now we map the values to their names by processing the path spec.
+  if (Array.isArray(path)) { // expects nested paths to be rolled out, so we're dealing with a flat path spec array
     const mapArr = []
     for (const pathBit of path) {
       if (pathBit.startsWith(':')) {
@@ -48,11 +45,18 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
       }
     }
 
-    mapArr.forEach((n, i, arr) => vars[n] = vars[i])
+    mapArr.forEach((n, i, arr) => { vars[n] = vars[i] })
   }
   req.vars = vars
 
+  // Now we map the body or query parameters to vars
+  const source = req.method === 'POST'
+    ? req.body
+    : req.query
+  if (source === undefined) return true
+
   // checks for unknown parameters and complain
+  const validParams = parameters && parameters.map(p => p.name)
   const remainder = Object.keys(omit(source, validParams))
   if (remainder.length > 0) {
     throw new Error(`Unknown query parameters: ${remainder.join(', ')} while accessing ${req.path}.`)
@@ -68,7 +72,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
         value = value.split(/\s*(?<!\\),\s*/) // split on non-escaped commas
       }
       value = p.isBoolean === true
-        ? value.map((v) => processBool(v))
+        ? value.map((v) => processBool(v, p.name))
         : value.map((v) => decodeURIComponent(v))
     }
     else if (Array.isArray(value)) {
@@ -76,7 +80,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     }
     else { // single value var
       value = p.isBoolean === true
-        ? processBool(value)
+        ? processBool(value, p.name)
         : decodeURIComponent(value)
     }
 
