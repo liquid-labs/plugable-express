@@ -7,7 +7,13 @@ const localOrgKey = {
 
 const localProjectName = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-_]*',
-  optionsFetcher : ({ model, localOrgKey }) => Object.keys(model.playground.orgs[localOrgKey].projects)
+  optionsFetcher : ({ model, localOrgKey }) => {
+    const orgKeyLength = localOrgKey.length + 1
+    const projectNames = Object.keys(model.playground.projects)
+      .filter((p) => p.startsWith(localOrgKey + '/'))
+      .map((p) => p.slice(orgKeyLength))
+    return projectNames
+  }
 }
 
 // TODO: really, anynthing looking at the local model should use local org key; a non-local org key could be anything!
