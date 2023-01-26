@@ -1,29 +1,26 @@
 import { emailEncodedOrNotReString } from '@liquid-labs/regex-repo'
 
-const localOrgKey = {
+const orgKey = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
   optionsFetcher : ({ model }) => Object.keys(model.orgs)
 }
 
 const localProjectName = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-_]*',
-  optionsFetcher : ({ model, localOrgKey }) => {
-    const orgKeyLength = localOrgKey.length + 1
+  optionsFetcher : ({ model, orgKey }) => {
+    const orgKeyLength = orgKey.length + 1
     const projectNames = Object.keys(model.playground.projects)
-      .filter((p) => p.startsWith(localOrgKey + '/'))
+      .filter((p) => p.startsWith(orgKey + '/'))
       .map((p) => p.slice(orgKeyLength))
     return projectNames
   }
 }
-
-// TODO: really, anynthing looking at the local model should use local org key; a non-local org key could be anything!
-const orgKey = localOrgKey // TODO: really, everything should be localOrgKey
 
 const staffKey = {
   bitReString    : emailEncodedOrNotReString.slice(1, -1), // cut off the beginning and ending '/'
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
 }
 
-const commonPathResolvers = { orgKey, localOrgKey, localProjectName, staffKey }
+const commonPathResolvers = { orgKey, orgKey, localProjectName, staffKey }
 
 export { commonPathResolvers }
