@@ -1,5 +1,8 @@
-import * as credDb from './lib/credentials-db'
-import { CREDS_DB_CACHE_KEY } from './lib/constants'
+import fs from 'node:fs/promises'
+import fsPath from 'node:path'
+
+import { CredDB } from './lib/credentials-db'
+import { CRED_TYPES, CREDS_PATH_STEM } from './lib/constants'
 
 const method = 'put'
 const path = ['credentials', ':credential', 'import']
@@ -16,27 +19,11 @@ const parameters = [
     descirption   : 'Local path to the credential file.'
   },
   {
-    name        : 'leaveInPlace',
+    name        : 'copyToStorage',
     isBoolean   : true,
-    excludes    : ['moveToStorage'],
-    description : 'Leaves the credentials file in place (the default). See [`moveToStorage`](#param-moveToStorage).'
-  },
-  {
-    name        : 'moveToStorage',
-    isBoolean   : true,
-    excludes    : ['leaveInPlace'],
-    descirption : 'Moves the credential file from [`path`](#param-path) to centralized storage under the `$LIQ_HOME` (typically `$HOME/.liq`).'
+    descirption : 'When set, copies the credential file from [`path`](#param-path) to centralized storage under the `$LIQ_HOME/credentials` (`LIQ_HOME` is typically `$HOME/.liq`). Otherwise by default, we reference the credentials in-place.'
   }
 ]
-
-const CRED_SPECS = [
-  {
-    key         : 'gitHubSSH',
-    name        : 'GitHub SSH',
-    description : 'Used to authenticate user for git operations such as clone, fetch, and push.'
-  }
-]
-const CRED_TYPES = CRED_SPECS.map((cs) => cs.key)
 
 const func = ({ app, cache, model, reporter }) => {
   app.commonPathResolvers.credential = {
@@ -58,13 +45,13 @@ const func = ({ app, cache, model, reporter }) => {
     bitReString : '(?:' + CRED_TYPES.join('|') + ')'
   }
 
-  return (req, res) => {
-    const liqHome = app.liqHome()
-    const dbPath = `${liqHome}/credentials.json`
+  return async (req, res) => {
+    const credDB = new CredDB({ app, cache })
+    const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
-    // TODO: use this var
-    // eslint-disable-next-line no-unused-vars
-    const credentialsDb = credDb.loadDb({ cache, cacheKey : CREDS_DB_CACHE_KEY, path : dbPath })
+    const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
+
+    await credDB.import({ destPath, key: credential, srcPath, replace })
 
     res.status(505).type('text/plain').send('Not implemented.')
   }
