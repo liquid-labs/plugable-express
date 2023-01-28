@@ -19,7 +19,7 @@ const func = ({ app, model }) => async(req, res) => {
 
     const [commandPath, optionString] = command.split(/\s*--\s*/)
 
-    let frontier = app.commandPaths
+    let frontier = app.liq.commandPaths
     const cmdsWalked = []
     const prevElements = {}
     let cmdSep

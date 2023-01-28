@@ -22,11 +22,14 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
 
+
+  app.liq = {}
+  
   app.handlers = []
 
-  app.commandPaths = {}
+  app.liq.commandPaths = {}
   app.addCommandPath = (commandPath, parameters) => {
-    let frontier = app.commandPaths
+    let frontier = app.liq.commandPaths
     for (const pathBit of commandPath) {
       if (!(pathBit in frontier)) {
         frontier[pathBit] = {}
