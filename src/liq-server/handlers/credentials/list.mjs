@@ -3,7 +3,7 @@ import { commonOutputParams, formatOutput, getOrgFromKey } from '@liquid-labs/li
 import { CRED_SPECS } from './lib/constants'
 import { CredDB } from './lib/credentials-db'
 
-const method = 'put'
+const method = 'get'
 const path = [ 'credentials', 'list' ]
 const parameters = [
   {
