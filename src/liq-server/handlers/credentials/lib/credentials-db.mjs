@@ -125,6 +125,7 @@ class CredDB {
           this.#db[key].status = credStatus.SET_AND_VERIFIED
         }
         catch (e) {
+          this.#db[key].status = credStatus.SET_BUT_INVALID
           if (throwOnError === true) throw e
           // else
           failed.push(key)
