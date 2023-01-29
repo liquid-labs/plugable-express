@@ -5,7 +5,14 @@ import { CredDB } from './lib/credentials-db'
 
 const method = 'put'
 const path = [ 'credentials', 'list' ]
-const parameters = [ ...commonOutputParams() ]
+const parameters = [
+  {
+    name: 'verify',
+    isBoolean: true,
+    description: '(Re-)verifies credentials.'
+  },
+  ...commonOutputParams()
+]
 
 const mdFormatter = (creds, title) =>
   `# ${title}\n\n${creds.map((c) => `- ${c.name} (__${c.key}__/${c.status}):\n  ${c.description}`).join('\n')}\n`
@@ -16,7 +23,11 @@ const terminalFormatter = (creds, title) =>
 const textFormatter = (creds, title) => terminalFormatter(creds, title).replaceAll(/<[a-z]+>/g, '')
 
 const func = ({ app, cache, model, reporter }) =>  async (req, res) => {
+  const { verify } = req.vars
+
   const credDB = new CredDB({ app, cache })
+
+  credDB.verifyCreds({ reVerify: verify })
 
   formatOutput({
     basicTitle : 'Local Credentials',
