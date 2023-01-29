@@ -3,7 +3,7 @@ import * as fsPath from 'node:path'
 import structuredClone from 'core-js-pure/actual/structured-clone'
 
 import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
-import { checkGitHubAPIAccess } from '@liquid-labs/github-toolkit'
+import { checkGitHubAPIAccess, checkGitHubSSHAccess } from '@liquid-labs/github-toolkit'
 
 import { CREDS_DB_CACHE_KEY, CRED_SPECS, credStatus, GITHUB_API, GITHUB_SSH } from './constants'
 
