@@ -46,6 +46,7 @@
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "chalk": "^4.1.2",
     "core-js-pure": "^3.26.1",
+    "http-errors": "^2.0.0",
     "lodash.kebabcase": "^4.1.1",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
