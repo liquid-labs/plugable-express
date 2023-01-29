@@ -1,26 +1,49 @@
 import * as fsPath from 'node:path'
 
-import { readFJSON } from '@liquid-labs/federated-json'
+import structuredClone from 'core-js-pure/actual/structured-clone'
 
-import { CREDS_DB_CACHE_KEY, CRED_SPECS, credStatus } from './constants'
+import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
+import { checkGitHubAPIAccess } from '@liquid-labs/github-toolkit'
+
+import { CREDS_DB_CACHE_KEY, CRED_SPECS, credStatus, GITHUB_API, GITHUB_SSH } from './constants'
 
 class CredDB {
   static allFields = [ 'key', 'name', 'description', 'status', 'files' ]
-  static defaultFields = [ 'key', 'name', 'description', 'status' ]
+  static defaultFields = CredDB.allFields
 
+  #cache
   #db
+  #dbPath
 
   constructor({ app, cache }) {
     const liqHome = app.liqHome()
-    const dbPath = `${liqHome}/credentials/db.json`
+    this.#dbPath = `${liqHome}/credentials/db.yaml`
 
-    let db = cache?.get(CREDS_DB_CACHE_KEY)
+    this.#cache = cache
+
+    this.resetDB()
+  }
+
+  resetDB() {
+    let db = this.#cache?.get(CREDS_DB_CACHE_KEY)
     if (!db) { // load the DB from path
-      db = readFJSON(dbPath, { createOnNone: {} })
-      cache.put(CREDS_DB_CACHE_KEY, db)
+      ([ db ] = readFJSON(this.#dbPath, { createOnNone: {}, separateMeta: true }));
+      this.#cache.put(CREDS_DB_CACHE_KEY, db)
     }
 
     this.#db = db
+  }
+
+  writeDB() {
+    const writableDB = structuredClone(this.#db)
+    for (const entry of Object.entries(this.#db)) {
+      if (!(entry.key in CRED_SPECS)) {
+        delete entry.description
+        delete entry.name
+      }
+    }
+
+    writeFJSON({ file: this.#dbPath, data: writableDB })
   }
 
   detail(key) {
@@ -30,14 +53,14 @@ class CredDB {
     return Object.assign({ status: credStatus.NOT_SET }, baseData, this.#db[key])
   }
 
-  async import({ destPath, key, srcPath }) {
-    const credSpec = CRED_SPECS[key]
+  async import({ destPath, key, noVerify = false, replace, srcPath }) {
+    const credSpec = CRED_SPECS.find((c) => c.key === key)
     if (credSpec === undefined) throw new Error(`Cannot import unknown credential type '${key}'.`)
 
     if (this.#db[key] !== undefined && replace !== true)
       throw new Error(`Credential '${key}' already exists; set 'replace' to true to update the entry.`)
 
-    if (credSpec.type !== 'ssh' && credSpec.type !== 'token)')
+    if (credSpec.type !== 'ssh' && credSpec.type !== 'token')
       throw new Error(`Do not know how to handle credential type '${credSpec.type}' on import.`)
 
     const files = []
@@ -65,16 +88,50 @@ class CredDB {
       }
     }
 
-    this.#db[key] = Object.assign({ files, status: credStatus.SET_AND_UNTESTED })
-    this.verifyCreds()
+    this.#db[key] = Object.assign({ files, status: credStatus.SET_BUT_UNTESTED }, CRED_SPECS[key])
+    if (noVerify === false) {
+      try {
+        this.verifyCreds({ keys: [ key ], throwOnError: true })
+      }
+      catch (e) {
+        this.resetDB()
+        throw e
+      }
+    }
+
+    this.writeDB()
   }
 
   list() {
     return CRED_SPECS.map((s) => this.detail(s.key))
   }
 
-  verifyCreds() {
-    throw new Error('Not yet implemented.')
+  verifyCreds({ keys, reVerify = false, throwOnError = false }) {
+    const failed = []
+
+    for (const { files, key, name, status } of this.list()) {
+      if (status !== credStatus.NOT_SET && (status !== credStatus.SET_AND_VERIFIED || reVerify === true)
+          && ( keys === undefined || keys.includes(key))) {
+        try {
+          if (key === GITHUB_API) {
+            checkGitHubAPIAccess({ filePath: files[0] })
+          }
+          else if (key === GITHUB_SSH) {
+            checkGitHubSSHAccess({ privKeyPath: files[0] })
+          }
+          else {
+            throw new Error(`Do not know how to verify '${name}' (${key}) credentials.`)
+          }
+          this.#db[key].status = credStatus.SET_AND_VERIFIED
+        }
+        catch (e) {
+          if (throwOnError === true) throw e
+          // else
+          failed.push(key)
+        }
+      }
+    }
+    return failed
   }
 }
 

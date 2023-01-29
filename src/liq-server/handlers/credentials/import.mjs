@@ -53,7 +53,7 @@ const func = ({ app, cache, model, reporter }) => {
 
     await credDB.import({ destPath, key: credential, srcPath, replace })
 
-    res.status(505).type('text/plain').send('Not implemented.')
+    res.type('text/terminal').send(`Imported '${credential}' credentials.`)
   }
 }
 
