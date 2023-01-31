@@ -13,9 +13,10 @@ import * as server from './server'
 
 const config = initializeConfiguration([defaults])
 
-model.initialize(config)
+model.initialize(config);
 
-const { app, cache } = appInit(Object.assign({ model }, config))
+(async () => {
+const { app, cache } = await appInit(Object.assign({ model }, config))
 
 const serverOptions = {
   PORT     : config[LIQ_PORT],
@@ -23,3 +24,4 @@ const serverOptions = {
 }
 
 server.start({ app, cache, options : serverOptions })
+})()
