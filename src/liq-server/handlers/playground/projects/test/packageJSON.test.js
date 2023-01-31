@@ -16,9 +16,9 @@ describe('GET:/playground/projects/:orgKey/:localProjectName/packageJSON', () =>
   let app
   let cache
 
-  beforeAll(() => {
+  beforeAll(async () => {
     model.initialize(testOptions);
-    ({ app, cache } = appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
+    ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
   })
   afterEach(() => { cache.release() /* cache has timers that must be stopped */ })
 

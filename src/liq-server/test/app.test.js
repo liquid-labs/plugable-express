@@ -24,9 +24,9 @@ describe('app', () => {
     const testOptions = mockLogOptions()
     let cache
 
-    beforeAll(() => {
+    beforeAll(async () => {
       model.initialize(testOptions);
-      ({ cache } = appInit(Object.assign(testOptions, { model })))
+      ({ cache } = await appInit(Object.assign(testOptions, { model })))
     })
 
     afterAll(() => { cache.release() })
@@ -47,11 +47,11 @@ describe('app', () => {
     let app, cache
     const testOptions = mockLogOptions()
 
-    beforeAll(() => {
+    beforeAll(async () => {
       model.initialize(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = appInit(testOptions))
+      ({ app, cache } = await appInit(testOptions))
     })
 
     afterAll(() => cache.release())

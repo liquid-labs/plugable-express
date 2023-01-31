@@ -8,9 +8,9 @@ import { defaultTestOptions } from '../../../test/lib/test-utils'
 describe('GET:/server/next-commands', () => {
   let app
   let cache
-  beforeAll(() => {
+  beforeAll(async () => {
     model.initialize(defaultTestOptions());
-    ({ app, cache } = appInit(defaultTestOptions({ model })))
+    ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
   afterAll(() => { cache.release() })
@@ -44,7 +44,7 @@ describe('GET:/server/next-commands', () => {
     ['/orgs/orgA', ['orgA']],
     ['/orgs/orgA/', ['parameters', 'staff']],
     // uses the exclude setting to handle mutually exclusive parameters
-    ['/credentials/gitHubSSH/import -- leaveInPlace ', ['path=', 'replace']]
+    ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]
   ]
   const testArrayCli = testArrayUrl.map((r) => {
     const hasSep = r[0].match(/ --/)

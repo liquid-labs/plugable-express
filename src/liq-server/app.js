@@ -12,7 +12,7 @@ import { commonPathResolvers } from './lib/path-resolvers'
 * - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
 *     dependencies are the plugins to be loaded.
 */
-const appInit = ({ skipCorePlugins = false, ...options }) => {
+const appInit = async ({ skipCorePlugins = false, ...options }) => {
   const { reporter } = options
   const app = express()
   app.use(express.json())
@@ -23,7 +23,11 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   options.cache = cache
 
 
-  app.liq = {}
+  app.liq = {
+    commandPaths: {},
+    errorsEphemeral: [],
+    errorsRetained: []
+  }
   
   app.handlers = []
 
@@ -62,11 +66,25 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
   registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))
 
   if (!skipCorePlugins) {
-    loadPlugins(app, options)
+    await loadPlugins(app, options)
   }
 
   // log errors
   app.use((error, req, res, next) => {
+    const errors = app.liq.errorsEphemeral
+    const errorID = makeID()
+    error.liqID = errorID
+    errors.push({
+      id: errorID,
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().getTime()
+    })
+    let i = 0
+    while (errors.length > 1000 && i < errors.length) {
+      errors.shift()
+      i += 1
+    }
     console.log(error)
     next(error)
   })
@@ -82,20 +100,45 @@ const appInit = ({ skipCorePlugins = false, ...options }) => {
       : status >= 500 && status < 600
         ? 'Server'
         : 'Unknown'
-    let msg = `<error>Client error ${status}: ${statusText[status]}<rst>\n\n${error.message}`
-      + (error.stack ? '\n\n' + error.stack : '')
-
-    if (req.accepts('text/terminal')) {
-      res.setHeader('content-type', 'text/terminal')
+    let msg = `<error>Client error ${status}: ${statusText[status]}<rst>\n\n<em>${error.message}<rst>\n\n`
+    // if the error stack isn't registered, we display it here
+    if (error.liqID === undefined && error.stack) {
+      msg += error.stack
     }
     else {
-      msg = msg.replaceAll(/<[a-z]+>/g, '')
-      res.setHeader('content-type', 'text/plain')
+      msg += 'error ref: <code>/server/errors/' + error.liqID + '<rst>'
     }
-    res.send(msg)
+
+    if (req.accepts('html')) {
+      next(error) // defer to default error handling
+    }
+    else {
+      if (req.accepts('text/terminal')) {
+        res.setHeader('content-type', 'text/terminal')
+      }
+      else {
+        msg = msg.replaceAll(/<[a-z]+>/g, '')
+        res.setHeader('content-type', 'text/plain')
+      }
+      res.send(msg)
+    }
   })
 
   return { app, cache }
+}
+
+// TODO: credit from stackoverflow...
+const makeID = (length = 5) => {
+  let result = '';
+  // notice no 'l' or '1'
+  const characters = 'abcdefghijkmnopqrstuvwxyz023456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
 }
 
 const statusText = {

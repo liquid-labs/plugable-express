@@ -8,9 +8,9 @@ import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
 describe('GET:/server', () => {
   let app
   let cache
-  beforeAll(() => {
+  beforeAll(async () => {
     model.initialize(defaultTestOptions());
-    ({ app, cache } = appInit(defaultTestOptions({ model })))
+    ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
   afterAll(() => { cache.release() })

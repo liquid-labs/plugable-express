@@ -3,7 +3,7 @@ import * as path from 'path'
 
 import { initReporter } from '../../lib/reporter'
 
-const COMMAND_COUNT = 23
+const COMMAND_COUNT = 25
 const HELP_COUNT = 3
 
 const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simple')

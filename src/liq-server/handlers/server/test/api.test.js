@@ -8,9 +8,9 @@ import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib
 describe('GET:/server/api', () => {
   let app
   let cache
-  beforeAll(() => {
+  beforeAll(async () => {
     model.initialize(defaultTestOptions());
-    ({ app, cache } = appInit(defaultTestOptions({ model })))
+    ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
   afterAll(() => { cache.release() })
