@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-import { initReporter } from '../../lib/reporter'
+import { Reporter } from '../../lib/reporter'
 
 const COMMAND_COUNT = 25
 const HELP_COUNT = 3
@@ -11,7 +11,7 @@ const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simp
 const defaultTestOptions = ({
   skipCorePlugins = true,
   LIQ_PLAYGROUND_PATH = simplePlaygroundPath,
-  reporter = initReporter({ silent : true }),
+  reporter = new Reporter({ silent : true }),
   ...rest
 } = {}) =>
   ({

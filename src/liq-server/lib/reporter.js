@@ -9,32 +9,42 @@ const outputMethodNames = [
   'warn'
 ]
 
-const initReporter = (configOptions) => {
-  const reporter = {
-    configure : (options) => {
-      const { configuration } = reporter
-      reporter.configuration = Object.assign(configuration, options)
-    },
-    configuration : { silent : false }
-  }
+const Reporter = class {
+  #configuration
+  #taskReport
 
-  if (configOptions) {
-    reporter.configure(configOptions)
-  }
+  constructor({ _taskReport, ...configOptions} = {}) {
+    this.#configuration = { silent: false }
+    this.configure(configOptions)
 
-  for (const methodName of outputMethodNames) {
-    reporter[methodName] = (...msgs) => {
-      if (reporter.configuration.silent) return
-      // else, not silent
-      /*
-      if (methodName === 'debug') msgs = msgs.map(s => clc.bold(s))
-      else if (methodName === 'error') msgs = msgs.map(s => clc.red(s))
-      else if (methodName === 'warn') msgs = msgs.map(s => clc.yellow(s)) */
-      console[methodName](...msgs)
+    this.#taskReport = [ ...(_taskReport || []) ]
+
+    for (const methodName of outputMethodNames) {
+      this[methodName] = (...msgs) => {
+        if (this.#configuration.silent) return
+        // else, not silent
+        // TODO: color error and warning? Add 'noColor' option
+        console[methodName](...msgs)
+      }
     }
   }
 
-  return reporter
+  configure(options = {}) {
+    this.#configuration = Object.assign(this.#configuration, options)
+  }
+
+  isolate() {
+    return new Reporter(Object.assign(this.#configuration, { _taskReport: this.#taskReport }))
+  }
+
+  push(msg, { noLog = false } = {}) {
+    this.#taskReport.push(msg)
+    if (noLog !== true) this.log(msg)
+  }
+
+  get taskReport() { return [ ...this.#taskReport ] }
+
+  reset() { this.#taskReport = [] }
 }
 
-export { initReporter }
+export { Reporter }
