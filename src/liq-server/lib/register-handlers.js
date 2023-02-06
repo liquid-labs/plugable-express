@@ -1,3 +1,4 @@
+import createError from 'http-errors'
 import omit from 'lodash.omit'
 import { pathToRegexp } from 'path-to-regexp'
 
@@ -66,6 +67,9 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
   for (const p of parameters) {
     let value = source[p.name]
     if (value === undefined) continue
+
+    if (p.matcher !== undefined && !value.match(p.matcher))
+      throw createError.BadRequest(`Parameter ${p.name} value '${value}' does not match ${p.matcher}.`)
 
     if (p.isMultivalue === true) {
       if (!Array.isArray(value)) { // then it's a string
