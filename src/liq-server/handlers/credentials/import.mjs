@@ -25,36 +25,15 @@ const parameters = [
   }
 ]
 
-const func = ({ app, cache, model, reporter }) => {
-  app.commonPathResolvers.credential = {
-    optionsFetcher : ({ currToken = '' }) => {
-      const results = []
-      if (currToken) {
-        for (const credName of CRED_TYPES) {
-          if (credName.startsWith(currToken)) {
-            results.push(credName)
-          }
-        }
-      }
-      else {
-        results.push(...CRED_TYPES)
-      }
+const func = ({ app, cache, model, reporter }) => async (req, res) => {
+  const credDB = new CredDB({ app, cache })
+  const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
-      return results
-    },
-    bitReString : '(?:' + CRED_TYPES.join('|') + ')'
-  }
+  const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
 
-  return async (req, res) => {
-    const credDB = new CredDB({ app, cache })
-    const { copyToStorage, credential, path: srcPath, replace } = req.vars
+  await credDB.import({ destPath, key: credential, srcPath, replace })
 
-    const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
-
-    await credDB.import({ destPath, key: credential, srcPath, replace })
-
-    res.type('text/terminal').send(`Imported '${credential}' credentials.`)
-  }
+  res.type('text/terminal').send(`Imported '${credential}' credentials.`)
 }
 
 export { func, parameters, path, method }

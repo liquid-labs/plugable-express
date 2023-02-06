@@ -1,8 +1,24 @@
 import { emailEncodedOrNotReString } from '@liquid-labs/regex-repo'
 
-const orgKey = {
-  bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
-  optionsFetcher : ({ model }) => Object.keys(model.orgs)
+import { CRED_TYPES } from '../handlers/credentials/lib/constants'
+
+const credential = {
+  bitReString : '(?:' + CRED_TYPES.join('|') + ')',
+  optionsFetcher : ({ currToken = '' }) => {
+    const results = []
+    if (currToken) {
+      for (const credName of CRED_TYPES) {
+        if (credName.startsWith(currToken)) {
+          results.push(credName)
+        }
+      }
+    }
+    else {
+      results.push(...CRED_TYPES)
+    }
+
+    return results
+  }
 }
 
 const localProjectName = {
@@ -14,6 +30,11 @@ const localProjectName = {
       .map((p) => p.slice(orgKeyLength))
     return projectNames
   }
+}    
+
+const orgKey = {
+  bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
+  optionsFetcher : ({ model }) => Object.keys(model.orgs)
 }
 
 const staffKey = {
@@ -21,6 +42,6 @@ const staffKey = {
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
 }
 
-const commonPathResolvers = { orgKey, orgKey, localProjectName, staffKey }
+const commonPathResolvers = { credential, localProjectName, orgKey, staffKey }
 
 export { commonPathResolvers }
