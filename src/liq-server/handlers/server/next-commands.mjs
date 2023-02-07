@@ -58,18 +58,24 @@ const func = ({ app, model }) => async(req, res) => {
         let foundVariablePathElement = null
         for (const fKey of Object.keys(frontier)) {
           if (fKey.startsWith(':')) {
+            /* We're going to try and relax this rule
             if (foundVariablePathElement !== null) {
               throw new Error(`Illegal multiple variable path branch possibilities: ${cmdsWalked.join(cmdSep)}${cmdSep}(${foundVariablePathElement}|${fKey})`)
-            }
+            }*/
             foundVariablePathElement = fKey
             const typeKey = fKey.slice(1)
             prevElements[typeKey] = commandBit // save the value of the variable
             const elementConfig = app.commonPathResolvers[typeKey]
             const { bitReString, optionsFetcher } = elementConfig
-            finalOptions = optionsFetcher({ currToken : commandBit, model, ...prevElements })
-            if (finalOptions?.then) finalOptions = await finalOptions
-            if (commandBit.match(new RegExp('^' + bitReString + '$')) && finalOptions.includes(commandBit)) {
+            let myOptions = optionsFetcher({ currToken : commandBit, model, ...prevElements })
+            if (myOptions?.then) myOptions = await myOptions
+            if (myOptions?.length > 0) finalOptions.push(...myOptions)
+            
+            if (bitReString 
+                && commandBit.match(new RegExp('^' + bitReString + '$')) 
+                && finalOptions.includes(commandBit)) {
               frontier = frontier[fKey]
+              break // there may be other possibilities, but once we have a match, we move on.
             }
             else {
               foundVariablePathElement = null
