@@ -54,6 +54,12 @@ const model = {
       return model.playground
     }
 
+    model.refreshModel = () => {
+      model.playground = loadPlayground(config)
+      model.orgs = loadOrgs(orgsOptions)
+      model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
+    }
+
     model.tasks = {
       create : ({
         // required
