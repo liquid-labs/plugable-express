@@ -24,7 +24,7 @@ describe('app', () => {
     const testOptions = mockLogOptions()
     let cache
 
-    beforeAll(async () => {
+    beforeAll(async() => {
       model.initialize(testOptions);
       ({ cache } = await appInit(Object.assign(testOptions, { model })))
     })
@@ -47,7 +47,7 @@ describe('app', () => {
     let app, cache
     const testOptions = mockLogOptions()
 
-    beforeAll(async () => {
+    beforeAll(async() => {
       model.initialize(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
       testOptions.skipCorePlugins = false;

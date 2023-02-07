@@ -12,7 +12,7 @@ import { commonPathResolvers } from './lib/path-resolvers'
 * - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
 *     dependencies are the plugins to be loaded.
 */
-const appInit = async ({ skipCorePlugins = false, ...options }) => {
+const appInit = async({ skipCorePlugins = false, ...options }) => {
   const { reporter } = options
   const app = express()
   app.use(express.json())
@@ -22,13 +22,12 @@ const appInit = async ({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
 
-
   app.liq = {
-    commandPaths: {},
-    errorsEphemeral: [],
-    errorsRetained: []
+    commandPaths    : {},
+    errorsEphemeral : [],
+    errorsRetained  : []
   }
-  
+
   app.handlers = []
 
   app.liq.commandPaths = {}
@@ -75,10 +74,10 @@ const appInit = async ({ skipCorePlugins = false, ...options }) => {
     const errorID = makeID()
     error.liqID = errorID
     errors.push({
-      id: errorID,
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().getTime()
+      id        : errorID,
+      message   : error.message,
+      stack     : error.stack,
+      timestamp : new Date().getTime()
     })
     let i = 0
     while (errors.length > 1000 && i < errors.length) {
@@ -91,7 +90,7 @@ const appInit = async ({ skipCorePlugins = false, ...options }) => {
   // generate user response
   app.use((error, req, res, next) => {
     if (res.headersSent) return next(error)
-  
+
     const status = error.status || 500
     res.status(status)
 
@@ -100,7 +99,7 @@ const appInit = async ({ skipCorePlugins = false, ...options }) => {
       : status >= 500 && status < 600
         ? 'Server'
         : 'Unknown'
-    let msg = `<error>Client error ${status}: ${statusText[status]}<rst>\n\n<em>${error.message}<rst>\n\n`
+    let msg = `<error>${errorSource} error ${status}: ${statusText[status]}<rst>\n\n<em>${error.message}<rst>\n\n`
     // if the error stack isn't registered, we display it here
     if (error.liqID === undefined && error.stack) {
       msg += error.stack
@@ -129,60 +128,60 @@ const appInit = async ({ skipCorePlugins = false, ...options }) => {
 
 // TODO: credit from stackoverflow...
 const makeID = (length = 5) => {
-  let result = '';
+  let result = ''
   // notice no 'l' or '1'
-  const characters = 'abcdefghijkmnopqrstuvwxyz023456789';
-  const charactersLength = characters.length;
-  let counter = 0;
+  const characters = 'abcdefghijkmnopqrstuvwxyz023456789'
+  const charactersLength = characters.length
+  let counter = 0
   while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    counter += 1
   }
-  return result;
+  return result
 }
 
 const statusText = {
-  400: 'BadRequest',
-  401: 'Unauthorized',
-  402: 'PaymentRequired',
-  403: 'Forbidden',
-  404: 'NotFound',
-  405: 'MethodNotAllowed',
-  406: 'NotAcceptable',
-  407: 'ProxyAuthenticationRequired',
-  408: 'RequestTimeout',
-  409: 'Conflict',
-  410: 'Gone',
-  411: 'LengthRequired',
-  412: 'PreconditionFailed',
-  413: 'PayloadTooLarge',
-  414: 'URITooLong',
-  415: 'UnsupportedMediaType',
-  416: 'RangeNotSatisfiable',
-  417: 'ExpectationFailed',
-  418: 'ImATeapot',
-  421: 'MisdirectedRequest',
-  422: 'UnprocessableEntity',
-  423: 'Locked',
-  424: 'FailedDependency',
-  425: 'TooEarly',
-  426: 'UpgradeRequired',
-  428: 'PreconditionRequired',
-  429: 'TooManyRequests',
-  431: 'RequestHeaderFieldsTooLarge',
-  451: 'UnavailableForLegalReasons',
-  500: 'InternalServerError',
-  501: 'NotImplemented',
-  502: 'BadGateway',
-  503: 'ServiceUnavailable',
-  504: 'GatewayTimeout',
-  505: 'HTTPVersionNotSupported',
-  506: 'VariantAlsoNegotiates',
-  507: 'InsufficientStorage',
-  508: 'LoopDetected',
-  509: 'BandwidthLimitExceeded',
-  510: 'NotExtended',
-  511: 'NetworkAuthenticationRequired'
+  400 : 'BadRequest',
+  401 : 'Unauthorized',
+  402 : 'PaymentRequired',
+  403 : 'Forbidden',
+  404 : 'NotFound',
+  405 : 'MethodNotAllowed',
+  406 : 'NotAcceptable',
+  407 : 'ProxyAuthenticationRequired',
+  408 : 'RequestTimeout',
+  409 : 'Conflict',
+  410 : 'Gone',
+  411 : 'LengthRequired',
+  412 : 'PreconditionFailed',
+  413 : 'PayloadTooLarge',
+  414 : 'URITooLong',
+  415 : 'UnsupportedMediaType',
+  416 : 'RangeNotSatisfiable',
+  417 : 'ExpectationFailed',
+  418 : 'ImATeapot',
+  421 : 'MisdirectedRequest',
+  422 : 'UnprocessableEntity',
+  423 : 'Locked',
+  424 : 'FailedDependency',
+  425 : 'TooEarly',
+  426 : 'UpgradeRequired',
+  428 : 'PreconditionRequired',
+  429 : 'TooManyRequests',
+  431 : 'RequestHeaderFieldsTooLarge',
+  451 : 'UnavailableForLegalReasons',
+  500 : 'InternalServerError',
+  501 : 'NotImplemented',
+  502 : 'BadGateway',
+  503 : 'ServiceUnavailable',
+  504 : 'GatewayTimeout',
+  505 : 'HTTPVersionNotSupported',
+  506 : 'VariantAlsoNegotiates',
+  507 : 'InsufficientStorage',
+  508 : 'LoopDetected',
+  509 : 'BandwidthLimitExceeded',
+  510 : 'NotExtended',
+  511 : 'NetworkAuthenticationRequired'
 }
 
 export { appInit }

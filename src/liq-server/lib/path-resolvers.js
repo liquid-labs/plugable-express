@@ -3,7 +3,7 @@ import { emailEncodedOrNotReString } from '@liquid-labs/regex-repo'
 import { CRED_TYPES } from '../handlers/credentials/lib/constants'
 
 const credential = {
-  bitReString : '(?:' + CRED_TYPES.join('|') + ')',
+  bitReString    : '(?:' + CRED_TYPES.join('|') + ')',
   optionsFetcher : ({ currToken = '' }) => {
     const results = []
     if (currToken) {
@@ -30,7 +30,7 @@ const localProjectName = {
       .map((p) => p.slice(orgKeyLength))
     return projectNames
   }
-}    
+}
 
 const orgKey = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',

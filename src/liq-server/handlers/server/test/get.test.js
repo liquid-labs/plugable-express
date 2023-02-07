@@ -8,7 +8,7 @@ import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
 describe('GET:/server', () => {
   let app
   let cache
-  beforeAll(async () => {
+  beforeAll(async() => {
     model.initialize(defaultTestOptions());
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })

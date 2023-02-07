@@ -68,8 +68,7 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     let value = source[p.name]
     if (value === undefined) continue
 
-    if (p.matcher !== undefined && !value.match(p.matcher))
-      throw createError.BadRequest(`Parameter ${p.name} value '${value}' does not match ${p.matcher}.`)
+    if (p.matcher !== undefined && !value.match(p.matcher)) { throw createError.BadRequest(`Parameter ${p.name} value '${value}' does not match ${p.matcher}.`) }
 
     if (p.isMultivalue === true) {
       if (!Array.isArray(value)) { // then it's a string

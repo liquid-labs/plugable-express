@@ -13,11 +13,11 @@ const Reporter = class {
   #configuration
   #taskReport
 
-  constructor({ _taskReport, ...configOptions} = {}) {
-    this.#configuration = { silent: false }
+  constructor({ _taskReport, ...configOptions } = {}) {
+    this.#configuration = { silent : false }
     this.configure(configOptions)
 
-    this.#taskReport = [ ...(_taskReport || []) ]
+    this.#taskReport = [...(_taskReport || [])]
 
     for (const methodName of outputMethodNames) {
       this[methodName] = (...msgs) => {
@@ -34,7 +34,7 @@ const Reporter = class {
   }
 
   isolate() {
-    return new Reporter(Object.assign(this.#configuration, { _taskReport: this.#taskReport }))
+    return new Reporter(Object.assign(this.#configuration, { _taskReport : this.#taskReport }))
   }
 
   push(msg, { noLog = false } = {}) {
@@ -42,7 +42,7 @@ const Reporter = class {
     if (noLog !== true) this.log(msg)
   }
 
-  get taskReport() { return [ ...this.#taskReport ] }
+  get taskReport() { return [...this.#taskReport] }
 
   reset() { this.#taskReport = [] }
 }

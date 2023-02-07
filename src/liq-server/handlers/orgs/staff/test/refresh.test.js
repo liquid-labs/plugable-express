@@ -23,7 +23,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   let app
   let cache
   let count = 1
-  beforeEach(async () => {
+  beforeEach(async() => {
     model.initialize(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
     // confirm initial setup

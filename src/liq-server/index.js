@@ -15,13 +15,13 @@ const config = initializeConfiguration([defaults])
 
 model.initialize(config);
 
-(async () => {
-const { app, cache } = await appInit(Object.assign({ model }, config))
+(async() => {
+  const { app, cache } = await appInit(Object.assign({ model }, config))
 
-const serverOptions = {
-  PORT     : config[LIQ_PORT],
-  reporter : config.reporter || console
-}
+  const serverOptions = {
+    PORT     : config[LIQ_PORT],
+    reporter : config.reporter || console
+  }
 
-server.start({ app, cache, options : serverOptions })
+  server.start({ app, cache, options : serverOptions })
 })()

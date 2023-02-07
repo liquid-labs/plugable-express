@@ -1,3 +1,4 @@
+import * as fs from 'node:fs/promises'
 import * as fsPath from 'node:path'
 
 import structuredClone from 'core-js-pure/actual/structured-clone'
@@ -8,7 +9,7 @@ import { checkGitHubAPIAccess, checkGitHubSSHAccess } from '@liquid-labs/github-
 import { CREDS_DB_CACHE_KEY, CRED_SPECS, credStatus, GITHUB_API, GITHUB_SSH } from './constants'
 
 class CredDB {
-  static allFields = [ 'key', 'name', 'description', 'status', 'files' ]
+  static allFields = ['key', 'name', 'description', 'status', 'files']
   static defaultFields = CredDB.allFields
 
   #cache
@@ -27,7 +28,7 @@ class CredDB {
   resetDB() {
     let db = this.#cache?.get(CREDS_DB_CACHE_KEY)
     if (!db) { // load the DB from path
-      ([ db ] = readFJSON(this.#dbPath, { createOnNone: {}, separateMeta: true }));
+      ([db] = readFJSON(this.#dbPath, { createOnNone : {}, separateMeta : true }))
       this.#cache.put(CREDS_DB_CACHE_KEY, db)
     }
 
@@ -43,41 +44,39 @@ class CredDB {
       }
     }
 
-    writeFJSON({ file: this.#dbPath, data: writableDB })
+    writeFJSON({ file : this.#dbPath, data : writableDB })
   }
 
   detail(key) {
     const baseData = CRED_SPECS.find((s) => s.key === key)
     if (baseData === undefined) return baseData
 
-    return Object.assign({ status: credStatus.NOT_SET }, baseData, this.#db[key])
+    return Object.assign({ status : credStatus.NOT_SET }, baseData, this.#db[key])
   }
 
   async import({ destPath, key, noVerify = false, replace, srcPath }) {
     const credSpec = CRED_SPECS.find((c) => c.key === key)
     if (credSpec === undefined) throw new Error(`Cannot import unknown credential type '${key}'.`)
 
-    if (this.#db[key] !== undefined && replace !== true)
-      throw new Error(`Credential '${key}' already exists; set 'replace' to true to update the entry.`)
+    if (this.#db[key] !== undefined && replace !== true) { throw new Error(`Credential '${key}' already exists; set 'replace' to true to update the entry.`) }
 
-    if (credSpec.type !== 'ssh' && credSpec.type !== 'token')
-      throw new Error(`Do not know how to handle credential type '${credSpec.type}' on import.`)
+    if (credSpec.type !== 'ssh' && credSpec.type !== 'token') { throw new Error(`Do not know how to handle credential type '${credSpec.type}' on import.`) }
 
     const files = []
 
     if (destPath !== undefined && fsPath.resolve(destPath) !== fsPath.resolve(fsPath.dirName(srcPath))) {
-      await fs.mkdir(destPath, { recursive: true })
+      await fs.mkdir(destPath, { recursive : true })
       if (credSpec.type === 'ssh') {
         const privKeyPath = fsPath.join(destPath, key)
         const pubKeyPath = fsPath.join(destPath, key + '.pub')
-        await fs.copyFile(srcPath, privKeyPath, { mode: fs.constants.COPYFILE_EXCL })
-        await fs.copyFile(srcPath + '.pub', pubKeyPath, { mode: fs.constants.COPYFILE_EXCL })
+        await fs.copyFile(srcPath, privKeyPath, { mode : fs.constants.COPYFILE_EXCL })
+        await fs.copyFile(srcPath + '.pub', pubKeyPath, { mode : fs.constants.COPYFILE_EXCL })
         files.push(privKeyPath)
         files.push(pubKeyPath)
       }
       else if (credSpec.type === 'token') {
-        const tokenPath = fspath.join(destPath, key + '.token')
-        await fs.copyFile(srcPath, tokenPath, { mode: fs.constants.COPYFILE_EXCL })
+        const tokenPath = fsPath.join(destPath, key + '.token')
+        await fs.copyFile(srcPath, tokenPath, { mode : fs.constants.COPYFILE_EXCL })
         files.push(tokenPath)
       }
     }
@@ -88,10 +87,10 @@ class CredDB {
       }
     }
 
-    this.#db[key] = Object.assign({ files, status: credStatus.SET_BUT_UNTESTED }, CRED_SPECS[key])
+    this.#db[key] = Object.assign({ files, status : credStatus.SET_BUT_UNTESTED }, CRED_SPECS[key])
     if (noVerify === false) {
       try {
-        this.verifyCreds({ keys: [ key ], throwOnError: true })
+        this.verifyCreds({ keys : [key], throwOnError : true })
       }
       catch (e) {
         this.resetDB()
@@ -111,13 +110,13 @@ class CredDB {
 
     for (const { files, key, name, status } of this.list()) {
       if (status !== credStatus.NOT_SET && (status !== credStatus.SET_AND_VERIFIED || reVerify === true)
-          && ( keys === undefined || keys.includes(key))) {
+          && (keys === undefined || keys.includes(key))) {
         try {
           if (key === GITHUB_API) {
-            checkGitHubAPIAccess({ filePath: files[0] })
+            checkGitHubAPIAccess({ filePath : files[0] })
           }
           else if (key === GITHUB_SSH) {
-            checkGitHubSSHAccess({ privKeyPath: files[0] })
+            checkGitHubSSHAccess({ privKeyPath : files[0] })
           }
           else {
             throw new Error(`Do not know how to verify '${name}' (${key}) credentials.`)

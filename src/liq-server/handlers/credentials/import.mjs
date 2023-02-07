@@ -1,8 +1,7 @@
-import fs from 'node:fs/promises'
 import fsPath from 'node:path'
 
 import { CredDB } from './lib/credentials-db'
-import { CRED_TYPES, CREDS_PATH_STEM } from './lib/constants'
+import { CREDS_PATH_STEM } from './lib/constants'
 
 const method = 'put'
 const path = ['credentials', ':credential', 'import']
@@ -25,13 +24,13 @@ const parameters = [
   }
 ]
 
-const func = ({ app, cache, model, reporter }) => async (req, res) => {
+const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const credDB = new CredDB({ app, cache })
   const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
   const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
 
-  await credDB.import({ destPath, key: credential, srcPath, replace })
+  await credDB.import({ destPath, key : credential, srcPath, replace })
 
   res.type('text/terminal').send(`Imported '${credential}' credentials.`)
 }

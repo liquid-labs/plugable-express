@@ -16,7 +16,7 @@ describe('GET:/playground/projects/:orgKey/:localProjectName/packageJSON', () =>
   let app
   let cache
 
-  beforeAll(async () => {
+  beforeAll(async() => {
     model.initialize(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
   })

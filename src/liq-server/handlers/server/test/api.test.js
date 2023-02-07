@@ -8,7 +8,7 @@ import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib
 describe('GET:/server/api', () => {
   let app
   let cache
-  beforeAll(async () => {
+  beforeAll(async() => {
     model.initialize(defaultTestOptions());
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
