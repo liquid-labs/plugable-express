@@ -23,10 +23,10 @@ const credential = {
 
 const localProjectName = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-_]*',
-  optionsFetcher : ({ model, orgKey }) => {
+  optionsFetcher : ({ currToken = '', model, orgKey }) => {
     const orgKeyLength = orgKey.length + 1
     const projectNames = Object.keys(model.playground.projects)
-      .filter((p) => p.startsWith(orgKey + '/'))
+      .filter((p) => p.startsWith(orgKey + '/' + currToken))
       .map((p) => p.slice(orgKeyLength))
     return projectNames
   }
