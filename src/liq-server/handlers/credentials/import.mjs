@@ -1,7 +1,7 @@
 import fsPath from 'node:path'
 
-import { CredDB } from './lib/credentials-db'
-import { CREDS_PATH_STEM } from './lib/constants'
+import { CredentialsDB, CREDS_PATH_STEM } from '@liquid-labs/liq-credentials-db'
+import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
 const method = 'put'
 const path = ['credentials', ':credential', 'import']
@@ -25,14 +25,14 @@ const parameters = [
 ]
 
 const func = ({ app, cache, model, reporter }) => async(req, res) => {
-  const credDB = new CredDB({ app, cache })
+  const credDB = new CredentialsDB({ app, cache })
   const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
   const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
 
   await credDB.import({ destPath, key : credential, srcPath, replace })
 
-  res.type('text/terminal').send(`Imported '${credential}' credentials.`)
+  httpSmartResponse({ msg: `Imported '${credential}' credentials.`, req, res })
 }
 
 export { func, parameters, path, method }

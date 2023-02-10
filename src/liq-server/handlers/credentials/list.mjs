@@ -1,6 +1,5 @@
 import { commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
-
-import { CredDB } from './lib/credentials-db'
+import { CredentialsDB } from '@liquid-labs/liq-credentials-db'
 
 const method = 'get'
 const path = ['credentials', 'list']
@@ -24,7 +23,7 @@ const textFormatter = (creds, title) => terminalFormatter(creds, title).replaceA
 const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const { verify } = req.vars
 
-  const credDB = new CredDB({ app, cache })
+  const credDB = new CredentialsDB({ app, cache })
 
   credDB.verifyCreds({ reVerify : verify })
 
@@ -37,8 +36,8 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
     reporter,
     req,
     res,
-    allFields     : CredDB.allFields,
-    defaultFields : CredDB.defaultFields,
+    allFields     : CredentialsDB.allFields,
+    defaultFields : CredentialsDB.defaultFields,
     ...req.vars
   })
 }

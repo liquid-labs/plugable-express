@@ -1,6 +1,5 @@
+import { CRED_TYPES } from '@liquid-labs/liq-credentials-db'
 import { emailEncodedOrNotReString } from '@liquid-labs/regex-repo'
-
-import { CRED_TYPES } from '../handlers/credentials/lib/constants'
 
 const credential = {
   bitReString    : '(?:' + CRED_TYPES.join('|') + ')',
