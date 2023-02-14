@@ -22,18 +22,18 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
 
-  app.liq = { 
+  app.liq = {
     home       : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
     playground : () => app.liq.home() + '/playground'
   }
 
   Object.assign(
-    app.liq, 
+    app.liq,
     {
       commandPaths    : {},
       errorsEphemeral : [],
       errorsRetained  : [],
-      constants : {}
+      constants       : {}
     })
 
   app.liq.handlers = []

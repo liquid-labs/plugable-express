@@ -32,7 +32,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
 
   await credDB.import({ destPath, key : credential, srcPath, replace })
 
-  httpSmartResponse({ msg: `Imported '${credential}' credentials.`, req, res })
+  httpSmartResponse({ msg : `Imported '${credential}' credentials.`, req, res })
 }
 
 export { func, parameters, path, method }
