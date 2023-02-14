@@ -41,7 +41,7 @@ const loadPlugins = async(app, {
     }
 
     if (setup) reporter.log(`Running setup for ${sourcePkg} plugins...`)
-    const setupData = setup ? setup({ model, reporter }) : {}
+    const setupData = setup ? setup({ app, model, reporter }) : {}
 
     if (handlers !== undefined) {
       registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })

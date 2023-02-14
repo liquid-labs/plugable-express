@@ -22,16 +22,24 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   const cache = new WeakCache()
   options.cache = cache
 
-  app.liq = {
-    commandPaths    : {},
-    errorsEphemeral : [],
-    errorsRetained  : []
+  app.liq = { 
+    home       : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
+    playground : () => app.liq.home() + '/playground'
   }
 
-  app.handlers = []
+  Object.assign(
+    app.liq, 
+    {
+      commandPaths    : {},
+      errorsEphemeral : [],
+      errorsRetained  : [],
+      constants : {}
+    })
+
+  app.liq.handlers = []
 
   app.liq.commandPaths = {}
-  app.addCommandPath = (commandPath, parameters) => {
+  app.liq.addCommandPath = (commandPath, parameters) => {
     let frontier = app.liq.commandPaths
     for (const pathBit of commandPath) {
       if (!(pathBit in frontier)) {
@@ -49,17 +57,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
     frontier._parameters = () => parameters
   }
 
-  app.commonPathResolvers = commonPathResolvers
-  app.addCommonPathResolver = (key, resolver) => {
-    // TODO: It's a good check to avoid hard to debug bugs, but runs afoul of re-loads (or something...)
-    /* if (key in commonPathResolvers) {
-      throw new Error(`'${key}' is already registered as a path resolver.`)
-    } */
-    commonPathResolvers[key] = resolver
-  }
-
-  app.liqHome = () => process.env.LIQ_HOME || process.env.HOME + '/.liq'
-  app.liqPlayground = () => app.liqHome() + '/playground'
+  app.liq.pathResolvers = commonPathResolvers
 
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))

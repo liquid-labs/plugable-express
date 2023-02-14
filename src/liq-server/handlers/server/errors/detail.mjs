@@ -59,7 +59,7 @@ const httpOut = ({ data, req, res }) => {
 }
 
 const func = ({ app, model, reporter }) => {
-  app.commonPathResolvers.errorKey = {
+  app.liq.pathResolvers.errorKey = {
     optionsFetcher : () => app.liq.errorsRetained.map((e) => e.id)
       .concat(app.liq.errorsEphemeral.map((e) => e.id)),
     bitReString : '[a-z0-9]{5}'

@@ -50,7 +50,7 @@ const parseBool = (value) => {
 
 const func = ({ app, model, reporter }) => {
   /* Already set in parameters-detail... we really need to approach this a different way
-  app.commonPathResolvers['parameterKey'] = {
+  app.liq.pathResolvers['parameterKey'] = {
     optionsFetcher: ({ orgKey }) => {
       const org = model.orgs[orgKey]
       const parameters = listParameters(org)

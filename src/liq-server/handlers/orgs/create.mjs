@@ -29,25 +29,18 @@ const parameters = [
   }
 ]
 
-const func = ({ app }) => {
-  app.addCommonPathResolver('newOrgKey', {
-    bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
-    optionsFetcher : ({ currToken, newOrgKey }) => newOrgKey ? [newOrgKey] : []
+const func = ({ app }) => async(req, res) => {
+  const { commonName, legalName, localDataRoot, newOrgKey } = req.vars
+  const localRootDir = localDataRoot + '/orgs'
+
+  await fs.mkdir(localRootDir, { recursive : true })
+
+  /* const newOrg = */Organization.initializeOrganization({
+    commonName,
+    dataPath : localDataRoot,
+    legalName,
+    orgKey   : newOrgKey
   })
-
-  return async(req, res) => {
-    const { commonName, legalName, localDataRoot, newOrgKey } = req.vars
-    const localRootDir = localDataRoot + '/orgs'
-
-    await fs.mkdir(localRootDir, { recursive : true })
-
-    /* const newOrg = */Organization.initializeOrganization({
-      commonName,
-      dataPath : localDataRoot,
-      legalName,
-      orgKey   : newOrgKey
-    })
-  }
 }
 
 export { func, help, parameters, path, method }

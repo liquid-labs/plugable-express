@@ -65,7 +65,7 @@ const func = ({ app, model }) => async(req, res) => {
             foundVariablePathElement = fKey
             const typeKey = fKey.slice(1)
             prevElements[typeKey] = commandBit // save the value of the variable
-            const elementConfig = app.commonPathResolvers[typeKey]
+            const elementConfig = app.liq.pathResolvers[typeKey]
             const { bitReString, optionsFetcher } = elementConfig
             let myOptions = optionsFetcher({ currToken : commandBit, model, ...prevElements })
             if (myOptions?.then) myOptions = await myOptions
@@ -110,7 +110,7 @@ const func = ({ app, model }) => async(req, res) => {
         .reduce(async(acc, k) => {
           acc = await acc
           if (k.startsWith(':')) {
-            const elementConfig = app.commonPathResolvers[k.slice(1)] // this should already be validated
+            const elementConfig = app.liq.pathResolvers[k.slice(1)] // this should already be validated
             const { optionsFetcher } = elementConfig
             let fOpts = optionsFetcher({ currToken : '', model, ...prevElements })
             if (fOpts?.then) fOpts = await fOpts

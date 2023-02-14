@@ -31,6 +31,11 @@ const localProjectName = {
   }
 }
 
+const newOrgKey = {
+  bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
+  optionsFetcher : ({ currToken, newOrgKey }) => newOrgKey ? [newOrgKey] : []
+}
+
 const orgKey = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
   optionsFetcher : ({ model }) => Object.keys(model.orgs)
@@ -41,6 +46,6 @@ const staffKey = {
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
 }
 
-const commonPathResolvers = { credential, localProjectName, orgKey, staffKey }
+const commonPathResolvers = { credential, localProjectName, newOrgKey, orgKey, staffKey }
 
 export { commonPathResolvers }

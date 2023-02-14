@@ -28,7 +28,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const credDB = new CredentialsDB({ app, cache })
   const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
-  const destPath = copyToStorage === true ? fsPath.join(app.liqHome(), CREDS_PATH_STEM) : undefined
+  const destPath = copyToStorage === true ? fsPath.join(app.liq.home(), CREDS_PATH_STEM) : undefined
 
   await credDB.import({ destPath, key : credential, srcPath, replace })
 
