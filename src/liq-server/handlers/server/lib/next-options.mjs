@@ -1,9 +1,11 @@
 import { optionsTokenizer } from './options-tokenizer'
 
-const nextOptionValueOptions = ({ lastOptionName, lastOptionParamDef, lastOptionValue, model, prevElements }) => {
+const nextOptionValueOptions = async ({ app, cache, lastOptionName, lastOptionParamDef, lastOptionValue, model, prevElements }) => {
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
   if (!lastOptionParamDef.optionsFunc) return []
-  const possibleValues = lastOptionParamDef.optionsFunc({ model, ...prevElements }).sort()
+  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, model, ...prevElements })
+  if (possibleValues.then) possibleValues = await possibleValues
+  possibleValues.sort()
   if (possibleValues.includes(lastOptionValue)) return [lastOptionValue]
   else {
     return !lastOptionValue
@@ -68,7 +70,7 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
   return options
 }
 
-const nextOptions = ({ command, lastCmd, model, nextCommands, optionString, paramsSpec, prevElements }) => {
+const nextOptions = async ({ app, cache, command, lastCmd, model, nextCommands, optionString, paramsSpec, prevElements }) => {
   if (optionString === undefined) { // possible start of options; also there may be other commands options
     if (command.endsWith(' ')) nextCommands.splice(0, 0, '--') // '--' always separated by ' '
     else nextCommands = [lastCmd]
@@ -89,7 +91,9 @@ const nextOptions = ({ command, lastCmd, model, nextCommands, optionString, para
       nextCommands = [lastOptionName]
     }
     else if (command.endsWith('=') || (lastOptionValue && command.endsWith(lastOptionValue))) {
-      nextCommands = nextOptionValueOptions({
+      nextCommands = await nextOptionValueOptions({
+        app,
+        cache,
         lastOptionName,
         lastOptionParamDef,
         lastOptionValue,
