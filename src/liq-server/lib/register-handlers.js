@@ -71,8 +71,10 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
     if (p.matcher !== undefined && !value.match(p.matcher)) { throw createError.BadRequest(`Parameter ${p.name} value '${value}' does not match ${p.matcher}.`) }
 
     if (p.isMultivalue === true) {
-      if (!Array.isArray(value)) { // then it's a string
-        value = value.split(/\s*(?<!\\),\s*/) // split on non-escaped commas
+      // if we have a multivalue but only one instance, it will come in as a single value, we want to convert that to 
+      // a single value array
+      if (!Array.isArray(value)) {
+        value = [ value ]
       }
       value = p.isBoolean === true
         ? value.map((v) => processBool(v, p.name))
