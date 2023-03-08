@@ -47,13 +47,24 @@ const loadPlayground = ({
     for (const projectDir of projectDirs) {
       const projectName = projectDir.name
       const localProjectPath = `${basePath}/${projectName}`
-      const project = loadPlaygroundProject({
-        projectName,
-        localProjectPath,
-        orgName
-      })
+      try {
+        const project = loadPlaygroundProject({
+          projectName,
+          localProjectPath,
+          orgName
+        })
 
-      playground.projects[project.fullName] = project
+        playground.projects[project.fullName] = project
+      }
+      catch (e) {
+        console.log(e)
+        if (e instanceof SyntaxError) {
+          reporter.warn(`\nWARNING: skipping project '${projectName}'; it is likely the 'package.json' file is malformed.`)
+        }
+        else {
+          throw e
+        }
+      }
     }
   }
 
