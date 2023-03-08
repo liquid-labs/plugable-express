@@ -134,7 +134,18 @@ const func = ({ app, cache, model }) => async(req, res) => {
 
       const lastCmd = cmdsWalked.length === 0 ? '' : cmdsWalked[cmdsWalked.length - 1]
       if (maybeOptions === true) {
-        nextCommands = await nextOptions({ app, cache, command, lastCmd, model, nextCommands, optionString, paramsSpec : frontier._parameters(), prevElements })
+        nextCommands = await nextOptions({ 
+          app, 
+          cache, 
+          command, 
+          lastCmd, 
+          model, 
+          nextCommands, 
+          optionString, 
+          paramsSpec : frontier._parameters(), 
+          prevElements, 
+          req 
+        })
       }
       else if (!command.endsWith(cmdSep) && cmdsWalked.length > 0) {
         nextCommands = [cmdsWalked.pop()]
