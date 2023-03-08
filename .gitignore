@@ -4,3 +4,5 @@
 /test-staging
 /yalc.lock
 /.yalc
+/last-test.txt
+/last-lint.txt

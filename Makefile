@@ -1,5 +1,9 @@
+ifneq (grouped-target, $(findstring grouped-target,$(.FEATURES)))
+ERROR:=$(error This version of make does not support required 'grouped-target' (4.3+).)
+endif
+
 .DELETE_ON_ERROR:
-.PHONY: all test lint lint-fix
+.PHONY: all lint lint-fix test qa
 
 default: all
 
@@ -9,8 +13,8 @@ BASH_ROLLUP:=$(NPM_BIN) bash-rollup
 
 LIQ_SERVER_SRC:=src/liq-server
 LIQ_SERVER_FILES:=$(shell find $(LIQ_SERVER_SRC) \( -name "*.js" -o -name "*.mjs" \) -not -path "*/test/*" -not -name "*.test.js")
-LIQ_SERVER_TEST_SRC_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js" -o -name "*.mjs")
-LIQ_SERVER_TEST_BUILT_FILES=$(patsubst %.mjs, %.js, $(patsubst $(LIQ_SERVER_SRC)/%, test-staging/%, $(LIQ_SERVER_TEST_SRC_FILES)))
+ALL_SRC_FILES:=$(shell find $(LIQ_SERVER_SRC) -name "*.js" -o -name "*.mjs")
+LIQ_SERVER_TEST_BUILT_FILES=$(patsubst %.mjs, %.js, $(patsubst $(LIQ_SERVER_SRC)/%, test-staging/%, $(ALL_SRC_FILES)))
 LIQ_SERVER_TEST_SRC_DATA:=$(shell find $(LIQ_SERVER_SRC) -path "*/data/*" -type f -o -name "*.csv")
 LIQ_SERVER_TEST_BUILT_DATA:=$(patsubst $(LIQ_SERVER_SRC)%, test-staging/%, $(LIQ_SERVER_TEST_SRC_DATA))
 LIQ_SERVER_BIN:=dist/liq-server.js
@@ -44,7 +48,7 @@ $(CLI_BIN): $(CLI_SRC_ROOT) $(CLI_SRC_FILES)
 	$(BASH_ROLLUP) $< $@
 
 # test build and run rules
-$(LIQ_SERVER_TEST_BUILT_FILES) &: $(LIQ_SERVER_TEST_SRC_FILES)
+$(LIQ_SERVER_TEST_BUILT_FILES) &: $(ALL_SRC_FILES)
 	JS_SRC=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) pretest
 
 $(LIQ_SERVER_TEST_BUILT_DATA): test-staging/%: $(LIQ_SERVER_SRC)%
@@ -52,12 +56,22 @@ $(LIQ_SERVER_TEST_BUILT_DATA): test-staging/%: $(LIQ_SERVER_SRC)%
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
-test: $(LIQ_SERVER_TEST_BUILT_FILES) $(LIQ_SERVER_TEST_BUILT_DATA)
-	JS_SRC=test-staging $(CATALYST_SCRIPTS) test
+
+last-test.txt: $(LIQ_SERVER_TEST_BUILT_FILES) $(LIQ_SERVER_TEST_BUILT_DATA)
+	# JS_SRC=$(TEST_STAGING) $(CATALYST_SCRIPTS) test | tee last-test.txt
+	( set -e; set -o pipefail; \
+		JS_SRC=$(TEST_STAGING) $(CATALYST_SCRIPTS) test 2>&1 | tee last-test.txt; )
+
+test: last-test.txt
 
 # lint rules
-lint:
-	JS_LINT_TARGET=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) lint
+last-lint.txt: $(ALL_SRC_FILES)
+	( set -e; set -o pipefail; \
+		JS_LINT_TARGET=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) lint | tee last-lint.txt; )
+
+lint: last-lint.txt
 
 lint-fix:
 	JS_LINT_TARGET=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) lint-fix
+
+qa: test lint
