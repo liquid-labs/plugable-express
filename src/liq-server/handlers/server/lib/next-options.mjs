@@ -1,14 +1,14 @@
 import { optionsTokenizer } from './options-tokenizer'
 
-const nextOptionValueOptions = async ({ 
-  app, 
-  cache, 
-  lastOptionName, 
-  lastOptionParamDef, 
-  lastOptionValue, 
-  model, 
+const nextOptionValueOptions = async({
+  app,
+  cache,
+  lastOptionName,
+  lastOptionParamDef,
+  lastOptionValue,
+  model,
   prevElements,
-  req 
+  req
 }) => {
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
   if (!lastOptionParamDef.optionsFunc) return []
@@ -79,15 +79,15 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
   return options
 }
 
-const nextOptions = async ({ 
-  app, 
-  cache, 
-  command, 
-  lastCmd, 
-  model, 
-  nextCommands, 
-  optionString, 
-  paramsSpec, 
+const nextOptions = async({
+  app,
+  cache,
+  command,
+  lastCmd,
+  model,
+  nextCommands,
+  optionString,
+  paramsSpec,
   prevElements,
   req
 }) => {
