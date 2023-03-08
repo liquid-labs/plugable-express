@@ -10,7 +10,7 @@
     "test": "make test",
     "preversion": "make test && make lint",
     "postversion": "git push upstream v${npm_package_version}",
-    "qa": "make test && make lint"
+    "qa": "make qa"
   },
   "bin": {
     "liq-server": "./dist/liq-server.sh"
