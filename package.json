@@ -9,7 +9,8 @@
     "lint:fix": "make lint-fix",
     "test": "make test",
     "preversion": "make test && make lint",
-    "postversion": "git push upstream v${npm_package_version}"
+    "postversion": "git push upstream v${npm_package_version}",
+    "qa": "make qa"
   },
   "bin": {
     "liq-server": "./dist/liq-server.sh"
@@ -58,8 +59,8 @@
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/github-toolkit": "file:.yalc/@liquid-labs/github-toolkit",
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
-    "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.2",
-    "@liquid-labs/liq-handlers-lib": "file:.yalc/@liquid-labs/liq-handlers-lib",
+    "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
+    "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.13",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
     "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",

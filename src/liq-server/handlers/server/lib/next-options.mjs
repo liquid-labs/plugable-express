@@ -1,9 +1,18 @@
 import { optionsTokenizer } from './options-tokenizer'
 
-const nextOptionValueOptions = async ({ app, cache, lastOptionName, lastOptionParamDef, lastOptionValue, model, prevElements }) => {
+const nextOptionValueOptions = async({
+  app,
+  cache,
+  lastOptionName,
+  lastOptionParamDef,
+  lastOptionValue,
+  model,
+  prevElements,
+  req
+}) => {
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
   if (!lastOptionParamDef.optionsFunc) return []
-  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, model, ...prevElements })
+  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, model, req, ...prevElements })
   if (possibleValues.then) possibleValues = await possibleValues
   possibleValues.sort()
   if (possibleValues.includes(lastOptionValue)) return [lastOptionValue]
@@ -70,7 +79,18 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
   return options
 }
 
-const nextOptions = async ({ app, cache, command, lastCmd, model, nextCommands, optionString, paramsSpec, prevElements }) => {
+const nextOptions = async({
+  app,
+  cache,
+  command,
+  lastCmd,
+  model,
+  nextCommands,
+  optionString,
+  paramsSpec,
+  prevElements,
+  req
+}) => {
   if (optionString === undefined) { // possible start of options; also there may be other commands options
     if (command.endsWith(' ')) nextCommands.splice(0, 0, '--') // '--' always separated by ' '
     else nextCommands = [lastCmd]
@@ -98,7 +118,8 @@ const nextOptions = async ({ app, cache, command, lastCmd, model, nextCommands, 
         lastOptionParamDef,
         lastOptionValue,
         model,
-        prevElements
+        prevElements,
+        req
       })
     }
     else {
