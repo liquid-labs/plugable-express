@@ -41,6 +41,7 @@
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
     "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.57",
+    "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
     "@liquid-labs/orgs-model": "file:.yalc/@liquid-labs/orgs-model",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.6",
@@ -55,7 +56,6 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/github-toolkit": "file:.yalc/@liquid-labs/github-toolkit",
     "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
     "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",

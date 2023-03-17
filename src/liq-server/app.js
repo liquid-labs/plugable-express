@@ -1,6 +1,10 @@
+import { existsSync } from 'node:fs'
+import * as fsPath from 'node:path'
+
 import express from 'express'
 import fileUpload from 'express-fileupload'
 
+import { readFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
@@ -58,6 +62,16 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   }
 
   app.liq.pathResolvers = commonPathResolvers
+
+  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
+  // found' exceptions
+  const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
+  if (existsSync(localSettingsPath)) {
+    app.liq.localSettings = readFJSON(localSettingsPath)
+  }
+  else {
+    app.liq.localSettings = {}
+  }
 
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))
