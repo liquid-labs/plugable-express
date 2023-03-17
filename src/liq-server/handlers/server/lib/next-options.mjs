@@ -24,11 +24,11 @@ const nextOptionValueOptions = async({
     const lastTokenBit = lastOptionValue.replace(/.*[=:]([^=:]*)/, '$1')
     return possibleValues.filter((v) => v.startsWith(lastTokenBit))
   }
-  /*else {
+  /* else {
     return !lastOptionValue
       ? possibleValues // .map((v) => lastOptionName + '=' + v)
       : possibleValues.filter((v) => v.startsWith(lastOptionValue))
-  } // .map((v) => lastOptionName + '=' + v)*/
+  } // .map((v) => lastOptionName + '=' + v) */
 }
 
 const parameterOptions = ({ paramDef }) => {
