@@ -63,7 +63,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
 
   app.liq.pathResolvers = commonPathResolvers
 
-  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not 
+  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
   // found' exceptions
   const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
