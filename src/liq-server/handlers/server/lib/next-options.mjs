@@ -12,15 +12,23 @@ const nextOptionValueOptions = async({
 }) => {
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
   if (!lastOptionParamDef.optionsFunc) return []
-  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, model, req, ...prevElements })
+  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, lastOptionValue, model, req, ...prevElements })
   if (possibleValues.then) possibleValues = await possibleValues
   possibleValues.sort()
+
   if (possibleValues.includes(lastOptionValue)) return [lastOptionValue]
+  else if (!lastOptionValue) {
+    return possibleValues
+  }
   else {
+    const lastTokenBit = lastOptionValue.replace(/.*[=:]([^=:]*)/, '$1')
+    return possibleValues.filter((v) => v.startsWith(lastTokenBit))
+  }
+  /* else {
     return !lastOptionValue
       ? possibleValues // .map((v) => lastOptionName + '=' + v)
       : possibleValues.filter((v) => v.startsWith(lastOptionValue))
-  } // .map((v) => lastOptionName + '=' + v)
+  } // .map((v) => lastOptionName + '=' + v) */
 }
 
 const parameterOptions = ({ paramDef }) => {
@@ -110,7 +118,8 @@ const nextOptions = async({
     if (lastOptionParamDef && lastOptionParamDef.isBoolean && command.endsWith(lastOptionName)) {
       nextCommands = [lastOptionName]
     }
-    else if (command.endsWith('=') || (lastOptionValue && command.endsWith(lastOptionValue))) {
+    // else if (command.endsWith('=') || (lastOptionValue && command.endsWith(lastOptionValue))) {
+    else if (command.match(/[=:]$/) || (lastOptionValue && command.endsWith(lastOptionValue))) {
       nextCommands = await nextOptionValueOptions({
         app,
         cache,
