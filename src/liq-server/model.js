@@ -17,6 +17,7 @@ import { Worker } from 'worker_threads'
 *       ...
 *     },
 *     projectsAlphaList: [ alpha sorted list of full project names ] // currently case sensitive, TODO: fix that
+*     projectsByDir: { [ base project directory ]: <project entry (as from 'projects')>},
 *     orgs: {
 *       <liq org name>: {
 *         projects: { <project base name>: <refs to projects data>... },

@@ -1,5 +1,6 @@
 /* global afterAll beforeAll describe expect test */
-import * as fs from 'fs'
+import * as fs from 'node:fs'
+import * as fsPath from 'node:path'
 
 import { model } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
@@ -26,6 +27,12 @@ describe('model', () => {
         expect(Object.keys(model.playground.orgs).length).toBe(2)
         expect(model.playground.orgs.orgA).toBeTruthy()
         expect(model.playground.orgs.orgB).toBeTruthy()
+      })
+
+      test('indexes projects by base directory', () => {
+        expect(Object.keys(model.playground.projectsByDir)).toHaveLength(3)
+        const projectA01Dir = fsPath.resolve(__dirname, 'data', 'playground-simple', 'orgA', 'projectA01')
+        expect(model.playground.projectsByDir[projectA01Dir]).toBeTruthy()
       })
     })
 
