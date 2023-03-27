@@ -1,13 +1,14 @@
-import * as fs from 'fs'
+import * as fs from 'node:fs'
+import * as fsPath from 'node:path'
 
 const filterLiqCotents = ({ files, basePath, reporter = console }) =>
   files.filter((file) => {
     // silently ignore non-dirs and hidden stuff
     if (file.name.startsWith('.') || !file.isDirectory()) return false
 
-    const candidate = `${basePath}/${file.name}`
+    const candidate = fsPath.join(basePath, file.name)
     // ignore marked dirs with note
-    if (fs.existsSync(`${candidate}/.liq-ignore`)) {
+    if (fs.existsSync(fsPath.join(candidate, '.liq-ignore'))) {
       reporter.log(`Ignoring '${file.name}' due to '.liq-ignore marker.'`)
       return false
     }
@@ -19,13 +20,14 @@ const filterLiqCotents = ({ files, basePath, reporter = console }) =>
 * Given a root playground path, loads the playground model.
 */
 const loadPlayground = ({
-  LIQ_PLAYGROUND_PATH = process.env.LIQ_PLAYGROUND_PATH || `${process.env.HOME}/.liq/playground`,
+  LIQ_PLAYGROUND_PATH = process.env.LIQ_PLAYGROUND_PATH || fsPath.join(process.env.HOME, '.liq', 'playground'),
   reporter = console
 }) => {
   reporter.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)
 
   const playground = {
-    projects : {}
+    projects      : {},
+    projectsByDir : {}
   }
 
   const orgDirs = filterLiqCotents({
@@ -37,7 +39,7 @@ const loadPlayground = ({
   for (const orgDir of orgDirs) {
     const orgName = orgDir.name
     reporter.log(`Processing org: ${orgName}...`)
-    const basePath = `${LIQ_PLAYGROUND_PATH}/${orgName}`
+    const basePath = fsPath.join(LIQ_PLAYGROUND_PATH, orgName)
     const projectDirs = filterLiqCotents({
       files : fs.readdirSync(basePath, { withFileTypes : true }),
       basePath
@@ -46,7 +48,7 @@ const loadPlayground = ({
     reporter.log(`Loading ${projectDirs.length} projects...`)
     for (const projectDir of projectDirs) {
       const projectName = projectDir.name
-      const localProjectPath = `${basePath}/${projectName}`
+      const localProjectPath = fsPath.join(basePath, projectName)
       try {
         const project = loadPlaygroundProject({
           projectName,
@@ -55,6 +57,7 @@ const loadPlayground = ({
         })
 
         playground.projects[project.fullName] = project
+        playground.projectsByDir[project.localProjectPath] = project
       }
       catch (e) {
         console.log(e)
@@ -92,7 +95,7 @@ const safeJSONParse = (path) => {
 }
 
 const readPackageJSON = (basePath) => {
-  const packageJSONPath = `${basePath}/package.json`
+  const packageJSONPath = fsPath.join(basePath, 'package.json')
   return safeJSONParse(packageJSONPath)
 }
 
