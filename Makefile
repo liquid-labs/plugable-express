@@ -4,6 +4,7 @@ endif
 
 .DELETE_ON_ERROR:
 .PHONY: all lint lint-fix test qa
+SHELL:=/bin/bash
 
 default: all
 
