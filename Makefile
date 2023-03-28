@@ -1,7 +1,3 @@
-ifneq (grouped-target, $(findstring grouped-target,$(.FEATURES)))
-ERROR:=$(error This version of make does not support required 'grouped-target' (4.3+).)
-endif
-
 .DELETE_ON_ERROR:
 .PHONY: all lint lint-fix test qa
 SHELL:=/bin/bash
@@ -49,7 +45,7 @@ $(CLI_BIN): $(CLI_SRC_ROOT) $(CLI_SRC_FILES)
 	$(BASH_ROLLUP) $< $@
 
 # test build and run rules
-$(LIQ_SERVER_TEST_BUILT_FILES) &: $(ALL_SRC_FILES)
+$(LIQ_SERVER_TEST_BUILT_FILES) : $(ALL_SRC_FILES)
 	JS_SRC=$(LIQ_SERVER_SRC) $(CATALYST_SCRIPTS) pretest
 
 $(LIQ_SERVER_TEST_BUILT_DATA): test-staging/%: $(LIQ_SERVER_SRC)%
