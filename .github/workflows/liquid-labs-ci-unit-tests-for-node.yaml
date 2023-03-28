@@ -2,9 +2,9 @@ name: Liquid Labs CI Unit Tests for Node.js
 
 on:
   push:
-    branches: [ work-liquid-labs/liq-core/41 ]
+    branches: [ main ]
   pull_request:
-    branches: [ work-liquid-labs/liq-core/41 ]
+    branches: [ main ]
 
 jobs:
   build_and_test:
