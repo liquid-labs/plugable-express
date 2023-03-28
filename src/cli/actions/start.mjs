@@ -26,12 +26,9 @@ const start = async() => {
 
   const child = spawn('node', [nodeScript], {
     detached : true,
+    stdio    : ['ignore', process.stdout, process.stderr],
     cwd      : pkgRoot,
     env      : Object.assign({ NODE_PATH : fsPath.join(pkgRoot, 'node_modules') }, process.env)
-  })
-
-  child.stdout.on('data', (chunk) => {
-    process.stdout.write(chunk)
   })
 
   await fs.mkdir(fsPath.dirname(LIQ_SERVER_PID_FILE), { recursive : true })
