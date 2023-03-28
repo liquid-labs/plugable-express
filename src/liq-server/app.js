@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import * as fs from 'node:fs/promises'
 import * as fsPath from 'node:path'
 
 import express from 'express'
@@ -134,6 +135,10 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
       res.send(msg)
     }
   })
+
+  console.log('Registering server api...')
+  const apiPath = fsPath.join(process.env.HOME, '.liq', 'core-api.json')
+  await fs.writeFile(apiPath, JSON.stringify(app.liq.handlers, null, '  '))
 
   return { app, cache }
 }

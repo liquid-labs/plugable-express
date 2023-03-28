@@ -12,7 +12,7 @@
     "qa": "make qa"
   },
   "bin": {
-    "liq-server": "./dist/liq-server.sh"
+    "liq-server": "./dist/liq-server-cli.js"
   },
   "files": [
     "./dist"
