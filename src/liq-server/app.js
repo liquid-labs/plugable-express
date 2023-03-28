@@ -138,6 +138,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
 
   console.log('Registering server api...')
   const apiPath = fsPath.join(process.env.HOME, '.liq', 'core-api.json')
+  await fs.mkdir(fsPath.join(process.env.HOME, '.liq'), { recursive: true })
   await fs.writeFile(apiPath, JSON.stringify(app.liq.handlers, null, '  '))
 
   return { app, cache }
