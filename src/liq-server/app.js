@@ -97,7 +97,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
       errors.shift()
       i += 1
     }
-    console.log(error)
+    console.error(error)
     next(error)
   })
   // generate user response
