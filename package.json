@@ -12,13 +12,13 @@
     "qa": "make qa"
   },
   "bin": {
-    "liq-server": "./dist/liq-server-cli.js"
+    "liq-server": "./dist/liq-server.sh"
   },
   "files": [
     "./dist"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=17.0.0"
   },
   "keywords": [],
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
@@ -39,11 +39,11 @@
     "@fast-csv/format": "^4.3.5",
     "@fast-csv/parse": "^4.3.6",
     "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
-    "@liquid-labs/bash-toolkit": "^1.0.0-alpha.61",
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.61",
+    "@liquid-labs/bash-toolkit": "^1.0.0-alpha.57",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.57",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
-    "@liquid-labs/orgs-model": "^1.0.0-beta.98",
+    "@liquid-labs/orgs-model": "file:.yalc/@liquid-labs/orgs-model",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.6",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "chalk": "^4.1.2",
@@ -56,8 +56,8 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/github-toolkit": "^1.0.0-alpha.7",
-    "@liquid-labs/http-tabular-input": "^1.0.0-alpha.4",
+    "@liquid-labs/github-toolkit": "file:.yalc/@liquid-labs/github-toolkit",
+    "@liquid-labs/import-export": "file:.yalc/@liquid-labs/import-export",
     "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.13",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",

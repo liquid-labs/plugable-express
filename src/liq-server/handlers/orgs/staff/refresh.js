@@ -1,4 +1,4 @@
-import { importFromCSV } from '@liquid-labs/http-tabular-input'
+import { importFromCSV } from '@liquid-labs/import-export'
 
 import {
   canBeAutoDeleted,
