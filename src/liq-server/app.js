@@ -139,7 +139,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   reporter.log('Registering server api...')
   const apiPath = fsPath.join(process.env.HOME, '.liq', 'core-api.json')
   await fs.mkdir(fsPath.join(process.env.HOME, '.liq'), { recursive : true })
-  // TODO: we're having a problem where the 'core-api.json' only has the core handlers about half the time; clearly, 
+  // TODO: we're having a problem where the 'core-api.json' only has the core handlers about half the time; clearly,
   // there's a race condition, but we don't see it, so we put this pause in here to see if it helps.
   await new Promise(resolve => setTimeout(resolve, 1000))
   await fs.writeFile(apiPath, JSON.stringify(app.liq.handlers, null, '  '))
