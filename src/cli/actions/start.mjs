@@ -26,7 +26,7 @@ const start = async() => {
 
   const child = spawn('node', [nodeScript], {
     detached : true,
-    stdio    : ['ignore', process.stdout, process.stderr],
+    stdio    : ['ignore', 1, 2],
     cwd      : pkgRoot,
     env      : Object.assign({ NODE_PATH : fsPath.join(pkgRoot, 'node_modules') }, process.env)
   })
