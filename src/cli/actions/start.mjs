@@ -24,9 +24,14 @@ const start = async() => {
   const nodeScript = fsPath.join(__dirname, 'liq-server.js')
   const pkgRoot = fsPath.dirname(__dirname)
 
+  const outFile = process.argv[3] || 'stdout.log'
+  const errFile = process.argv[4] || 'stderr.log'
+  const out = await fs.open(outFile, 'a')
+  const err = await fs.open(errFile, 'a')
+
   const child = spawn('node', [nodeScript], {
     detached : true,
-    stdio    : ['ignore', 1, 2],
+    stdio    : ['ignore', out, err],
     cwd      : pkgRoot,
     env      : Object.assign({ NODE_PATH : fsPath.join(pkgRoot, 'node_modules') }, process.env)
   })

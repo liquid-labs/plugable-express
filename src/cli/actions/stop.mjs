@@ -9,7 +9,7 @@ const stop = async() => {
 
   if (currStatus === LIQ_SERVER_STATUS_STOPPED) {
     console.log('Server already stopped.')
-    process.exit(LIQ_SERVER_STATUS_STOPPED)
+    return LIQ_SERVER_STATUS_STOPPED
   }
 
   console.log('Stopping...')
@@ -21,12 +21,12 @@ const stop = async() => {
 
     if (result.ok && stopStatus !== LIQ_SERVER_STATUS_STOPPED) {
       console.error('Server responded it would stop, but it appears to still be running.')
-      process.exit(LIQ_SERVER_STATUS_WORKING)
+      return LIQ_SERVER_STATUS_WORKING
     }
     else if (result.ok) {
       await fs.rm(LIQ_SERVER_PID_FILE)
       console.log('Server stopped.')
-      process.exit(LIQ_SERVER_STATUS_STOPPED)
+      return LIQ_SERVER_STATUS_STOPPED
     }
   }
   catch (e) {
@@ -37,6 +37,8 @@ const stop = async() => {
   const pid = await fs.readFile(LIQ_SERVER_PID_FILE, { encoding : 'utf8' })
   console.log('Attempting a hard kill...')
   process.kill(pid)
+  await fs.rm(LIQ_SERVER_PID_FILE)
+  return LIQ_SERVER_STATUS_STOPPED
 }
 
 export { stop }

@@ -6,3 +6,5 @@
 /.yalc
 /last-test.txt
 /last-lint.txt
+/stderr.log
+/stdout.log

@@ -12,7 +12,7 @@ const action = process.argv[2];
   case 'restart': await restart(); break
   case 'start': await start(); break
   case 'status': process.exit(await status())
-  case 'stop': await stop(); break
+  case 'stop': process.exit(await stop())
   default:
     throw new Error(`Unknown action '${action}'.`)
   }
