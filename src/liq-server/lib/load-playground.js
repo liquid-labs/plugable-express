@@ -26,8 +26,9 @@ const loadPlayground = ({
   reporter.log(`Loading playground from: ${LIQ_PLAYGROUND_PATH}`)
 
   const playground = {
-    projects      : {},
-    projectsByDir : {}
+    projects          : {},
+    projectsByDir     : {},
+    projectsByNPMName : {}
   }
 
   const orgDirs = filterLiqCotents({
@@ -58,6 +59,13 @@ const loadPlayground = ({
 
         playground.projects[project.fullName] = project
         playground.projectsByDir[project.localProjectPath] = project
+        const npmName = project.packageJSON?.name
+        if (npmName === undefined) {
+          reporter.warn(`Project '${project.fullName}' does not define an NPM package and/or package name.`)
+        }
+        else {
+          playground.projectsByNPMName[npmName] = project
+        }
       }
       catch (e) {
         console.log(e)
