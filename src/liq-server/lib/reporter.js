@@ -34,7 +34,7 @@ const Reporter = class {
   }
 
   isolate() {
-    return new Reporter(Object.assign(this.#configuration, { _taskReport : this.#taskReport }))
+    return new Reporter(Object.assign({}, this.#configuration, { _taskReport : this.#taskReport }))
   }
 
   push(msg, { noLog = false } = {}) {

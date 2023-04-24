@@ -10,18 +10,23 @@ import { defaults, LIQ_PORT } from './defaults'
 import { initializeConfiguration } from './lib/configurables'
 import { model } from './model'
 import * as server from './server'
+import { Reporter } from './lib/reporter'
 
-const config = initializeConfiguration([defaults])
+if (process.argv[2] === 'run') {
+  const config = initializeConfiguration([defaults])
 
-model.initialize(config);
+  model.initialize(config);
 
-(async() => {
-  const { app, cache } = await appInit(Object.assign({ model }, config))
+  (async() => {
+    const { app, cache } = await appInit(Object.assign({ model }, config))
 
-  const serverOptions = {
-    PORT     : config[LIQ_PORT],
-    reporter : config.reporter || console
-  }
+    const serverOptions = {
+      PORT     : config[LIQ_PORT],
+      reporter : config.reporter || console
+    }
 
-  server.start({ app, cache, options : serverOptions })
-})()
+    server.start({ app, cache, options : serverOptions })
+  })()
+}
+
+export { appInit, model, Reporter }

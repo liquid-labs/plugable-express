@@ -9,16 +9,14 @@ import { readFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
-import { loadPlugins, registerHandlers } from './lib'
+import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 
 /**
-* Options:
-* - 'pluginPath': path to the directory containing the package of plugins. appInit expects to find 'package.json' whose
-*     dependencies are the plugins to be loaded.
+*
 */
-const appInit = async({ skipCorePlugins = false, ...options }) => {
-  const { reporter } = options
+const appInit = async({ skipCorePlugins = false, pluginDirs, ...options }) => {
+  const { model, reporter } = options
   const app = express()
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
@@ -77,8 +75,14 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))
 
-  if (!skipCorePlugins) {
+  if (skipCorePlugins !== true) {
     await loadPlugins(app, options)
+  }
+  if (pluginDirs?.length > 0) {
+    for (const pluginDir of pluginDirs) {
+      const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding: 'utf8' }))
+      await loadPlugin({ app, cache, model, reporter, dir: pluginDir, pkg: packageJSON })
+    }
   }
 
   // log errors
@@ -137,6 +141,7 @@ const appInit = async({ skipCorePlugins = false, ...options }) => {
   })
 
   reporter.log('Registering server api...')
+  reporter.log(`handlers count: ${app.liq.handlers.length}`) // DEBUG
   const apiPath = fsPath.join(process.env.HOME, '.liq', 'core-api.json')
   await fs.mkdir(fsPath.join(process.env.HOME, '.liq'), { recursive : true })
   // TODO: we're having a problem where the 'core-api.json' only has the core handlers about half the time; clearly,
