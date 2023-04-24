@@ -15,7 +15,7 @@ import { commonPathResolvers } from './lib/path-resolvers'
 /**
 *
 */
-const appInit = async({ skipCorePlugins = false, pluginDirs, ...options }) => {
+const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
   const app = express()
   app.use(express.json())
@@ -139,15 +139,6 @@ const appInit = async({ skipCorePlugins = false, pluginDirs, ...options }) => {
       res.send(msg)
     }
   })
-
-  reporter.log('Registering server api...')
-  reporter.log(`handlers count: ${app.liq.handlers.length}`) // DEBUG
-  const apiPath = fsPath.join(process.env.HOME, '.liq', 'core-api.json')
-  await fs.mkdir(fsPath.join(process.env.HOME, '.liq'), { recursive : true })
-  // TODO: we're having a problem where the 'core-api.json' only has the core handlers about half the time; clearly,
-  // there's a race condition, but we don't see it, so we put this pause in here to see if it helps.
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  await fs.writeFile(apiPath, JSON.stringify(app.liq.handlers, null, '  '))
 
   return { app, cache }
 }
