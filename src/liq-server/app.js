@@ -80,8 +80,8 @@ const appInit = async({ skipCorePlugins = false, pluginDirs, ...options }) => {
   }
   if (pluginDirs?.length > 0) {
     for (const pluginDir of pluginDirs) {
-      const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding: 'utf8' }))
-      await loadPlugin({ app, cache, model, reporter, dir: pluginDir, pkg: packageJSON })
+      const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
+      await loadPlugin({ app, cache, model, reporter, dir : pluginDir, pkg : packageJSON })
     }
   }
 
