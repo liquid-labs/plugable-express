@@ -24,8 +24,8 @@ CATALYST_JS_ROLLUP:=npx rollup
 CATALYST_JS_ESLINT:=npx eslint
 
 # all source files (cli and lib)
-CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \))
-CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) -name "*.js")
+CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/data/*")
+CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) -name "*.js" -not -path "*/test/data/*")
 CATALYST_JS_TEST_FILES_BUILT:=$(patsubst $(SRC)/%, test-staging/%, $(CATALYST_JS_TEST_FILES_SRC))
 # all test data (cli and lib)
 CATALYST_JS_TEST_DATA_SRC:=$(shell find $(SRC) -path "*/test/data/*" -type f)

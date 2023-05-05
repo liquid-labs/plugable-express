@@ -254,7 +254,7 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
             method     : 'GET',
             parameters : helpParameters,
             path       : routableHelpPath.toString(),
-            sourcePkg  : sourcePkg,
+            sourcePkg,
             matcher    : routableHelpPath.toString().slice(1, -1)
           }
           Object.freeze(helpEndpointDef)
