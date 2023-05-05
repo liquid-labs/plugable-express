@@ -8,7 +8,7 @@ import { appInit } from '../../../../app'
 import { model } from '../../../../model'
 import { defaultTestOptions } from '../../../../test/lib/test-utils'
 
-const origStaffJSON = path.join(__dirname, '..', '..', '..', '..', '..',
+const origStaffJSON = path.join(__dirname, '..', '..', '..', '..', '..', '..',
   'src', 'liq-server', 'test', 'data', 'playground-simple', 'orgA', 'projectA01', 'staff.json')
 const staffJSONDest = path.join(__dirname, '..', '..', '..', '..',
   'test', 'data', 'playground-simple', 'orgA', 'projectA01', 'staff.json')
@@ -30,18 +30,21 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
     expect(model.orgs.orgA.staff.list()).toHaveLength(3)
   })
   afterEach(() => { // put the original staff.json back in place
-    fs.copyFileSync(staffJSONDest, staffJSONDest + `.${count}`)
-    count += 1
-    fs.copyFileSync(origStaffJSON, staffJSONDest)
-    logs.splice(0, logs.length)
-
-    cache.release()
+    try {
+      fs.copyFileSync(staffJSONDest, staffJSONDest + `.${count}`)
+      count += 1
+      fs.copyFileSync(origStaffJSON, staffJSONDest)
+      logs.splice(0, logs.length)
+    }
+    finally {
+      cache.release()
+    }
   })
 
   test('deletes', async() => {
     const origCEO = model.orgs.orgA.staff.get('ceo@foo.com', { rawData : true })
     const origDev = model.orgs.orgA.staff.get('dev@foo.com', { rawData : true })
-    const filePath = path.join(__dirname, 'staff-delete.csv')
+    const filePath = path.join(__dirname, 'data', 'staff-delete.csv')
     const { body, headers, status } = await request(app)
       .post('/orgs/orgA/staff/refresh') // it reads weird, but this MUST go first
       .accept('application/json')
@@ -64,7 +67,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   })
 
   test('adds', async() => {
-    const filePath = path.join(__dirname, 'staff-delete.csv')
+    const filePath = path.join(__dirname, 'data', 'staff-delete.csv')
     const { body, headers, status } = await request(app)
       .post('/orgs/orgA/staff') // it reads weird, but this MUST go first
       .accept('application/json')

@@ -18,7 +18,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     const dirpath = __dirname
     const pkgLocations = [
       sysPath.join(dirpath, '..', 'package.json'), // production
-      sysPath.join(dirpath, '..', '..', '..', 'package.json') // testing
+      sysPath.join(dirpath, '..', '..', '..', '..', 'package.json') // testing
     ]
     const pkgPath = pkgLocations.find((testPath) => {
       return fs.existsSync(testPath)

@@ -40,6 +40,7 @@ const func = ({ model }) => (req, res) => {
   const { files } = req
 
   // TODO: need to reload base data in the face of import failure
+  try {
   importFromCSV({
     canBeAutoDeleted,
     files,
@@ -54,6 +55,10 @@ const func = ({ model }) => (req, res) => {
     validateAllRecords,
     validateAndNormalizeRecords
   })
+  }
+  catch (e) {
+    console.log('ho', e)
+  }
 }
 
 export { func, method, path, parameters }
