@@ -40,20 +40,25 @@ const func = ({ model }) => (req, res) => {
   const { files } = req
 
   // TODO: need to reload base data in the face of import failure
-  importFromCSV({
-    canBeAutoDeleted,
-    files,
-    finalizeAllRecords,
-    finalizeRecord : finalizeRecord(refreshRoles),
-    headerNormalizations,
-    headerValidations,
-    model,
-    org,
-    res,
-    resourceAPI    : org.staff,
-    validateAllRecords,
-    validateAndNormalizeRecords
-  })
+  try {
+    importFromCSV({
+      canBeAutoDeleted,
+      files,
+      finalizeAllRecords,
+      finalizeRecord : finalizeRecord(refreshRoles),
+      headerNormalizations,
+      headerValidations,
+      model,
+      org,
+      res,
+      resourceAPI    : org.staff,
+      validateAllRecords,
+      validateAndNormalizeRecords
+    })
+  }
+  catch (e) {
+    console.log('ho', e)
+  }
 }
 
 export { func, method, path, parameters }

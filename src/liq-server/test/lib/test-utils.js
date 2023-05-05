@@ -21,7 +21,7 @@ const defaultTestOptions = ({
     ...rest
   })
 
-const bits = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.json'))
+const bits = fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'package.json'))
 const packageJSON = JSON.parse(bits)
 const CURR_VER = packageJSON.version
 
