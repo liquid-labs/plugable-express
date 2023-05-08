@@ -1,4 +1,4 @@
-import { nextOptions } from './lib/next-options'
+import { nextOptions } from './_lib/next-options'
 
 const method = 'get'
 const path = ['server', 'next-commands']
