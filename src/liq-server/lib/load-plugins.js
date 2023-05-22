@@ -13,17 +13,20 @@ const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
  */
 const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
   const { main, name: sourcePkg } = pkg
-  const { handlers, setup } = await import(`${dir}/${main}`) || {}
+  const { handlers, name = 'UNKNOWN', setup, summary } = await import(`${dir}/${main}`) || {}
   if (handlers === undefined && setup === undefined) {
     throw new Error(`'liq-core' plugin from '${sourcePkg}' does not export 'handlers' or 'setup'; bailing out.`)
   }
 
-  if (setup) reporter.log(`Running setup for ${sourcePkg} plugins...`)
+  if (setup !== undefined) reporter.log(`Running setup for ${sourcePkg} plugins...`)
   const setupData = setup ? setup({ app, model, reporter }) : {}
 
+  let handlersInfo = []
   if (handlers !== undefined) {
-    registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })
+    handlersInfo = registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })
   }
+
+  app.liq.plugins.push({ name, summary, handlersInfo })
 }
 
 /**

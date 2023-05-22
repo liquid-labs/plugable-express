@@ -27,7 +27,8 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
 
   app.liq = {
     home       : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
-    playground : () => app.liq.home() + '/playground'
+    playground : () => app.liq.home() + '/playground',
+    plugins    : []
   }
 
   Object.assign(

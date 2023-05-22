@@ -131,12 +131,15 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
 const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1, -1))
 
 const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
+  const handlersInfo = []
   for (const handler of handlers) {
-    const { func, help, method, parameters, path: aPath, paths } = handler
-    if ((aPath === undefined && paths === undefined) || method === undefined || func === undefined) {
+    const { func, help, method, parameters, path: aPath } = handler
+    const paths = handler.paths || [aPath] // we can now use regularized 'paths'
+
+    if ((aPath === undefined && handler.paths === undefined) || method === undefined || func === undefined) {
       throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
-    if (aPath !== undefined && paths !== undefined) {
+    if (aPath !== undefined && handler.paths !== undefined) {
       throw new Error(`A handler from '${sourcePkg}' specifies both 'path' and 'paths'; specify one or the other.`)
     }
 
@@ -145,7 +148,11 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
     // this must come before processCommandPath to give the function the option of registering variable name parameters
     const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
 
-    for (const path of paths || [aPath]) {
+    for (const path of paths) {
+      if (!Array.isArray(path)) {
+        reporter.warn(`Handler is using old style path: '${path}'. Should be converted to array style.`)
+      }
+
       const routablePath = typeof path === 'string'
         ? path
         : Array.isArray(path)
@@ -260,9 +267,15 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
           Object.freeze(helpEndpointDef)
           app.liq.handlers.push(helpEndpointDef)
         }
-      }
+      } // load help 'if (help !== undefined)'
     } // for (const path of paths || [ aPath ]) {...}
+    handlersInfo.push({
+      name : help?.name || 'UNKNOWN',
+      paths
+    })
   } // for (const handler of handlers) {...}
+
+  return handlersInfo
 }
 
 export {
