@@ -3,6 +3,7 @@ import * as path from 'path'
 import request from 'supertest'
 
 import { appInit } from '../app'
+import { LIQ_REGISTRIES } from '../defaults'
 import { model } from '../model'
 import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
@@ -25,6 +26,7 @@ describe('app', () => {
     let cache
 
     beforeAll(async() => {
+      process.env[LIQ_REGISTRIES] = [ 'https://foo.com/registry.json' ]
       model.initialize(testOptions);
       ({ cache } = await appInit(Object.assign(testOptions, { model })))
     })

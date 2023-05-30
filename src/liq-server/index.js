@@ -8,11 +8,14 @@
 import { appInit } from './app'
 import { defaults, LIQ_PORT } from './defaults'
 import { initializeConfiguration } from './lib/configurables'
+import { initServerSettings } from './lib/init-server-settings'
+import { Reporter } from './lib/reporter'
 import { model } from './model'
 import * as server from './server'
-import { Reporter } from './lib/reporter'
 
-if (process.argv[2] === 'liq-server:run') {
+const action = process.argv[2]
+
+if (action === 'liq-server:run') {
   const config = initializeConfiguration([defaults])
 
   model.initialize(config);
@@ -27,6 +30,9 @@ if (process.argv[2] === 'liq-server:run') {
 
     server.start({ app, cache, options : serverOptions })
   })()
+}
+else if (action === 'liq-server:init') {
+  initServerSettings({ reAsk : true })
 }
 
 export { appInit, model, Reporter }

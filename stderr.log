@@ -1,0 +1,1437 @@
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:106
+        throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
+              ^
+
+
+Error: Unknown variable path element type 'roleName' while processing path orgs/:orgKey/roles/:roleName/detail.
+    at processCommandPath (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:106:15)
+    at registerHandlers (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:159:31)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/load-plugins.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/load-plugins.js:54:24)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/app.js:79:7)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/index.js:21:18)
+
+Node.js v19.3.0
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:106
+        throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
+              ^
+
+
+Error: Unknown variable path element type 'roleName' while processing path orgs/:orgKey/roles/:roleName/detail.
+    at processCommandPath (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:106:15)
+    at registerHandlers (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:159:31)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/load-plugins.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/load-plugins.js:54:24)
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/app.js:79:7)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/index.js:21:18)
+
+Node.js v19.3.0
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/liq-core' && git push'; stderr: git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at saveFiles (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:221:7)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:41:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at _next (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:27:7)
+    at new Promise (<anonymous>) {
+  liqID: '3x0uv'
+}
+BadRequestError: File 'liquid-labs/liq-core:Makefile' is unchanged.
+    at saveFiles (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:202:25)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:41:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at _next (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:27:7)
+    at new Promise (<anonymous>)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:19:12) {
+  liqID: 'vgxb2'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+BadRequestError: git repo at '/Users/zane/.liq/playground/liquid-labs/liq-work' is not clean.
+    at Module.verifyClean (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/git-toolkit/src/status-lib.mjs:80:58)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/pause-lib.mjs:37:7)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at c (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  liqID: 'fsezh'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/versioning' && git checkout -b work-liquid-labs/versioning/9 && git push --set-upstream workspace work-liquid-labs/versioning/9'; stderr: Switched to a new branch 'work-liquid-labs/versioning/9'
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:306:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'r09un'
+}
+NotFoundError: No such unit of work 'work-liquid-labs/versioning/9'.
+    at requireData (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:133:25)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/determine-projects.mjs:15:27)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at c (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  liqID: 'nei49'
+}
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/versioning' && git checkout -b work-liquid-labs/versioning/9 && git push --set-upstream workspace work-liquid-labs/versioning/9'; stderr: Switched to a new branch 'work-liquid-labs/versioning/9'
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:306:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'p4xja'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git checkout -b work-liquid-labs/github-toolkit/11 && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: Switched to a new branch 'work-liquid-labs/github-toolkit/11'
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:306:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'bpb6n'
+}
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/liq-work' && git checkout -b work-liquid-labs/liq-work/117 && git push --set-upstream workspace work-liquid-labs/liq-work/117'; stderr: Switched to a new branch 'work-liquid-labs/liq-work/117'
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:306:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: '2gate'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:314:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: '2tdjy'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:328:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'vqbsr'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:329:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'rrvhr'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:328:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'v54jg'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:330:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'fn2wb'
+}
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:330:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'djgzn'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git push --set-upstream workspace work-liquid-labs/github-toolkit/11'; stderr: ERROR: Repository not found.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:329:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'amce0'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+NotFoundError: No such unit of work 'work-liquid-labs/liq-work/117'.
+    at requireData (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:135:25)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/determine-projects.mjs:15:27)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at c (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  liqID: 'j48kc'
+}
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/versioning' && npm run build'; stderr: [36m
+[1msrc/index.js[22m → [1mdist/versioning.js[22m...[39m
+[1m[31m[!] [1mError: Could not resolve './is-prerelease' from src/index.js[22m[1m[39m[22m
+[2mError: Could not resolve './is-prerelease' from src/index.js
+    at error (/Users/zane/.liq/playground/liquid-labs/versioning/node_modules/rollup/dist/shared/rollup.js:198:30)
+    at ModuleLoader.handleResolveId (/Users/zane/.liq/playground/liquid-labs/versioning/node_modules/rollup/dist/shared/rollup.js:22287:24)
+    at /Users/zane/.liq/playground/liquid-labs/versioning/node_modules/rollup/dist/shared/rollup.js:22250:26[22m
+
+make: *** [Makefile:25: dist/versioning.js] Error 1
+
+    at tryExec (/Users/zane/.liq/playground/liquid-labs/liq-projects/node_modules/@liquid-labs/shell-toolkit/dist/shell-toolkit.js:27:39)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:104:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: '4di0q'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+RequestError [HttpError]: fetch failed
+    at error (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@octokit/request/dist-src/fetch-wrapper.js:96:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at requestWithGraphqlErrorHandling (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@octokit/plugin-retry/dist-src/wrap-request.js:20:22)
+    at async Job.doExecute (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/bottleneck/light.js:405:18) {
+  status: 500,
+  request: {
+    method: 'GET',
+    url: 'https://api.github.com/user',
+    headers: {
+      accept: 'application/vnd.github.v3+json',
+      'user-agent': 'octokit.js/2.0.14 octokit-core.js/4.2.0 Node.js/19.3.0 (darwin; arm64)',
+      'x-github-api-version': '2022-11-28',
+      authorization: 'token [REDACTED]'
+    },
+    request: {
+      hook: [Function: bound bound register],
+      retryCount: 3,
+      retries: 3,
+      retryAfter: 16
+    }
+  },
+  liqID: 'v3u43'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/github-toolkit' && git checkout -b work-liquid-labs/github-toolkit/13 && git push --set-upstream workspace work-liquid-labs/github-toolkit/13'; stderr: Switched to a new branch 'work-liquid-labs/github-toolkit/13'
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/work-db.mjs:320:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at i (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:25:9) {
+  liqID: 'fdiy8'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+TypeError: liqProjectsLib.determineCurrentRelease is not a function
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:13:26)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:198:13)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: 'p06e8'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+There was an error while attempting to create the GitHub release: Invalid request.
+
+"tag_name" wasn't supplied.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+TypeError: version__namespace.prerelease is not a function
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:16:30)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:87:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: 'zy326'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+TypeError: githubToolkit.determineCurrentRelease is not a function
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:20:28)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:87:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: 'az9hk'
+}
+BadRequestError: Release branch can only be cut from main branch 'main'; current branch: 'work-liquid-labs/github-toolkit/15'.
+    at verifyReadyForPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:306:62)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:119:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: 'eypke'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+TypeError: githubToolkit.determineCurrentRelease is not a function
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:20:28)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:197:13)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: 'kp0mh'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+TypeError: githubToolkit.determineCurrentRelease(...).replace is not a function
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:21:8)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:87:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: '6ds86'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+ReferenceError: currPrerelease is not defined
+    at doRelease (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/do-release.mjs:21:5)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:87:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: '0tfc4'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+BadRequestError: Project must pass QA prior to release. Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/git-toolkit' && npm run qa'; stderr: make: *** [Makefile:57: last-lint.txt] Error 1
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-projects/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at runQA (/Users/zane/.liq/playground/liquid-labs/liq-projects/node_modules/@liquid-labs/liq-qa-lib/src/liq-qa-lib.mjs:133:5)
+    at verifyReadyForPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:312:3)
+    at doPublish (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/_lib/publish-lib.mjs:119:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-projects/src/handlers/projects/releases/publish-implied.mjs:18:3) {
+  liqID: '8un6v'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10
+    throw createError(httpStatus, msg + `Failed to execute '${cmd}'; stderr: ${result.stderr}`)
+                     ^
+
+
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/liq-work' && git fetch -a origin'; stderr: client_loop: send disconnect: Broken pipe
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/determine-work-status.mjs:82:9)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at _next (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:27:7)
+    at new Promise (<anonymous>)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:19:12)
+
+Node.js v19.3.0
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Error: Unknown query parameters: src/lib/test/ while accessing /work/save.
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:63:11)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:142:13)
+    at Route.dispatch (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:107:3)
+    at handle (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:421:11)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at /Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:288:22
+    at processParams (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:568:12)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:282:5)
+    at /Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/express-fileupload/lib/index.js:35:14 {
+  liqID: '43qgw'
+}
+InternalServerError: Failed to execute 'cd '/Users/zane/.liq/playground/liquid-labs/question-and-answer' && git push'; stderr: ssh: connect to host github.com port 22: Undefined error: 0
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+    at Module.tryExec (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@liquid-labs/shell-toolkit/src/try-exec.mjs:10:22)
+    at saveFiles (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:221:7)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:41:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at _next (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:27:7)
+    at new Promise (<anonymous>) {
+  liqID: 'ywfvt'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+TypeError: Cannot read properties of null (reading 'split')
+    at async (/Users/zane/.liq/playground/liquid-labs/liq-controls/src/handlers/orgs/controls/list-implied.mjs:18:56)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:142:13)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:95:3)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:142:13)
+    at Route.dispatch (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:107:3)
+    at handle (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:421:11)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at /Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:288:22 {
+  liqID: 'mnz9t'
+}
+NotFoundError: No such file 'liquid-labs/liq-core:src/index.js' found to save.
+    at saveFiles (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:199:25)
+    at call (/Users/zane/.liq/playground/liquid-labs/liq-work/src/handlers/work/_lib/save-lib.mjs:41:5)
+    at tryCatch (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:44:17)
+    at _invoke (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:125:22)
+    at key (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/regeneratorRuntime.js:69:21)
+    at asyncGeneratorStep (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:20)
+    at _next (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:9)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:27:7)
+    at new Promise (<anonymous>)
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-work/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:19:12) {
+  liqID: 'qrk5w'
+}
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Project 'liquid-labs/catalyst-standards' does not define an NPM package and/or package name.
+Project 'liquid-labs/ld-cli' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-business' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-labs.com' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-policy' does not define an NPM package and/or package name.
+Project 'liquid-labs/liquid-template' does not define an NPM package and/or package name.
+Project 'liquid-labs/packer-build' does not define an NPM package and/or package name.
+Project 'liquid-labs/src.new' does not define an NPM package and/or package name.
+Project 'liquid-labs/tmp' does not define an NPM package and/or package name.
+Project 'moca/awsnetwork' does not define an NPM package and/or package name.
+Project 'moca/backups' does not define an NPM package and/or package name.
+Project 'moca/coresitenetwork' does not define an NPM package and/or package name.
+Project 'moca/moca-custom-policy' does not define an NPM package and/or package name.
+Project 'moca/moca-policy' does not define an NPM package and/or package name.
+Project 'moca/packer-build' does not define an NPM package and/or package name.
+Project 'zanerock/gucci' does not define an NPM package and/or package name.
+Endpoint 'get:' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground,projects,:orgKey,:localProjectName,packageJSON' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:playground' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'rebind:playground,refresh' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server,api' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:server' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'unbind:server,stop?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/tasks/:threadId'. Should be converted to array style.
+Endpoint 'get:orgs,:orgKey,alerts,sources,check' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/orgs/:orgKey/audits/:auditTarget/:auditName'. Should be converted to array style.
+Endpoint 'get:/orgs/:orgKey/audits/:auditTarget/:auditName' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'get:orgs,:orgKey,audits,list?' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Endpoint 'post:orgs,:orgKey,audits,:auditTarget,:auditName,run' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.
+Handler is using old style path: '/\/orgs\/([^/]+)\/policies(?:\/([_a-zA-Z0-9%/-]+))?\/report\/([_a-zA-Z0-9%/-]+)[\/#\?]?$/'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/:scope/policies(/list)?'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/roles/org-chart/:resource'. Should be converted to array style.
+Handler is using old style path: '/orgs/:orgKey/technologies/list'. Should be converted to array style.
+Error: Unknown query parameters: -m, The update use case is untested and not fully functional; will need to be revisisted. while accessing /work/save.
+    at <anonymous> (/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/register-handlers.js:63:11)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:142:13)
+    at Route.dispatch (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/route.js:107:3)
+    at handle (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:421:11)
+    at Layer.handleRequest (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/lib/layer.js:101:15)
+    at /Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:288:22
+    at processParams (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:568:12)
+    at next (/Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/router/index.js:282:5)
+    at /Users/zane/.liq/playground/liquid-labs/liq-core/node_modules/express-fileupload/lib/index.js:35:14 {
+  liqID: '80rxs'
+}

@@ -5,10 +5,13 @@ import * as fsPath from 'node:path'
 import express from 'express'
 import fileUpload from 'express-fileupload'
 
-import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
+import { readFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
+import { getLiqHome } from './lib/get-liq-home'
+import { getServerSettings } from './lib/get-server-settings'
+import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 
@@ -26,7 +29,7 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   options.cache = cache
 
   app.liq = {
-    home            : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
+    home            : () => getLiqHome(),
     playground      : () => app.liq.home() + '/playground',
     plugins         : [],
     commandPaths    : {},
@@ -34,9 +37,9 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
     errorsRetained  : [],
     constants       : {},
     handlers        : [],
-    pathResolvers   : commonPathResolvers
+    pathResolvers   : commonPathResolvers,
     // localSettings set below
-    // serverSettings set below
+    serverSettings  : getServerSettings()
   }
 
   app.liq.addCommandPath = (commandPath, parameters) => {
@@ -57,7 +60,7 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
     frontier._parameters = () => parameters
   }
 
-  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is 
+  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
@@ -65,20 +68,6 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   }
   else {
     app.liq.localSettings = {}
-  }
-
-  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
-  // found' exceptions
-  const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
-  if (existsSync(serverSettingsPath)) {
-    app.liq.serverSettings = readFJSON(serverSettingsPath)
-  }
-  else {
-    app.liq.serverSettings = {
-      registries: []
-    }
-
-    writeFJSON({ file: serverSettingsPath, data: app.liq.liqServerSettings })
   }
 
   reporter.log('Loading core handlers...')
@@ -148,6 +137,8 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
       res.send(msg)
     }
   })
+
+  await initServerSettings({ serverSettings : app.liq.serverSettings })
 
   return { app, cache }
 }

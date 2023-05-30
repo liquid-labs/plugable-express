@@ -5,6 +5,7 @@ import * as path from 'path'
 import request from 'supertest'
 
 import { appInit } from '../../../../app'
+import { LIQ_REGISTRIES } from '../../../../defaults'
 import { model } from '../../../../model'
 import { defaultTestOptions } from '../../../../test/lib/test-utils'
 
@@ -24,6 +25,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   let cache
   let count = 1
   beforeEach(async() => {
+    process.env[LIQ_REGISTRIES] = [ 'https://foo.com/registry.json' ]
     model.initialize(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
     // confirm initial setup
