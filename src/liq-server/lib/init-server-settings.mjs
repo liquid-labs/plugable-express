@@ -42,12 +42,16 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
   if (ibActions.length > 0 || reAsk === true) {
     const questioner = new Questioner({
       interrogationBundle : initInterrogationBundle,
-      noSkipDefined : reAsk,
-      parameters: serverSettings
+      noSkipDefined       : reAsk,
+      parameters          : serverSettings
     })
     await questioner.question()
 
     // TODO: do a deep merge
+    const values = questioner.values
+    if (values.registries) {
+      values.registries = values.registries.map((url) => ({ url }))
+    }
     Object.assign(serverSettings, questioner.values)
 
     const serverSettingsPath = fsPath.join(getLiqHome(), 'server-settings.yaml')

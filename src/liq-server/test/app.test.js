@@ -26,7 +26,7 @@ describe('app', () => {
     let cache
 
     beforeAll(async() => {
-      process.env[LIQ_REGISTRIES] = [ 'https://foo.com/registry.json' ]
+      process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
       model.initialize(testOptions);
       ({ cache } = await appInit(Object.assign(testOptions, { model })))
     })

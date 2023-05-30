@@ -25,7 +25,7 @@ describe('PUT:/orgs/:orgKey/staff/refresh', () => {
   let cache
   let count = 1
   beforeEach(async() => {
-    process.env[LIQ_REGISTRIES] = [ 'https://foo.com/registry.json' ]
+    process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
     model.initialize(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
     // confirm initial setup
