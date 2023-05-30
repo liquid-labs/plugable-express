@@ -5,7 +5,7 @@ import * as fsPath from 'node:path'
 import express from 'express'
 import fileUpload from 'express-fileupload'
 
-import { readFJSON } from '@liquid-labs/federated-json'
+import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
@@ -26,23 +26,19 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   options.cache = cache
 
   app.liq = {
-    home       : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
-    playground : () => app.liq.home() + '/playground',
-    plugins    : []
+    home            : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
+    playground      : () => app.liq.home() + '/playground',
+    plugins         : [],
+    commandPaths    : {},
+    errorsEphemeral : [],
+    errorsRetained  : [],
+    constants       : {},
+    handlers        : [],
+    pathResolvers   : commonPathResolvers
+    // localSettings set below
+    // serverSettings set below
   }
 
-  Object.assign(
-    app.liq,
-    {
-      commandPaths    : {},
-      errorsEphemeral : [],
-      errorsRetained  : [],
-      constants       : {}
-    })
-
-  app.liq.handlers = []
-
-  app.liq.commandPaths = {}
   app.liq.addCommandPath = (commandPath, parameters) => {
     let frontier = app.liq.commandPaths
     for (const pathBit of commandPath) {
@@ -61,16 +57,28 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
     frontier._parameters = () => parameters
   }
 
-  app.liq.pathResolvers = commonPathResolvers
-
-  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
-  // found' exceptions
+  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is 
+  // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.liq.localSettings = readFJSON(localSettingsPath)
   }
   else {
     app.liq.localSettings = {}
+  }
+
+  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
+  // found' exceptions
+  const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
+  if (existsSync(serverSettingsPath)) {
+    app.liq.serverSettings = readFJSON(serverSettingsPath)
+  }
+  else {
+    app.liq.serverSettings = {
+      registries: []
+    }
+
+    writeFJSON({ file: serverSettingsPath, data: app.liq.liqServerSettings })
   }
 
   reporter.log('Loading core handlers...')

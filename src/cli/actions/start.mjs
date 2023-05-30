@@ -36,7 +36,7 @@ const start = async() => {
   const out = await fs.open(outFile, 'a')
   const err = await fs.open(errFile, 'a')
 
-  const child = spawn('node', ['--enable-source-maps', nodeScript, 'run'], {
+  const child = spawn('node', ['--enable-source-maps', nodeScript, 'liq-server:run'], {
     detached : true,
     stdio    : ['ignore', out, err],
     cwd      : pkgRoot,
