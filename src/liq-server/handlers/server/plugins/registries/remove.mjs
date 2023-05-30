@@ -4,26 +4,27 @@ import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
 const help = {
-  name        : 'Registries add',
-  summary     : 'Adds a reistry to the list of plugin registries.',
-  description : 'Adds a reistry to the list of plugin registries.'
+  name        : 'Registries remove',
+  summary     : 'Removes a reistry from the list of plugin registries.',
+  description : 'Removes a reistry from the list of plugin registries.'
 }
-const method = 'put'
-const path = ['server', 'plugins', 'registries', 'add']
+const method = 'delete'
+const path = ['server', 'plugins', 'registries', 'remove']
 
 const parameters = [
   {
     name         : 'registryURLs',
     isMultivalue : true,
     required     : true,
-    description  : 'The URL of a registry to add. May specify multiple times to add multiple registries.'
+    description  : 'The URL of a registry to add. May specify multiple times to add multiple registries.',
+    optionsFunc  : ({ app }) => app.liq?.serverSettings?.registries?.map(({ url }) => url) || []
   }
 ]
 
 const func = ({ app, reporter }) => (req, res) => {
   const { registryURLs } = req.vars
 
-  const serverSettings = app.liq.serverSettings
+  const serverSettings = app.liq.serverSettings || {}
   if (!('registries' in serverSettings)) {
     serverSettings.registries = []
   }
@@ -31,15 +32,16 @@ const func = ({ app, reporter }) => (req, res) => {
   const initialSize = registries.length
 
   for (const registryURL of registryURLs) {
-    if (!registries.some(({ url }) => url === registryURL)) {
-      registries.push({ url : registryURL })
+    const regI = registries.findIndex(({ url }) => url === registryURL)
+    if (regI > -1) {
+      registries.splice(regI, 1)
     }
   }
 
   const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
   writeFJSON({ file : serverSettingsPath, data : serverSettings })
 
-  httpSmartResponse({ msg : `Added ${registries.length - initialSize} registries.`, data : serverSettings.registries, req, res })
+  httpSmartResponse({ msg : `Removed ${initialSize - registries.length} registries.`, data : serverSettings.registries, req, res })
 }
 
 export { func, help, method, parameters, path }
