@@ -12,7 +12,7 @@ import { model } from './model'
 import * as server from './server'
 import { Reporter } from './lib/reporter'
 
-if (process.argv[2] === 'run') {
+if (process.argv[2] === 'liq-server:run') {
   const config = initializeConfiguration([defaults])
 
   model.initialize(config);
