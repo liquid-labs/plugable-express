@@ -4,3 +4,5 @@
 /.yalc
 /dist
 /test-staging
+/stderr.log
+/stdout.log
