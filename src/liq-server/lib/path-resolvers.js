@@ -41,11 +41,16 @@ const orgKey = {
   optionsFetcher : ({ model }) => Object.keys(model.orgs)
 }
 
+const pluginName = {
+  bitReString    : '[a-z][a-z0-9-]*',
+  optionsFetcher : ({ app }) => app.liq.plugins.map(({ name }) => name )
+}
+
 const staffKey = {
   bitReString    : emailEncodedOrNotReString.slice(1, -1), // cut off the beginning and ending '/'
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
 }
 
-const commonPathResolvers = { credential, localProjectName, newOrgKey, orgKey, staffKey }
+const commonPathResolvers = { credential, localProjectName, newOrgKey, pluginName, orgKey, staffKey }
 
 export { commonPathResolvers }

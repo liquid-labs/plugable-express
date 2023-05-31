@@ -23,10 +23,10 @@ const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
 
   let handlersInfo = []
   if (handlers !== undefined) {
-    handlersInfo = registerHandlers(app, { sourcePkg, handlers, model, reporter, setupData, cache })
+    handlersInfo = registerHandlers(app, { sourcePkg, handlers, model, name, reporter, setupData, cache })
   }
 
-  app.liq.plugins.push({ name, summary, handlersInfo })
+  app.liq.plugins.push({ name, summary, npmName: sourcePkg.replace(/^@/, ''), handlersInfo })
 }
 
 /**

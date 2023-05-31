@@ -130,17 +130,17 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
 // '/'
 const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1, -1))
 
-const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData, cache }) => {
+const registerHandlers = (app, { npmName, handlers, model, name, reporter, setupData, cache }) => {
   const handlersInfo = []
   for (const handler of handlers) {
     const { func, help, method, parameters, path: aPath } = handler
     const paths = handler.paths || [aPath] // we can now use regularized 'paths'
 
     if ((aPath === undefined && handler.paths === undefined) || method === undefined || func === undefined) {
-      throw new Error(`A handler from '${sourcePkg}' does not fully define 'method', 'path', and/or 'func' exports.`)
+      throw new Error(`A handler from '${npmName}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
     if (aPath !== undefined && handler.paths !== undefined) {
-      throw new Error(`A handler from '${sourcePkg}' specifies both 'path' and 'paths'; specify one or the other.`)
+      throw new Error(`A handler from '${npmName}' specifies both 'path' and 'paths'; specify one or the other.`)
     }
 
     const methodUpper = method.toUpperCase()
@@ -164,9 +164,13 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
         processParams({ parameters, path }),
         handlerFunc)
       // for or own informational purposes
-      const endpointDef = Object.assign({}, handler)
-
-      endpointDef.path = routablePath.toString()
+      const endpointDef = Object.assign({
+          pluginName: name,
+          npmName,
+          path: routablePath.toString(),
+        }, 
+        handler
+      )
 
       if (!parameters) {
         reporter.warn(`Endpoint '${method}:${path}' does not define 'parameters'. An explicit '[]' value should be defined where there are no parameters.`)
@@ -222,7 +226,6 @@ const registerHandlers = (app, { sourcePkg, handlers, model, reporter, setupData
       // a little cleanup and annotation
       endpointDef.method = methodUpper
       delete endpointDef.func
-      endpointDef.sourcePkg = sourcePkg // do this here so it shows up at the end of the obj
       try {
         // endpointDef.matcher = '^\/' + endpointDef.path.replace(pathParamRegExp, '[^/]+') + '[/#?]?$'
         // TODO: see regex path note at top

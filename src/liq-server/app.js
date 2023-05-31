@@ -71,7 +71,7 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   }
 
   reporter.log('Loading core handlers...')
-  registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))
+  registerHandlers(app, Object.assign({}, options, { npmName : '@liquid-labs/liq-core', handlers }))
 
   if (skipCorePlugins !== true) {
     await loadPlugins(app, options)
