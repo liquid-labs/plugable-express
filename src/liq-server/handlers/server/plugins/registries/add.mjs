@@ -3,6 +3,8 @@ import * as fsPath from 'node:path'
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
+import { REGISTRY_DATA_KEY } from './_lib/determine-registry-data'
+
 const help = {
   name        : 'Registries add',
   summary     : 'Adds a reistry to the list of plugin registries.',
@@ -20,7 +22,7 @@ const parameters = [
   }
 ]
 
-const func = ({ app, reporter }) => (req, res) => {
+const func = ({ app, cache, reporter }) => (req, res) => {
   const { registryURLs } = req.vars
 
   const serverSettings = app.liq.serverSettings
@@ -38,6 +40,8 @@ const func = ({ app, reporter }) => (req, res) => {
 
   const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
   writeFJSON({ file : serverSettingsPath, data : serverSettings })
+
+  cache.delete(REGISTRY_DATA_KEY)
 
   httpSmartResponse({ msg : `Added ${registries.length - initialSize} registries.`, data : serverSettings.registries, req, res })
 }

@@ -3,6 +3,8 @@ import * as fsPath from 'node:path'
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
+import { REGISTRY_DATA_KEY } from './_lib/determine-registry-data'
+
 const help = {
   name        : 'Registries remove',
   summary     : 'Removes a reistry from the list of plugin registries.',
@@ -40,6 +42,8 @@ const func = ({ app, reporter }) => (req, res) => {
 
   const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
   writeFJSON({ file : serverSettingsPath, data : serverSettings })
+
+  cache.delete(REGISTRY_DATA_KEY)
 
   httpSmartResponse({ msg : `Removed ${initialSize - registries.length} registries.`, data : serverSettings.registries, req, res })
 }
