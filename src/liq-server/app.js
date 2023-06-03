@@ -18,9 +18,9 @@ import { commonPathResolvers } from './lib/path-resolvers'
 /**
 *
 */
-const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
+const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
-  const app = express()
+  app = app || express()
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
   app.use(fileUpload({ parseNested : true }))
@@ -139,6 +139,11 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   })
 
   await initServerSettings({ serverSettings : app.liq.serverSettings })
+
+  reporter.log('Registering API...')
+  const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')
+  await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
+
 
   return { app, cache }
 }

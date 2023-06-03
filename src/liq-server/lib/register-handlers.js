@@ -264,7 +264,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
             method     : 'GET',
             parameters : helpParameters,
             path       : routableHelpPath.toString(),
-            sourcePkg,
+            npmName,
             matcher    : routableHelpPath.toString().slice(1, -1)
           }
           Object.freeze(helpEndpointDef)

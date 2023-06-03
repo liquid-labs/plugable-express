@@ -1,7 +1,6 @@
 import fsPath from 'node:path'
 
 export const LIQ_HOME = fsPath.join(process.env.HOME, '.liq')
-export const LIQ_API_SPEC = fsPath.join(LIQ_HOME, 'core-api.json')
 export const LIQ_SERVER_DB = fsPath.join(LIQ_HOME, 'server')
 export const LIQ_SERVER_PID_FILE = fsPath.join(LIQ_SERVER_DB, 'liq-server.pid')
 export const LIQ_SERVER_PGREP_MATCH = "-f '^node' 'liq-server.js$'"
