@@ -23,7 +23,7 @@ const parameters = [
   }
 ]
 
-const func = ({ app, reporter }) => (req, res) => {
+const func = ({ app, cache, reporter }) => (req, res) => {
   const { registryURLs } = req.vars
 
   const serverSettings = app.liq.serverSettings || {}

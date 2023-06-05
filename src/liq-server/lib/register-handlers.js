@@ -165,11 +165,11 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
         handlerFunc)
       // for or own informational purposes
       const endpointDef = Object.assign({
-          pluginName: name,
-          npmName,
-          path: routablePath.toString(),
-        }, 
-        handler
+        pluginName : name,
+        npmName,
+        path       : routablePath.toString()
+      },
+      handler
       )
 
       if (!parameters) {

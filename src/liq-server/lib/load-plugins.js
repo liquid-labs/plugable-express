@@ -56,7 +56,7 @@ const loadPlugins = async(app, {
   }
 }
 
-const reloadPlugins = async( app, { model, cache, reporter, pluginPath }) => {
+const reloadPlugins = async(app, { model, cache, reporter, pluginPath }) => {
   app.liq.handlers = []
   app.liq.plugins = []
   app.liq.commandPaths = {}

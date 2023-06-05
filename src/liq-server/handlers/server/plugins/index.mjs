@@ -1,8 +1,9 @@
 import { handlers as registriesHandlers } from './registries'
 
+import * as addHandler from './add'
 import * as listHandler from './list'
 import * as removeHandler from './remove'
 
-const handlers = [listHandler, removeHandler, ...registriesHandlers]
+const handlers = [addHandler, listHandler, removeHandler, ...registriesHandlers]
 
 export { handlers }

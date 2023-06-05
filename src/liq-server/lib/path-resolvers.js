@@ -43,7 +43,7 @@ const orgKey = {
 
 const pluginName = {
   bitReString    : '[a-z][a-z0-9-]*',
-  optionsFetcher : ({ app }) => app.liq.plugins.map(({ name }) => name )
+  optionsFetcher : ({ app }) => app.liq.plugins.map(({ name }) => name)
 }
 
 const staffKey = {

@@ -144,7 +144,6 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
   const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')
   await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
 
-
   return { app, cache }
 }
 
