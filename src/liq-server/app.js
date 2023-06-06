@@ -9,15 +9,18 @@ import { readFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
+import { getLiqHome } from './lib/get-liq-home'
+import { getServerSettings } from './lib/get-server-settings'
+import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 
 /**
 *
 */
-const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
+const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
-  const app = express()
+  app = app || express()
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
   app.use(fileUpload({ parseNested : true }))
@@ -26,22 +29,19 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   options.cache = cache
 
   app.liq = {
-    home       : () => process.env.LIQ_HOME || process.env.HOME + '/.liq',
-    playground : () => app.liq.home() + '/playground'
+    home            : () => getLiqHome(),
+    playground      : () => app.liq.home() + '/playground',
+    plugins         : [],
+    commandPaths    : {},
+    errorsEphemeral : [],
+    errorsRetained  : [],
+    constants       : {},
+    handlers        : [],
+    pathResolvers   : commonPathResolvers,
+    // localSettings set below
+    serverSettings  : getServerSettings()
   }
 
-  Object.assign(
-    app.liq,
-    {
-      commandPaths    : {},
-      errorsEphemeral : [],
-      errorsRetained  : [],
-      constants       : {}
-    })
-
-  app.liq.handlers = []
-
-  app.liq.commandPaths = {}
   app.liq.addCommandPath = (commandPath, parameters) => {
     let frontier = app.liq.commandPaths
     for (const pathBit of commandPath) {
@@ -60,10 +60,8 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
     frontier._parameters = () => parameters
   }
 
-  app.liq.pathResolvers = commonPathResolvers
-
-  // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
-  // found' exceptions
+  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
+  // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.liq.localSettings = readFJSON(localSettingsPath)
@@ -73,7 +71,7 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
   }
 
   reporter.log('Loading core handlers...')
-  registerHandlers(app, Object.assign({}, options, { sourcePkg : '@liquid-labs/liq-core', handlers }))
+  registerHandlers(app, Object.assign({}, options, { npmName : '@liquid-labs/liq-core', handlers }))
 
   if (skipCorePlugins !== true) {
     await loadPlugins(app, options)
@@ -139,6 +137,12 @@ const appInit = async({ pluginDirs, skipCorePlugins = false, ...options }) => {
       res.send(msg)
     }
   })
+
+  await initServerSettings({ serverSettings : app.liq.serverSettings })
+
+  reporter.log('Registering API...')
+  const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')
+  await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
 
   return { app, cache }
 }

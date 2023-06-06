@@ -1,4 +1,4 @@
-import { nextOptions } from './lib/next-options'
+import { nextOptions } from './_lib/next-options'
 
 const method = 'get'
 const path = ['server', 'next-commands']
@@ -67,7 +67,7 @@ const func = ({ app, cache, model }) => async(req, res) => {
             prevElements[typeKey] = commandBit // save the value of the variable
             const elementConfig = app.liq.pathResolvers[typeKey]
             const { bitReString, optionsFetcher } = elementConfig
-            let myOptions = optionsFetcher({ currToken : commandBit, model, ...prevElements })
+            let myOptions = optionsFetcher({ app, currToken : commandBit, model, ...prevElements })
             if (myOptions?.then) myOptions = await myOptions
             if (myOptions?.length > 0) finalOptions.push(...myOptions)
 
@@ -112,7 +112,7 @@ const func = ({ app, cache, model }) => async(req, res) => {
           if (k.startsWith(':')) {
             const elementConfig = app.liq.pathResolvers[k.slice(1)] // this should already be validated
             const { optionsFetcher } = elementConfig
-            let fOpts = optionsFetcher({ currToken : '', model, ...prevElements })
+            let fOpts = optionsFetcher({ app, currToken : '', model, ...prevElements })
             if (fOpts?.then) fOpts = await fOpts
             acc.push(...fOpts)
           // acc.push(...optionsFetcher({ currToken: '', model, ...prevElements }))

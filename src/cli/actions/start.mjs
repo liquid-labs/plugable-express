@@ -5,7 +5,6 @@ import * as fsPath from 'node:path'
 import { spawn } from 'node:child_process'
 
 import {
-  LIQ_API_SPEC,
   LIQ_SERVER_PID_FILE,
   LIQ_SERVER_STATUS_RUNNING,
   LIQ_SERVER_STATUS_STOPPED,
@@ -36,7 +35,7 @@ const start = async() => {
   const out = await fs.open(outFile, 'a')
   const err = await fs.open(errFile, 'a')
 
-  const child = spawn('node', [nodeScript, 'run'], {
+  const child = spawn('node', ['--enable-source-maps', nodeScript, 'liq-server:run'], {
     detached : true,
     stdio    : ['ignore', out, err],
     cwd      : pkgRoot,
@@ -69,11 +68,6 @@ const start = async() => {
     process.exit(LIQ_SERVER_STATUS_WORKING)
   }
   else {
-    console.log('Registering API...')
-    const apiResult = await fetch('http:/127.0.0.1:32600/server/api')
-    const apiSpec = await apiResult.json()
-    await fs.writeFile(LIQ_API_SPEC, JSON.stringify(apiSpec, null, '  '))
-
     process.exit(LIQ_SERVER_STATUS_RUNNING)
   }
 }

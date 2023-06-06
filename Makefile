@@ -24,11 +24,11 @@ CATALYST_JS_ROLLUP:=npx rollup
 CATALYST_JS_ESLINT:=npx eslint
 
 # all source files (cli and lib)
-CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/data/*")
-CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) -name "*.js" -not -path "*/test/data/*")
+CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/data/*" -not -path "*/test/data-*/*")
+CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) -name "*.js" -not -path "*/test/data/*" -not -path "*/test/data-*/*" -type f)
 CATALYST_JS_TEST_FILES_BUILT:=$(patsubst $(SRC)/%, test-staging/%, $(CATALYST_JS_TEST_FILES_SRC))
 # all test data (cli and lib)
-CATALYST_JS_TEST_DATA_SRC:=$(shell find $(SRC) -path "*/test/data/*" -type f)
+CATALYST_JS_TEST_DATA_SRC:=$(shell find $(SRC) -type f \( -path "*/test/data/*"  -o -path "*/test/data-*/*" \))
 CATALYST_JS_TEST_DATA_BUILT:=$(patsubst $(SRC)/%, $(TEST_STAGING)/%, $(CATALYST_JS_TEST_DATA_SRC))
 # lib specific files
 CATALYST_JS_LIB_FILES_SRC:=$(shell find $(CATALYST_JS_LIB_SRC_PATH) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/*" -not -name "*.test.js")

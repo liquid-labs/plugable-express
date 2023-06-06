@@ -13,7 +13,7 @@ describe('GET:/server/api', () => {
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
-  afterAll(() => { cache.release() })
+  afterAll(() => { cache?.release() })
 
   test('returns a description of the API', async() => {
     const { status, body, headers } = await request(app)
