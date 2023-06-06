@@ -18,7 +18,7 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
   }
 
   const registries = serverSettings.registries
-  console.log('env:', env) // debug
+  console.log('env:', process.env) // debug
   const envRegistries = process.env[LIQ_REGISTRIES]
   if (envRegistries !== undefined) {
     if (Array.isArray(envRegistries)) {
