@@ -13,7 +13,7 @@ describe('GET:/server', () => {
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
-  afterAll(() => { cache.release() })
+  afterAll(() => { cache?.release() })
 
   test('processes JSON requests', async() => {
     const { status, body, headers } = await request(app)

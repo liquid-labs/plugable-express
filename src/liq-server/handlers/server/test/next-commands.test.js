@@ -13,7 +13,7 @@ describe('GET:/server/next-commands', () => {
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 
-  afterAll(() => { cache.release() })
+  afterAll(() => { cache?.release() })
 
   const testArrayUrl = [
     ['', ['credentials', 'help', 'orgs', 'playground', 'server']],
