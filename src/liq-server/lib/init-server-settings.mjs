@@ -18,8 +18,8 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
   }
 
   const registries = serverSettings.registries
-  console.log('env:', process.env) // debug
   const envRegistries = process.env[LIQ_REGISTRIES]
+  console.log('envRegistries:', envRegistries) // DEBUG
   if (envRegistries !== undefined) {
     if (Array.isArray(envRegistries)) {
       serverSettings.registries = structuredClone(envRegistries)
@@ -40,6 +40,7 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
     })
   }
 
+  console.log('ibActions.length:', ibActions, 'reAsk:', reAsk)
   if (ibActions.length > 0 || reAsk === true) {
     const questioner = new Questioner({
       interrogationBundle : initInterrogationBundle,
