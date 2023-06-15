@@ -10,11 +10,11 @@ const parameters = [
   }
 ]
 
-const func = ({ model }) => (req, res) => {
+const func = ({ app }) => (req, res) => {
   const { threadId } = req.params
   const { peek } = req.query
 
-  const taskData = model.tasks.data[threadId]
+  const taskData = app.tasks.get(threadId)
 
   if (taskData === undefined) {
     res.status(404).json({ message : `No such task for '${threadId}' found. Check your reference, or it may have already been handled.` })
@@ -23,7 +23,7 @@ const func = ({ model }) => (req, res) => {
 
   if (!peek && taskData.running === false) {
     taskData.acknowledged = true
-    model.tasks.remove(threadId)
+    app.tasks.remove(threadId)
   }
 
   res.json(taskData)

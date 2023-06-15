@@ -14,7 +14,7 @@ const parameters = [
   }
 ]
 
-const func = ({ app, model }) => (req, res) => {
+const func = ({ app }) => (req, res) => {
   const { dryRun, orgKey, localProjectName } = req.vars
 
   const localProjectPath = sysPath.join(process.env.HOME, '.liq', 'playground', orgKey, localProjectName)
@@ -23,7 +23,7 @@ const func = ({ app, model }) => (req, res) => {
     return
   }
 
-  model.tasks.create({
+  app.tasks.create({
     runFile    : sysPath.join(__dirname, 'workers', 'projects-update.worker.js'),
     workerData : {
       dryRun,
