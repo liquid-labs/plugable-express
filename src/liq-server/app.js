@@ -138,7 +138,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
     }
   })
 
-  await initServerSettings({ serverSettings : app.liq.serverSettings })
+  await initServerSettings()
 
   reporter.log('Registering API...')
   const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')

@@ -43,7 +43,7 @@
     "@liquid-labs/catalyst-scripts-node-project": "^1.0.0-alpha.15",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
-    "@liquid-labs/orgs-model": "^1.0.0-beta.101",
+    "@liquid-labs/orgs-model": "^1.0.0-beta.102",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.6",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "chalk": "^4.1.2",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@liquid-labs/github-toolkit": "^1.0.0-alpha.10",
-    "@liquid-labs/http-tabular-input": "^1.0.0-alpha.4",
+    "@liquid-labs/http-tabular-input": "^1.0.0-alpha.5",
     "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.13",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
