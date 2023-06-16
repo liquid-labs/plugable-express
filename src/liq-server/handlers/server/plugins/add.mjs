@@ -5,7 +5,7 @@ import { tryExec } from '@liquid-labs/shell-toolkit'
 
 import { appInit } from '../../../app'
 import { determineRegistryData } from './registries/_lib/determine-registry-data'
-import { LIQ_CORE_PLUGINS } from '../../../../shared/locations'
+import { LIQ_HANDLER_PLUGINS } from '../../../../shared/locations'
 
 const help = {
   name        : 'Plugins add',
@@ -67,7 +67,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const anyInstalled = prodInstalled || devInstalled
 
   if (anyInstalled === true) {
-    tryExec(`cd "${LIQ_CORE_PLUGINS}" && npm install ${prodInstalls.join(' ')} ${devInstalls.join(' ')}`)
+    tryExec(`cd "${LIQ_HANDLER_PLUGINS}" && npm install ${prodInstalls.join(' ')} ${devInstalls.join(' ')}`)
     await appInit({ app, model, ...app.liq.config })
   }
 

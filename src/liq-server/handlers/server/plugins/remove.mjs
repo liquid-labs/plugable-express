@@ -4,7 +4,7 @@ import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 import { tryExec } from '@liquid-labs/shell-toolkit'
 
 import { appInit } from '../../../app'
-import { LIQ_CORE_PLUGINS } from '../../../../shared/locations'
+import { LIQ_HANDLER_PLUGINS } from '../../../../shared/locations'
 
 const help = {
   name        : 'Plugins remove',
@@ -26,7 +26,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   // else
 
   const npmName = pluginData.npmName
-  tryExec(`cd "${LIQ_CORE_PLUGINS}" && npm uninstall ${npmName}`)
+  tryExec(`cd "${LIQ_HANDLER_PLUGINS}" && npm uninstall ${npmName}`)
 
   await appInit({ app, model, ...app.liq.config })
 
