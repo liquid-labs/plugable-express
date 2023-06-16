@@ -1,6 +1,6 @@
 const method = 'get'
-
 const path = ['playground', 'projects', ':orgKey', ':localProjectName', 'packageJSON']
+const parameters = []
 
 const func = ({ model }) => (req, res) => {
   const { orgKey, localProjectName } = req.vars
@@ -8,4 +8,4 @@ const func = ({ model }) => (req, res) => {
   return res.json(model.playground.orgs[orgKey].projects[localProjectName].packageJSON)
 }
 
-export { func, path, method }
+export { func, path, method, parameters }

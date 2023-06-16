@@ -7,6 +7,7 @@ import { safeJSONParse } from '../../lib/load-playground'
 
 const method = 'get'
 const path = ['server']
+const parameters = []
 
 const func = ({ app, cache, reporter }) => (req, res) => {
   let versionInfo = cache.get(func) // we assume versions are stable while running
@@ -64,4 +65,4 @@ const func = ({ app, cache, reporter }) => (req, res) => {
   }
 }
 
-export { func, path, method }
+export { func, path, method, parameters }

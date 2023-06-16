@@ -1,5 +1,5 @@
 const method = 'get'
-const path = '/tasks/:threadId'
+const path = ['tasks', ':threadId']
 
 const parameters = [
   {

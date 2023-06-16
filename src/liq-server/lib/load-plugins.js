@@ -2,6 +2,7 @@ import * as path from 'path'
 
 import findPlugins from 'find-plugins'
 
+import { LIQ_HANDLER_PLUGINS } from '../../shared/locations'
 import { registerHandlers } from './register-handlers'
 
 const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
@@ -36,15 +37,15 @@ const loadPlugins = async(app, {
   model,
   cache,
   reporter,
-  pluginPath = process.env.LIQ_PLUGIN_PATH || defaultPluginPath
+  pluginPath = LIQ_HANDLER_PLUGINS
 }) => {
   const pluginPkg = path.join(pluginPath, 'package.json')
   const pluginDir = path.join(pluginPath, 'node_modules')
   reporter.log(`Searching for plugins (in ${path.dirname(pluginDir)})...`)
   const pluginOptions = {
-    pkg    : pluginPkg,
-    dir    : pluginDir,
-    filter : () => true
+    pkg    : pluginPkg, // will load dependencies as plugins
+    dir    : pluginDir, // will load from here
+    filter : () => true // every dependency is a plugin
   }
 
   const plugins = findPlugins(pluginOptions)
