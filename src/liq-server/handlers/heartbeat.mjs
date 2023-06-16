@@ -1,5 +1,6 @@
 const method = 'get'
 const path = ['']
+const parameters = []
 
 const func = ({ reporter }) => (req, res) => {
   reporter.isolate()
@@ -8,4 +9,4 @@ const func = ({ reporter }) => (req, res) => {
   // res.json(app.liq.handlers)
 }
 
-export { func, method, path }
+export { func, method, parameters, path }

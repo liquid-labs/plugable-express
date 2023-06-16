@@ -1,5 +1,6 @@
 const method = 'unbind'
 const path = ['server', 'stop?']
+const parameters = []
 
 const func = ({ cache }) => (req, res) => {
   res.send('Shutting down...')
@@ -7,4 +8,4 @@ const func = ({ cache }) => (req, res) => {
   process.kill(process.pid, 'SIGTERM')
 }
 
-export { func, path, method }
+export { func, path, method, parameters }
