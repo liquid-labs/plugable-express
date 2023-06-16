@@ -1,5 +1,4 @@
 import { loadPlayground, loadOrgs } from './lib'
-import { Worker } from 'worker_threads'
 
 /**
 * The model looks like:

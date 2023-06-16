@@ -1,3 +1,5 @@
+import { Worker } from 'worker_threads'
+
 const TaskManager = class {
   #data = {}
 
@@ -119,7 +121,7 @@ const TaskManager = class {
 
     return worker
   } // end 'create'
-  
+
   get(threadId) {
     return structuredClone(this.#data[threadId])
   }
