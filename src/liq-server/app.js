@@ -14,6 +14,7 @@ import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
+import { TaskManager } from './lib/TaskManager'
 
 /**
 *
@@ -27,6 +28,8 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
 
   const cache = new WeakCache()
   options.cache = cache
+
+  app.tasks = new TaskManager()
 
   app.liq = {
     home            : () => getLiqHome(),
@@ -138,7 +141,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
     }
   })
 
-  await initServerSettings({ serverSettings : app.liq.serverSettings })
+  await initServerSettings()
 
   reporter.log('Registering API...')
   const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')

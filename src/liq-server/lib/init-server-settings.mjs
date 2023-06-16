@@ -9,7 +9,7 @@ import { defaults, LIQ_REGISTRIES } from '../defaults'
 import { getLiqHome } from './get-liq-home'
 import { getServerSettings } from './get-server-settings'
 
-const initServerSettings = async({ reAsk = false, serverSettings }) => {
+const initServerSettings = async({ reAsk = false, serverSettings } = {}) => {
   serverSettings = serverSettings || getServerSettings()
 
   const ibActions = []
@@ -19,7 +19,6 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
 
   const registries = serverSettings.registries
   const envRegistries = process.env[LIQ_REGISTRIES]
-  console.log('envRegistries:', envRegistries) // DEBUG
   if (envRegistries !== undefined) {
     if (Array.isArray(envRegistries)) {
       serverSettings.registries = structuredClone(envRegistries)
@@ -40,7 +39,6 @@ const initServerSettings = async({ reAsk = false, serverSettings }) => {
     })
   }
 
-  console.log('ibActions.length:', ibActions, 'reAsk:', reAsk)
   if (ibActions.length > 0 || reAsk === true) {
     const questioner = new Questioner({
       interrogationBundle : initInterrogationBundle,
