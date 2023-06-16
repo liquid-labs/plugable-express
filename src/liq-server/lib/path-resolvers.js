@@ -51,6 +51,11 @@ const staffKey = {
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
 }
 
-const commonPathResolvers = { credential, localProjectName, newOrgKey, pluginName, orgKey, staffKey }
+const threadId = {
+  bitReString    : '[0-9]+',
+  optionsFetcher : ({ app }) => app.tasks.list()
+}
+
+const commonPathResolvers = { credential, localProjectName, newOrgKey, pluginName, orgKey, staffKey, threadId }
 
 export { commonPathResolvers }

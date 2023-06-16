@@ -126,6 +126,10 @@ const TaskManager = class {
     return structuredClone(this.#data[threadId])
   }
 
+  list() {
+    return Object.keys(this.#data)
+  }
+
   remove(threadId) {
     delete this.#data[threadId]
   }
