@@ -5,12 +5,12 @@ import * as fsPath from 'node:path'
 import { spawn } from 'node:child_process'
 
 import {
-  LIQ_SERVER_PID_FILE,
   LIQ_SERVER_STATUS_RUNNING,
   LIQ_SERVER_STATUS_STOPPED,
   LIQ_SERVER_STATUS_UNRECOVERABLE,
   LIQ_SERVER_STATUS_WORKING
 } from './constants'
+import { LIQ_SERVER_PID_FILE } from '../../shared/locations'
 import { status } from './status'
 
 const start = async() => {
@@ -42,8 +42,8 @@ const start = async() => {
     env      : Object.assign({ NODE_PATH : fsPath.join(pkgRoot, 'node_modules') }, process.env)
   })
 
-  await fs.mkdir(fsPath.dirname(LIQ_SERVER_PID_FILE), { recursive : true })
-  await fs.writeFile(LIQ_SERVER_PID_FILE, child.pid + '')
+  await fs.mkdir(fsPath.dirname(LIQ_SERVER_PID_FILE()), { recursive : true })
+  await fs.writeFile(LIQ_SERVER_PID_FILE(), child.pid + '')
 
   const maxAttempts = 10
   const waitTime = 1000

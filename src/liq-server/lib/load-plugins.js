@@ -37,7 +37,7 @@ const loadPlugins = async(app, {
   model,
   cache,
   reporter,
-  pluginPath = LIQ_HANDLER_PLUGINS
+  pluginPath = LIQ_HANDLER_PLUGINS()
 }) => {
   const pluginPkg = path.join(pluginPath, 'package.json')
   const pluginDir = path.join(pluginPath, 'node_modules')

@@ -10,17 +10,16 @@ import { defaults, LIQ_PORT } from './defaults'
 import { initializeConfiguration } from './lib/configurables'
 import { initServerSettings } from './lib/init-server-settings'
 import { Reporter } from './lib/reporter'
-import { model } from './model'
+import { initModel } from './model'
 import * as server from './server'
 
 const action = process.argv[2]
 
 if (action === 'liq-server:run') {
-  const config = initializeConfiguration([defaults])
-
-  model.initialize(config);
+  const config = initializeConfiguration([defaults]);
 
   (async() => {
+    const model = initModel()
     const { app, cache } = await appInit(Object.assign({ model }, config))
     app.liq.config = config
 
@@ -36,4 +35,4 @@ else if (action === 'liq-server:init') {
   initServerSettings({ reAsk : true })
 }
 
-export { appInit, model, Reporter }
+export { appInit, initModel, Reporter }

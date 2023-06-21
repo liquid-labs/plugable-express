@@ -26,7 +26,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   // else
 
   const npmName = pluginData.npmName
-  tryExec(`cd "${LIQ_HANDLER_PLUGINS}" && npm uninstall ${npmName}`)
+  tryExec(`cd "${(LIQ_HANDLER_PLUGINS())}" && npm uninstall ${npmName}`)
 
   await appInit({ app, model, ...app.liq.config })
 

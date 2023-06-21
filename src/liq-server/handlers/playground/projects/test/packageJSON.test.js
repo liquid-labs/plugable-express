@@ -1,8 +1,8 @@
-/* global afterEach beforeAll describe expect jest test */
+/* global afterAll beforeAll describe expect jest test */
 import request from 'supertest'
 
 import { appInit } from '../../../../app'
-import { model } from '../../../../model'
+import { initModel } from '../../../../model'
 import { defaultTestOptions } from '../../../../test/lib/test-utils'
 import projectA01PackageContents from '../../../../test/data/playground-simple/orgA/projectA01/package.json'
 
@@ -13,14 +13,17 @@ testOptions.reporter.error = testOptions.reporter.log
 testOptions.logs = logs
 
 describe('GET:/playground/projects/:orgKey/:localProjectName/packageJSON', () => {
-  let app
-  let cache
+  let app, cache, model
 
   beforeAll(async() => {
-    model.initialize(testOptions);
+    process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
+    model = initModel(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
   })
-  afterEach(() => { cache.release() /* cache has timers that must be stopped */ })
+  afterAll(() => {
+    delete process.env.LIQ_PLAYGROUND
+    cache.release() /* cache has timers that must be stopped */
+  })
 
   test('will retrieve the local package definition', async() => {
     const { body, headers, status } = await request(app)

@@ -1,4 +1,7 @@
-import { loadPlayground, loadOrgs } from './lib'
+import { Model } from '@liquid-labs/resource-model'
+
+import { Organizations } from './lib/Organizations'
+import { PlaygroundProjects } from './lib/PlaygroundProjects'
 
 /**
 * The model looks like:
@@ -30,38 +33,16 @@ import { loadPlayground, loadOrgs } from './lib'
 * }
 * ```
 */
-const model = {
-  /**
-  * Initializes the model by loading the playground.
-  */
-  initialize : (config) => {
-    if (config === undefined) {
-      config = model.config
-    }
-    else if (model.config === undefined) {
-      model.config = config
-    }
-    model.playground = loadPlayground(config)
+const initModel = ({ reporter = console } = {}) => {
+  const model = new Model()
 
-    const orgsOptions = Object.assign({ playground : model.playground }, config)
-    model.orgs = loadOrgs(orgsOptions)
-    model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
+  const playground = new Model()
+  model.bindSubModel('playground', playground) // .playground
+  playground.bindRootItemManager(new PlaygroundProjects({ reporter })) // .playground.projects
 
-    // bind the original config to refreshPlayground TODO: this is notnecessary as we save 'config' on 'model'
-    model.refreshPlayground = () => {
-      model.playground = loadPlayground(config)
+  model.bindSubModel('orgs', new Organizations({ playground, reporter })) // .orgs
 
-      return model.playground
-    }
-
-    model.refreshModel = () => {
-      model.playground = loadPlayground(config)
-      model.orgs = loadOrgs(orgsOptions)
-      model.orgsAlphaList = model.playground.orgsAlphaList.filter((orgName) => model.orgs[orgName] !== undefined)
-    }
-
-    return model
-  }
+  return model
 }
 
-export { model }
+export { initModel }
