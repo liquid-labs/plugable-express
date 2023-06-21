@@ -79,7 +79,6 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
   registerHandlers(app, Object.assign({}, options, { npmName : '@liquid-labs/liq-core', handlers }))
 
   if (skipCorePlugins !== true) {
-    console.error('plugin options: ', options) // DEBUG
     await loadPlugins(app, options)
   }
   if (pluginDirs?.length > 0) {

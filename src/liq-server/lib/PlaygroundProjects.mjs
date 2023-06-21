@@ -23,7 +23,6 @@ const PlaygroundProjects = class extends ItemManager {
     reporter?.log(`Loading playground projects from: ${LIQ_PLAYGROUND()}`)
     this.truncate()
 
-    // console.error('LIQ_PLAYGROUND:', LIQ_PLAYGROUND()) // DEBUG
     const orgDirs = filterLiqDirs({
       files    : fs.readdirSync(LIQ_PLAYGROUND(), { withFileTypes : true }),
       basePath : LIQ_PLAYGROUND(),
@@ -44,9 +43,7 @@ const PlaygroundProjects = class extends ItemManager {
         const projectName = projectDir.name
         const localProjectPath = fsPath.join(basePath, projectName)
         try {
-          // console.error('localProjectPath:', localProjectPath) // DEBUG
           const packageJSON = readPackageJSON(localProjectPath)
-          // console.error('packageJSON:', packageJSON) // DEBUG
           const npmName = packageJSON?.name
 
           this.add({ 
