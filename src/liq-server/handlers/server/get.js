@@ -3,7 +3,7 @@ import http from 'node:http'
 import * as os from 'node:os'
 import * as sysPath from 'node:path'
 
-import { safeJSONParse } from '../../lib/load-playground'
+import { safeJSONParse } from '../../lib/json-helpers'
 
 const method = 'get'
 const path = ['server']

@@ -4,7 +4,7 @@ import request from 'supertest'
 
 import { appInit } from '../app'
 import { LIQ_REGISTRIES } from '../defaults'
-import { model } from '../model'
+import { initModel } from '../model'
 import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
 import { fooOutput } from './data/plugins/node_modules/foo'
 
@@ -23,15 +23,19 @@ const registrationRegExp = /^registering handler for path: [A-Z]+:/
 describe('app', () => {
   describe('default setup provides useful info', () => {
     const testOptions = mockLogOptions()
-    let cache
+    let cache, model
 
     beforeAll(async() => {
       process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
-      model.initialize(testOptions);
+      process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
+      model = initModel(testOptions);
       ({ cache } = await appInit(Object.assign(testOptions, { model })))
     })
 
-    afterAll(() => { cache.release() })
+    afterAll(() => {
+      delete process.env.LIQ_PLAYGROUND
+      cache.release()
+    })
 
     test('describes registered paths', () => {
       expect(testOptions.logs.filter((msg) =>
@@ -46,17 +50,21 @@ describe('app', () => {
   })
 
   describe('custom plugins', () => {
-    let app, cache
+    let app, cache, model
     const testOptions = mockLogOptions()
 
     beforeAll(async() => {
-      model.initialize(testOptions)
+      process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
+      model = initModel(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(testOptions))
     })
 
-    afterAll(() => cache.release())
+    afterAll(() => {
+      delete process.env.LIQ_PLAYGROUND
+      cache.release()
+    })
 
     test('are registered', () => {
       expect(testOptions.logs.filter((msg) =>

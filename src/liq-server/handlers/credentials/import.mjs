@@ -3,6 +3,8 @@ import fsPath from 'node:path'
 import { CredentialsDB, CREDS_PATH_STEM } from '@liquid-labs/liq-credentials-db'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
+import { LIQ_HOME } from '../../../shared/locations'
+
 const method = 'put'
 const path = ['credentials', ':credential', 'import']
 const parameters = [
@@ -28,7 +30,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const credDB = new CredentialsDB({ app, cache })
   const { copyToStorage, credential, path: srcPath, replace } = req.vars
 
-  const destPath = copyToStorage === true ? fsPath.join(app.liq.home(), CREDS_PATH_STEM) : undefined
+  const destPath = copyToStorage === true ? fsPath.join(LIQ_HOME(), CREDS_PATH_STEM) : undefined
 
   await credDB.import({ destPath, key : credential, srcPath, replace })
 

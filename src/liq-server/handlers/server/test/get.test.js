@@ -2,14 +2,16 @@
 import request from 'supertest'
 
 import { appInit } from '../../../app'
-import { model } from '../../../model'
+import { initModel } from '../../../model'
 import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
 
+const testOptions = defaultTestOptions()
+
 describe('GET:/server', () => {
-  let app
-  let cache
+  let app, cache, model
   beforeAll(async() => {
-    model.initialize(defaultTestOptions());
+    process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
+    model = initModel(testOptions);
     ({ app, cache } = await appInit(defaultTestOptions({ model })))
   })
 

@@ -9,9 +9,9 @@ import { readFJSON } from '@liquid-labs/federated-json'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
-import { getLiqHome } from './lib/get-liq-home'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
+import { LIQ_HOME, LIQ_PLAYGROUND } from '../shared/locations'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { TaskManager } from './lib/TaskManager'
@@ -32,8 +32,10 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
   app.tasks = new TaskManager()
 
   app.liq = {
-    home            : () => getLiqHome(),
-    playground      : () => app.liq.home() + '/playground',
+    // TMP
+    home            : LIQ_HOME,
+    playground      : LIQ_PLAYGROUND,
+    // PMT
     plugins         : [],
     commandPaths    : {},
     errorsEphemeral : [],
@@ -65,7 +67,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
 
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
-  const localSettingsPath = fsPath.join(app.liq.home(), 'local-settings.yaml')
+  const localSettingsPath = fsPath.join(LIQ_HOME(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.liq.localSettings = readFJSON(localSettingsPath)
   }
@@ -77,6 +79,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
   registerHandlers(app, Object.assign({}, options, { npmName : '@liquid-labs/liq-core', handlers }))
 
   if (skipCorePlugins !== true) {
+    console.error('plugin options: ', options) // DEBUG
     await loadPlugins(app, options)
   }
   if (pluginDirs?.length > 0) {
@@ -144,7 +147,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
   await initServerSettings()
 
   reporter.log('Registering API...')
-  const apiSpecFile = fsPath.join(app.liq.home(), 'core-api.json')
+  const apiSpecFile = fsPath.join(LIQ_HOME(), 'core-api.json')
   await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
 
   return { app, cache }

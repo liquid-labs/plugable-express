@@ -3,12 +3,13 @@
 import * as fs from 'node:fs/promises'
 import { exec } from 'node:child_process'
 
-import { LIQ_SERVER_PGREP_MATCH, LIQ_SERVER_PID_FILE, LIQ_SERVER_STATUS_RECOVERABLE, LIQ_SERVER_STATUS_RUNNING, LIQ_SERVER_STATUS_STOPPED, LIQ_SERVER_STATUS_UNRECOVERABLE, LIQ_SERVER_STATUS_WORKING } from './constants'
+import { LIQ_SERVER_PGREP_MATCH, LIQ_SERVER_STATUS_RECOVERABLE, LIQ_SERVER_STATUS_RUNNING, LIQ_SERVER_STATUS_STOPPED, LIQ_SERVER_STATUS_UNRECOVERABLE, LIQ_SERVER_STATUS_WORKING } from './constants'
+import { LIQ_SERVER_PID_FILE } from '../../shared/locations'
 
 const status = async() => {
   let pid
   try {
-    pid = await fs.readFile(LIQ_SERVER_PID_FILE)
+    pid = await fs.readFile(LIQ_SERVER_PID_FILE())
     try {
       await exec('pgrep', ['-q', pid])
 

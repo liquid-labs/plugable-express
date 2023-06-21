@@ -3,12 +3,12 @@ import * as fsPath from 'node:path'
 
 import { readFJSON, writeFJSON } from '@liquid-labs/federated-json'
 
-import { getLiqHome } from './get-liq-home'
+import { LIQ_HOME } from '../../shared/locations'
 
 const getServerSettings = () => {
   // TODO: this causes a race condition; should instead just try to read with federated JSON and ignore 'file not
   // found' exceptions
-  const serverSettingsPath = fsPath.join(getLiqHome(), 'server-settings.yaml')
+  const serverSettingsPath = fsPath.join(LIQ_HOME(), 'server-settings.yaml')
   if (existsSync(serverSettingsPath)) {
     return readFJSON(serverSettingsPath) || {}
   }

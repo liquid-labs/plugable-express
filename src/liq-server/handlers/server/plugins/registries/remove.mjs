@@ -3,6 +3,7 @@ import * as fsPath from 'node:path'
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
+import { LIQ_HOME } from '../../../../../shared/locations'
 import { REGISTRY_DATA_KEY } from './_lib/determine-registry-data'
 
 const help = {
@@ -40,7 +41,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     }
   }
 
-  const serverSettingsPath = fsPath.join(app.liq.home(), 'server-settings.yaml')
+  const serverSettingsPath = fsPath.join(LIQ_HOME(), 'server-settings.yaml')
   writeFJSON({ file : serverSettingsPath, data : serverSettings })
 
   cache.delete(REGISTRY_DATA_KEY)

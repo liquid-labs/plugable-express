@@ -6,8 +6,8 @@ import { writeFJSON } from '@liquid-labs/federated-json'
 import { Questioner } from '@liquid-labs/question-and-answer'
 
 import { defaults, LIQ_REGISTRIES } from '../defaults'
-import { getLiqHome } from './get-liq-home'
 import { getServerSettings } from './get-server-settings'
+import { LIQ_HOME } from '../../shared/locations'
 
 const initServerSettings = async({ reAsk = false, serverSettings } = {}) => {
   serverSettings = serverSettings || getServerSettings()
@@ -54,7 +54,7 @@ const initServerSettings = async({ reAsk = false, serverSettings } = {}) => {
     }
     Object.assign(serverSettings, questioner.values)
 
-    const serverSettingsPath = fsPath.join(getLiqHome(), 'server-settings.yaml')
+    const serverSettingsPath = fsPath.join(LIQ_HOME(), 'server-settings.yaml')
     writeFJSON({ file : serverSettingsPath, data : serverSettings })
   }
 

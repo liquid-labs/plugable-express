@@ -3,7 +3,7 @@ const path = ['playground', 'refresh']
 const parameters = []
 
 const func = ({ model }) => (req, res) => {
-  model.refreshPlayground()
+  model.load()
   res.json(true)
 }
 
