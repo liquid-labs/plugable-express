@@ -1,11 +1,11 @@
 import * as fs from 'node:fs'
 import * as fsPath from 'node:path'
 
+import { LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
 import { Organization } from '@liquid-labs/orgs-model'
 import { Model } from '@liquid-labs/resource-model'
 
 import { filterLiqDirs } from './filter-liq-dirs'
-import { LIQ_PLAYGROUND } from '../../shared/locations'
 import { readPackageJSON } from './json-helpers'
 
 const orgTypeRe = /(^(.*|)?org(|.*)?$)/

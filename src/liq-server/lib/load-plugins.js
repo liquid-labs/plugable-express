@@ -2,7 +2,8 @@ import * as path from 'path'
 
 import findPlugins from 'find-plugins'
 
-import { LIQ_HANDLER_PLUGINS } from '../../shared/locations'
+import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
+
 import { registerHandlers } from './register-handlers'
 
 const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')

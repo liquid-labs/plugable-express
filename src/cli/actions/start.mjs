@@ -10,7 +10,8 @@ import {
   LIQ_SERVER_STATUS_UNRECOVERABLE,
   LIQ_SERVER_STATUS_WORKING
 } from './constants'
-import { LIQ_SERVER_PID_FILE } from '../../shared/locations'
+import { LIQ_SERVER_PID_FILE } from '@liquid-labs/liq-defaults'
+
 import { status } from './status'
 
 const start = async() => {

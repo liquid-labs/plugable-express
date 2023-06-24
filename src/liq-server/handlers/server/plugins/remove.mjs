@@ -1,10 +1,10 @@
 import createError from 'http-errors'
 
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
+import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
 import { tryExec } from '@liquid-labs/shell-toolkit'
 
 import { appInit } from '../../../app'
-import { LIQ_HANDLER_PLUGINS } from '../../../../shared/locations'
 
 const help = {
   name        : 'Plugins remove',

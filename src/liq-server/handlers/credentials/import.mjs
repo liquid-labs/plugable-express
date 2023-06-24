@@ -1,9 +1,8 @@
 import fsPath from 'node:path'
 
 import { CredentialsDB, CREDS_PATH_STEM } from '@liquid-labs/liq-credentials-db'
+import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
-
-import { LIQ_HOME } from '../../../shared/locations'
 
 const method = 'put'
 const path = ['credentials', ':credential', 'import']

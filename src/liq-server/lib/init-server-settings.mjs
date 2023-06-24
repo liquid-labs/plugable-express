@@ -3,11 +3,11 @@ import * as fsPath from 'node:path'
 import createError from 'http-errors'
 
 import { writeFJSON } from '@liquid-labs/federated-json'
+import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 import { Questioner } from '@liquid-labs/question-and-answer'
 
 import { defaults, LIQ_REGISTRIES } from '../defaults'
 import { getServerSettings } from './get-server-settings'
-import { LIQ_HOME } from '../../shared/locations'
 
 const initServerSettings = async({ reAsk = false, serverSettings } = {}) => {
   serverSettings = serverSettings || getServerSettings()
