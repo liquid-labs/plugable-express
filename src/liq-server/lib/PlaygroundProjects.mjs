@@ -46,13 +46,14 @@ const PlaygroundProjects = class extends ItemManager {
           const packageJSON = readPackageJSON(localProjectPath)
           const npmName = packageJSON?.name
 
-          this.add({ 
-            name : `${orgName}/${projectName}`, 
-            localProjectPath, 
-            npmName, 
-            orgName, 
-            baseName: projectName, packageJSON, 
-            projectName 
+          this.add({
+            name     : `${orgName}/${projectName}`,
+            localProjectPath,
+            npmName,
+            orgName,
+            baseName : projectName,
+            packageJSON,
+            projectName
           })
         }
         catch (e) {

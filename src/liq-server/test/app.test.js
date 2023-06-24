@@ -50,12 +50,12 @@ describe('app', () => {
   })
 
   describe('custom plugins', () => {
-    let app, cache, model
+    let app, cache
     const testOptions = mockLogOptions()
 
     beforeAll(async() => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-      model = initModel(testOptions)
+      initModel(testOptions)
       testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(testOptions))
