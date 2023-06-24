@@ -1,0 +1,20 @@
+Test git rev: a2b807745c5bed1eeedc42f153a17c6260ac773c
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/lib/PlaygroundProjects.mjs
+  49:21  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  50:13  error  Missing space after key 'name'                                               key-spacing
+  50:48  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  51:30  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  52:21  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  53:21  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  54:13  error  Missing space after key 'baseName'                                           key-spacing
+  54:36  error  Object properties must go on a new line if they aren't all on the same line  object-property-newline
+  54:48  error  Trailing spaces not allowed                                                  no-trailing-spaces
+  55:24  error  Trailing spaces not allowed                                                  no-trailing-spaces
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/test/app.test.js
+  53:21  error  'model' is assigned a value but never used  no-unused-vars
+
+✖ 11 problems (11 errors, 0 warnings)
+  10 errors and 0 warnings potentially fixable with the `--fix` option.
+
