@@ -1,8 +1,9 @@
 /* global fetch */
 import * as fs from 'node:fs/promises'
 
+import { LIQ_SERVER_PID_FILE } from '@liquid-labs/liq-defaults'
+
 import { LIQ_SERVER_STATUS_STOPPED, LIQ_SERVER_STATUS_WORKING } from './constants'
-import { LIQ_SERVER_PID_FILE } from '../../shared/locations'
 import { status } from './status'
 
 const stop = async() => {

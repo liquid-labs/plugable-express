@@ -6,12 +6,12 @@ import express from 'express'
 import fileUpload from 'express-fileupload'
 
 import { readFJSON } from '@liquid-labs/federated-json'
+import { LIQ_HOME, LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
-import { LIQ_HOME, LIQ_PLAYGROUND } from '../shared/locations'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { TaskManager } from './lib/TaskManager'

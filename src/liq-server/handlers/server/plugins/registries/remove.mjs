@@ -2,8 +2,8 @@ import * as fsPath from 'node:path'
 
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
+import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 
-import { LIQ_HOME } from '../../../../../shared/locations'
 import { REGISTRY_DATA_KEY } from './_lib/determine-registry-data'
 
 const help = {

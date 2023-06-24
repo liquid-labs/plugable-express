@@ -1,10 +1,10 @@
 import * as fs from 'node:fs'
 import * as fsPath from 'node:path'
 
+import { LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
 import { idxType, ItemManager } from '@liquid-labs/resource-model'
 
 import { filterLiqDirs } from './filter-liq-dirs'
-import { LIQ_PLAYGROUND } from '../../shared/locations'
 import { PlaygroundProject } from './PlaygroundProject'
 import { readPackageJSON } from './json-helpers'
 
@@ -46,13 +46,14 @@ const PlaygroundProjects = class extends ItemManager {
           const packageJSON = readPackageJSON(localProjectPath)
           const npmName = packageJSON?.name
 
-          this.add({ 
-            name : `${orgName}/${projectName}`, 
-            localProjectPath, 
-            npmName, 
-            orgName, 
-            baseName: projectName, packageJSON, 
-            projectName 
+          this.add({
+            name     : `${orgName}/${projectName}`,
+            localProjectPath,
+            npmName,
+            orgName,
+            baseName : projectName,
+            packageJSON,
+            projectName
           })
         }
         catch (e) {
