@@ -1,13 +1,12 @@
-import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
 import { listPluginsHandler, listPluginsSetup } from '@liquid-labs/liq-plugins-lib'
 
-const { help, method, parameters } = listPluginsSetup({ pluginsDesc: 'sever endpoint' })
+const { help, method, parameters } = listPluginsSetup({ pluginsDesc : 'sever endpoint' })
 
 const path = ['server', 'plugins', 'list']
 
 const installedPluginsRetriever = ({ app }) => app.liq.plugins
 const hostVersionRetriever = ({ app }) => app.liq.serverVersion
 
-const func = listPluginsHandler({ hostVersionRetriever, installedPluginsRetriever, pluginType: 'handlers' })
+const func = listPluginsHandler({ hostVersionRetriever, installedPluginsRetriever, pluginType : 'handlers' })
 
 export { func, help, method, parameters, path }
