@@ -61,6 +61,7 @@
     "@liquid-labs/http-tabular-input": "^1.0.0-alpha.5",
     "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.13",
+    "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.1",
     "@liquid-labs/md2x": "^1.0.0-alpha.9",
     "@liquid-labs/question-and-answer": "^1.0.0-alpha.11",
     "@liquid-labs/resource-model": "^1.0.0-alpha.6",
@@ -69,6 +70,7 @@
     "express": "^5.0.0-beta.1",
     "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",
+    "find-root": "^1.1.0",
     "js-yaml": "^4.1.0",
     "json-diff": "^0.9.0",
     "resolve": "^1.20.0"
