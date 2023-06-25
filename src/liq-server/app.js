@@ -1,9 +1,10 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import * as fs from 'node:fs/promises'
 import * as fsPath from 'node:path'
 
 import express from 'express'
 import fileUpload from 'express-fileupload'
+import findRoot from 'find-root'
 
 import { readFJSON } from '@liquid-labs/federated-json'
 import { LIQ_HOME, LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
@@ -15,6 +16,11 @@ import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { TaskManager } from './lib/TaskManager'
+
+const pkgRoot = findRoot(__dirname)
+const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
+const pkgJSON = JSON.parse(pkgJSONContents)
+const serverVersion = pkgJSON.version
 
 /**
 *
@@ -31,6 +37,11 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
 
   app.tasks = new TaskManager()
 
+  app.reload = (options) => {
+    app.router.stack = []
+    appInit(options)
+  }
+
   app.liq = {
     // TMP
     home            : LIQ_HOME,
@@ -44,7 +55,8 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
     handlers        : [],
     pathResolvers   : commonPathResolvers,
     // localSettings set below
-    serverSettings  : getServerSettings()
+    serverSettings  : getServerSettings(),
+    serverVersion
   }
 
   app.liq.addCommandPath = (commandPath, parameters) => {
