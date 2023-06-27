@@ -6,7 +6,6 @@ import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
 
 import { registerHandlers } from './register-handlers'
 
-const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
 // Everything in the plugin pkg is a plugin in
 // const pluginFilter = (pkgInfo) => pkgInfo.pkg.liq?.labels?.some((l) => l === PLUGIN_LABEL)
 
@@ -14,7 +13,7 @@ const defaultPluginPath = path.join(process.env.HOME, '.liq', 'plugins', 'core')
  * Loads a single plugin.
  */
 const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
-  const { main, name: npmName } = pkg
+  const { main, name: npmName, version } = pkg
   const { handlers, name = 'UNKNOWN', setup, summary } = await import(`${dir}/${main}`) || {}
   if (handlers === undefined && setup === undefined) {
     throw new Error(`'liq-core' plugin from '${npmName}' does not export 'handlers' or 'setup'; bailing out.`)
@@ -28,7 +27,7 @@ const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
     handlersInfo = registerHandlers(app, { npmName, handlers, model, name, reporter, setupData, cache })
   }
 
-  app.liq.plugins.push({ name, summary, npmName, handlersInfo })
+  app.liq.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
 }
 
 /**
@@ -42,7 +41,7 @@ const loadPlugins = async(app, {
 }) => {
   const pluginPkg = path.join(pluginPath, 'package.json')
   const pluginDir = path.join(pluginPath, 'node_modules')
-  reporter.log(`Searching for plugins (in ${path.dirname(pluginDir)})...`)
+  reporter.log(`Searching for handler plugins (in ${path.dirname(pluginDir)})...`)
   const pluginOptions = {
     pkg    : pluginPkg, // will load dependencies as plugins
     dir    : pluginDir, // will load from here
@@ -59,7 +58,6 @@ const loadPlugins = async(app, {
 }
 
 export {
-  defaultPluginPath,
   loadPlugin,
   loadPlugins
 }

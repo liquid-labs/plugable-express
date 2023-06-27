@@ -20,6 +20,11 @@ const credential = {
   }
 }
 
+const handlerPluginName = {
+  bitReString    : '[a-z][a-z0-9-]*',
+  optionsFetcher : ({ app }) => app.liq.handlerPlugins.map(({ name }) => name)
+}
+
 const localProjectName = {
   bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-_]*',
   optionsFetcher : ({ currToken = '', model, orgKey }) => {
@@ -41,11 +46,6 @@ const orgKey = {
   optionsFetcher : ({ model }) => Object.keys(model.orgs)
 }
 
-const pluginName = {
-  bitReString    : '[a-z][a-z0-9-]*',
-  optionsFetcher : ({ app }) => app.liq.plugins.map(({ name }) => name)
-}
-
 const staffKey = {
   bitReString    : emailEncodedOrNotReString.slice(1, -1), // cut off the beginning and ending '/'
   optionsFetcher : ({ model, orgKey }) => model.orgs[orgKey].staff.list({ rawData : true }).map((s) => s.id)
@@ -56,6 +56,6 @@ const threadId = {
   optionsFetcher : ({ app }) => app.tasks.list()
 }
 
-const commonPathResolvers = { credential, localProjectName, newOrgKey, pluginName, orgKey, staffKey, threadId }
+const commonPathResolvers = { credential, localProjectName, newOrgKey, handlerPluginName, orgKey, staffKey, threadId }
 
 export { commonPathResolvers }

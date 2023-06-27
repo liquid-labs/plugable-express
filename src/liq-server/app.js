@@ -37,9 +37,9 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
 
   app.tasks = new TaskManager()
 
-  app.reload = (options) => {
+  app.reload = async(options) => {
     app.router.stack = []
-    appInit(options)
+    await appInit(options)
   }
 
   app.liq = {
@@ -47,7 +47,7 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
     home            : LIQ_HOME,
     playground      : LIQ_PLAYGROUND,
     // PMT
-    plugins         : [],
+    handlerPlugins  : [],
     commandPaths    : {},
     errorsEphemeral : [],
     errorsRetained  : [],

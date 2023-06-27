@@ -1,4 +1,6 @@
-import { defaultPluginPath, loadPlugins } from '../../lib'
+import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
+
+import { loadPlugins } from '../../lib'
 
 const method = 'put'
 const path = ['server', 'reload']
@@ -7,7 +9,7 @@ const parameters = [
     name          : 'pluginPath',
     required      : false,
     isSingleValue : true,
-    description   : `The path to search for plugins. Defaults to '${defaultPluginPath}'`
+    description   : `The path to search for plugins. Defaults to '${LIQ_HANDLER_PLUGINS()}'`
   }
 ]
 
