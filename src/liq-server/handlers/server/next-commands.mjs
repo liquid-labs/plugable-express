@@ -112,7 +112,7 @@ const func = ({ app, cache, model }) => async(req, res) => {
           if (k.startsWith(':')) {
             const elementConfig = app.liq.pathResolvers[k.slice(1)] // this should already be validated
             const { optionsFetcher } = elementConfig
-            let fOpts = optionsFetcher({ app, currToken : '', model, ...prevElements })
+            let fOpts = optionsFetcher({ app, currToken : '', model, req, ...prevElements })
             if (fOpts?.then) fOpts = await fOpts
             acc.push(...fOpts)
           // acc.push(...optionsFetcher({ currToken: '', model, ...prevElements }))
