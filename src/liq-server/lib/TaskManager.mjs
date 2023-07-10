@@ -44,6 +44,7 @@ const TaskManager = class {
     worker.unref()
 
     this.#data[threadId] = {
+      threadId,
       startTime    : new Date().getTime(),
       endTime      : null,
       running      : false,
@@ -127,7 +128,7 @@ const TaskManager = class {
   }
 
   list() {
-    return Object.keys(this.#data)
+    return Object.values(this.#data)
   }
 
   remove(threadId) {
