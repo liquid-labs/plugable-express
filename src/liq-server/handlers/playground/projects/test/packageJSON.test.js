@@ -11,7 +11,7 @@ import { initModel } from '../../../../model'
 import { defaultTestOptions } from '../../../../test/lib/test-utils'
 
 const projectA01PackagePath = fsPath.join(playgroundSimplePath, 'orgA', 'projectA01', 'package.json')
-const projectA01PackageContents = readFileSync(projectA01PackagePath, { encoding: 'utf8' })
+const projectA01PackageContents = readFileSync(projectA01PackagePath, { encoding : 'utf8' })
 const projectA01Package = JSON.parse(projectA01PackageContents)
 
 const logs = []
