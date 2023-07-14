@@ -45,7 +45,7 @@ describe('GET:/server/next-commands', () => {
     ['/orgs/list -- noHeaders', ['noHeaders']],
     ['/orgs/list -- noHeaders ', ['fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally']],
     ['/orgs/orgA', ['orgA']],
-    ['/orgs/orgA/', ['parameters', 'staff']],
+    ['/orgs/orgA/', ['parameters']],
     // uses the exclude setting to handle mutually exclusive parameters
     ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]
   ]
