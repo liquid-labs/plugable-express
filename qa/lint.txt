@@ -1,8 +1,0 @@
-Test git rev: 088f720f064822ab0a676da3d0a31e53e999759e
-
-/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/playground/projects/test/packageJSON.test.js
-  14:73  error  Missing space after key 'encoding'  key-spacing
-
-✖ 1 problem (1 error, 0 warnings)
-  1 error and 0 warnings potentially fixable with the `--fix` option.
-
