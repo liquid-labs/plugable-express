@@ -1,16 +1,16 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { playgroundSimplePath } from '@liquid-labs/liq-test-lib'
+
 import { Reporter } from '../../lib/reporter'
 
 const COMMAND_COUNT = 29
 const HELP_COUNT = 8
 
-const simplePlaygroundPath = path.join(__dirname, '..', 'data', 'playground-simple')
-
 const defaultTestOptions = ({
   skipCorePlugins = true,
-  LIQ_PLAYGROUND_PATH = simplePlaygroundPath,
+  LIQ_PLAYGROUND_PATH = playgroundSimplePath,
   reporter = new Reporter({ silent : true }),
   ...rest
 } = {}) =>

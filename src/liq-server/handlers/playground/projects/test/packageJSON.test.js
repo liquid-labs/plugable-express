@@ -1,10 +1,18 @@
 /* global afterAll beforeAll describe expect jest test */
+import * as fsPath from 'node:path'
+import { readFileSync } from 'node:fs'
+
 import request from 'supertest'
+
+import { playgroundSimplePath } from '@liquid-labs/liq-test-lib'
 
 import { appInit } from '../../../../app'
 import { initModel } from '../../../../model'
 import { defaultTestOptions } from '../../../../test/lib/test-utils'
-import projectA01PackageContents from '../../../../test/data/playground-simple/orgA/projectA01/package.json'
+
+const projectA01PackagePath = fsPath.join(playgroundSimplePath, 'orgA', 'projectA01', 'package.json')
+const projectA01PackageContents = readFileSync(projectA01PackagePath, { encoding: 'utf8' })
+const projectA01Package = JSON.parse(projectA01PackageContents)
 
 const logs = []
 const testOptions = defaultTestOptions()
@@ -33,6 +41,6 @@ describe('GET:/playground/projects/:orgKey/:localProjectName/packageJSON', () =>
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/application\/json/)
     expect(body).toBeTruthy()
-    expect(body).toStrictEqual(projectA01PackageContents)
+    expect(body).toStrictEqual(projectA01Package)
   })
 })

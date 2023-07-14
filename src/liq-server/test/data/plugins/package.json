@@ -1,6 +1,0 @@
-{
-  "name": "fake-plugin-test-pkg",
-  "dependencies": {
-    "foo": "file:node_modules/foo"
-  }
-}
