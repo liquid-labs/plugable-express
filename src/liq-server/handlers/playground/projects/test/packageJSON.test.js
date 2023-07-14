@@ -26,7 +26,7 @@ describe('GET:/playground/projects/:orgKey/:localProjectName/packageJSON', () =>
   beforeAll(async() => {
     process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
     model = initModel(testOptions);
-    ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model }, testOptions))))
+    ({ app, cache } = await appInit(defaultTestOptions(Object.assign({ model, noAPIUpdate: true }, testOptions))))
   })
   afterAll(() => {
     delete process.env.LIQ_PLAYGROUND

@@ -32,7 +32,7 @@ describe('app', () => {
       process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
       model = initModel(testOptions);
-      ({ cache } = await appInit(Object.assign(testOptions, { model })))
+      ({ cache } = await appInit(Object.assign(testOptions, { model, noAPIUpdate: true })))
     })
 
     afterAll(() => {
@@ -60,6 +60,7 @@ describe('app', () => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
       initModel(testOptions)
       testOptions.pluginPath = pluginsPath
+      testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(testOptions))
     })
