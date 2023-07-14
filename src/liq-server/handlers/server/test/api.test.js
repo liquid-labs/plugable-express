@@ -13,7 +13,7 @@ describe('GET:/server/api', () => {
   beforeAll(async() => {
     process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
     model = initModel(testOptions);
-    ({ app, cache } = await appInit(defaultTestOptions({ model, noAPIUpdate })))
+    ({ app, cache } = await appInit(defaultTestOptions({ model, noAPIUpdate: true })))
   })
 
   afterAll(() => {
