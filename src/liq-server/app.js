@@ -25,7 +25,7 @@ const serverVersion = pkgJSON.version
 /**
 *
 */
-const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) => {
+const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = false, ...options }) => {
   const { model, reporter } = options
   app = app || express()
   app.use(express.json())
@@ -157,9 +157,11 @@ const appInit = async({ app, pluginDirs, skipCorePlugins = false, ...options }) 
 
   await initServerSettings()
 
-  reporter.log('Registering API...')
-  const apiSpecFile = fsPath.join(LIQ_HOME(), 'core-api.json')
-  await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
+  if (noAPIUpdate !== true) {
+    reporter.log('Registering API...')
+    const apiSpecFile = fsPath.join(LIQ_HOME(), 'core-api.json')
+    await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
+  }
 
   return { app, cache }
 }

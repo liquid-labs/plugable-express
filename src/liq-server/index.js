@@ -20,7 +20,7 @@ if (action === 'liq-server:run') {
 
   (async() => {
     const model = initModel()
-    const { app, cache } = await appInit(Object.assign({ model }, config))
+    const { app, cache } = await appInit(Object.assign({ model, noAPIUpdate: true }, config))
     app.liq.config = config
 
     const serverOptions = {

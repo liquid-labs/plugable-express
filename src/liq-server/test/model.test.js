@@ -2,6 +2,8 @@
 import * as fs from 'node:fs'
 import * as fsPath from 'node:path'
 
+import { playgroundSimplePath } from '@liquid-labs/liq-test-lib'
+
 import { initModel } from '../model'
 import { defaultTestOptions } from './lib/test-utils'
 
@@ -38,7 +40,7 @@ describe('model', () => {
       })
 
       test('indexes projects by base directory', () => {
-        const projectA01Dir = fsPath.resolve(__dirname, 'data', 'playground-simple', 'orgA', 'projectA01')
+        const projectA01Dir = fsPath.resolve(playgroundSimplePath, 'orgA', 'projectA01')
         // expect(model.playground.projects.getByIndex({ indexName : 'projectPath', key : projectA01Dir })).toBeTruthy()
         expect(model.playground.projects.getByIndex('localProjectPath', projectA01Dir)).toBeTruthy()
       })

@@ -2,11 +2,14 @@
 import * as path from 'path'
 import request from 'supertest'
 
+import { pluginsPath } from '@liquid-labs/liq-test-lib'
+
 import { appInit } from '../app'
 import { LIQ_REGISTRIES } from '../defaults'
 import { initModel } from '../model'
 import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
-import { fooOutput } from './data/plugins/node_modules/foo'
+
+const fooPath = path.join(pluginsPath, 'node_modules', 'foo')
 
 const mockLogOptions = () => {
   const logs = []
@@ -29,7 +32,7 @@ describe('app', () => {
       process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
       model = initModel(testOptions);
-      ({ cache } = await appInit(Object.assign(testOptions, { model })))
+      ({ cache } = await appInit(Object.assign(testOptions, { model, noAPIUpdate: true })))
     })
 
     afterAll(() => {
@@ -56,7 +59,8 @@ describe('app', () => {
     beforeAll(async() => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
       initModel(testOptions)
-      testOptions.pluginPath = path.join(__dirname, 'data', 'plugins')
+      testOptions.pluginPath = pluginsPath
+      testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(testOptions))
     })
@@ -73,6 +77,7 @@ describe('app', () => {
     })
 
     test('can be called', async() => {
+      const { fooOutput } = await import(fooPath)
       const { status, body } = await request(app).get('/foo')
       expect(status).toBe(200)
       expect(body).toEqual(fooOutput)
