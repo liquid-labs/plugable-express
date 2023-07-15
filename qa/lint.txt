@@ -1,0 +1,20 @@
+Test git rev: 5f24d7bea11732d4dba366615f1d0ac454c38a16
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/playground/projects/test/packageJSON.test.js
+  29:79  error  Missing space after key 'noAPIUpdate'  key-spacing
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/server/test/api.test.js
+  16:65  error  Missing space after key 'noAPIUpdate'  key-spacing
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/server/test/get.test.js
+  15:65  error  Missing space after key 'noAPIUpdate'  key-spacing
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/server/test/next-commands.test.js
+  16:65  error  Missing space after key 'noAPIUpdate'  key-spacing
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/test/app.test.js
+  35:70  error  Missing space after key 'noAPIUpdate'  key-spacing
+
+✖ 5 problems (5 errors, 0 warnings)
+  5 errors and 0 warnings potentially fixable with the `--fix` option.
+
