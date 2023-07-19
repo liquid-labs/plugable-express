@@ -12,13 +12,13 @@ const parameters = [
   ...commonOutputParams()
 ]
 
-const mdFormatter = (creds, title) =>
+const mdFormatter = ({ data: creds, title }) =>
   `# ${title}\n\n${creds.map((c) => `- ${c.name} (__${c.key}__/${c.status}):\n  ${c.description}`).join('\n')}\n`
 
-const terminalFormatter = (creds, title) =>
+const terminalFormatter = ({ data: creds, title }) =>
   creds.map((c) => `- ${c.name} (<em>${c.key}<rst>/<bold>${c.status}<rst>):\n  ${c.description}`).join('\n')
 
-const textFormatter = (creds, title) => terminalFormatter(creds, title).replaceAll(/<[a-z]+>/g, '')
+const textFormatter = ({ data: creds, title }) => terminalFormatter(creds, title).replaceAll(/<[a-z]+>/g, '')
 
 const func = ({ app, cache, model, reporter }) => async(req, res) => {
   const { verify } = req.vars
