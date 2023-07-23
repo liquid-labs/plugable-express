@@ -6,6 +6,7 @@ import express from 'express'
 import fileUpload from 'express-fileupload'
 import findRoot from 'find-root'
 
+import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
 import { LIQ_HOME, LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
@@ -56,7 +57,9 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     pathResolvers   : commonPathResolvers,
     // localSettings set below
     serverSettings  : getServerSettings(),
-    serverVersion
+    serverVersion,
+    setupMethods    : [],
+    orgSetupMethods : []
   }
 
   app.liq.addCommandPath = (commandPath, parameters) => {
@@ -156,6 +159,24 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   })
 
   await initServerSettings()
+
+  const depRunner = new DependencyRunner({ runArgs: { app, cache, model, reporter }})
+  for (const setupMethod of app.liq.setupMethods) {
+    depRunner.enqueue(setupMethod)
+  }
+  depRunner.complete()
+  await depRunner.await()
+
+  const orgDepRunner = new DependencyRunner({ runArgs: { app, cache, model, reporter }})
+  for (const org of Object.values(model.orgs)) {
+    for (const orgSetupMethod of app.liq.orgSetupMethods) {
+      const orgArgs = { org, orgKey: org.key }
+      const mergedEntry = Object.assign({ args: orgArgs }, orgSetupMethod)
+      orgDepRunner.enqueue(mergedEntry)
+    }
+  }
+  orgDepRunner.complete()
+  await orgDepRunner.await()
 
   if (noAPIUpdate !== true) {
     reporter.log('Registering API...')
