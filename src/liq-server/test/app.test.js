@@ -58,7 +58,8 @@ describe('app', () => {
 
     beforeAll(async() => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-      initModel(testOptions)
+      const model = initModel(testOptions)
+      testOptions.model = model
       testOptions.pluginPath = pluginsPath
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
