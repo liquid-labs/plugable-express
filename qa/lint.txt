@@ -1,0 +1,13 @@
+Test git rev: 520607179db4b2b746801183b03f4cf0a330a73d
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/app.js
+  163:44  error  Missing space after key 'runArgs'  key-spacing
+  163:84  error  A space is required before '}'     object-curly-spacing
+  170:47  error  Missing space after key 'runArgs'  key-spacing
+  170:87  error  A space is required before '}'     object-curly-spacing
+  173:30  error  Missing space after key 'orgKey'   key-spacing
+  174:43  error  Missing space after key 'args'     key-spacing
+
+✖ 6 problems (6 errors, 0 warnings)
+  6 errors and 0 warnings potentially fixable with the `--fix` option.
+
