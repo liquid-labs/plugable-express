@@ -8,7 +8,7 @@
     "lint": "make lint",
     "lint:fix": "make lint-fix",
     "test": "make test",
-    "prepare": "make qa && make build",
+    "prepare": "make build",
     "preversion": "make test && make lint",
     "qa": "make qa"
   },
@@ -59,7 +59,7 @@
     "supertest": "^6.1.6"
   },
   "dependencies": {
-    "@liquid-labs/dependency-runner": "^1.0.0-alpha.2",
+    "@liquid-labs/dependency-runner": "^1.0.0-alpha.4",
     "@liquid-labs/github-toolkit": "^1.0.0-alpha.10",
     "@liquid-labs/http-tabular-input": "^1.0.0-alpha.5",
     "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
