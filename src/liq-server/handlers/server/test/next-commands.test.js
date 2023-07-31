@@ -19,8 +19,8 @@ describe('GET:/server/next-commands', () => {
   afterAll(() => { cache?.release() })
 
   const testArrayUrl = [
-    ['', ['credentials', 'help', 'orgs', 'playground', 'server', 'tasks']],
-    ['/', ['credentials', 'help', 'orgs', 'playground', 'server', 'tasks']],
+    ['', ['help', 'orgs', 'playground', 'server', 'tasks']],
+    ['/', ['help', 'orgs', 'playground', 'server', 'tasks']],
     ['/o', ['orgs']],
     ['/org', ['orgs']],
     ['/orgs/', ['create', 'list', 'orgA']],
@@ -47,7 +47,8 @@ describe('GET:/server/next-commands', () => {
     ['/orgs/orgA', ['orgA']],
     ['/orgs/orgA/', ['parameters']],
     // uses the exclude setting to handle mutually exclusive parameters
-    ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]
+    // TODO: find another example in the core endpoints
+    // ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]
   ]
   const testArrayCli = testArrayUrl.map((r) => {
     const hasSep = r[0].match(/ --/)
