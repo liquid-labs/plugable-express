@@ -1,0 +1,111 @@
+Test git rev: b18a42548400b20a4b4776fb41bfa8d18b8b15ac
+PASS liq-server/test/app.test.js
+PASS liq-server/handlers/server/test/next-commands.test.js
+PASS liq-server/handlers/server/test/get.test.js
+PASS liq-server/handlers/playground/projects/test/packageJSON.test.js
+PASS liq-server/handlers/server/test/api.test.js
+PASS liq-server/test/model.test.js
+  ● Console
+
+    console.log
+      Ignoring 'ignore-me' due to '.liq-ignore marker.'
+
+      at log (../src/liq-server/lib/filter-liq-dirs.mjs:12:16)
+          at Array.filter (<anonymous>)
+
+PASS liq-server/handlers/help/lib/test/get-effective-width.test.js
+PASS liq-server/handlers/help/lib/test/wrap.test.js
+PASS liq-server/handlers/server/_lib/test/options-tokenizer.test.js
+----------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------
+File                                                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                               
+----------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------
+All files                                           |   66.82 |    50.85 |    47.2 |   66.61 |                                                                 
+ liq-server                                         |   64.17 |    31.11 |   55.55 |   63.56 |                                                                 
+  app.js                                            |   57.89 |    32.55 |      50 |   57.65 | 42-43,75,90,100-102,108-123,127-157,165,173-175,182-184,192-201 
+  defaults.js                                       |     100 |      100 |     100 |     100 |                                                                 
+  model.js                                          |     100 |        0 |     100 |     100 | 36                                                              
+ liq-server/handlers                                |   85.71 |    66.66 |   66.66 |   81.25 |                                                                 
+  heartbeat.mjs                                     |      75 |      100 |      50 |    62.5 | 6-8                                                             
+  index.js                                          |     100 |    66.66 |     100 |     100 | 7                                                               
+ liq-server/handlers/help                           |     100 |    66.66 |     100 |     100 |                                                                 
+  help.mjs                                          |     100 |      100 |     100 |     100 |                                                                 
+  index.mjs                                         |     100 |    66.66 |     100 |     100 | 1                                                               
+ liq-server/handlers/help/lib                       |   50.25 |    21.77 |   21.73 |   51.07 |                                                                 
+  formatter-md.mjs                                  |   17.14 |        0 |       0 |   18.18 | 5-17,22-57                                                      
+  formatter-terminal.mjs                            |   17.14 |        0 |       0 |   17.14 | 6-18,25-60                                                      
+  formatter-text.mjs                                |   18.18 |        0 |       0 |   19.35 | 6-18,23-53                                                      
+  print-path.mjs                                    |      50 |        0 |       0 |     100 | 1                                                               
+  send-help.mjs                                     |   93.33 |      100 |      75 |    92.3 | 15                                                              
+  wrap.mjs                                          |   86.66 |       54 |     100 |   87.67 | 58-61,65-68,111,114                                             
+ liq-server/handlers/orgs                           |   53.64 |    22.72 |   32.25 |   54.95 |                                                                 
+  create.mjs                                        |   77.77 |      100 |   66.66 |   71.42 | 33-38                                                           
+  index.js                                          |     100 |    66.66 |     100 |     100 | 5                                                               
+  list.mjs                                          |   69.23 |      100 |      30 |   86.66 | 19-21                                                           
+  parameters-detail.mjs                             |   36.36 |        0 |      25 |   34.61 | 12-14,20-43                                                     
+  parameters-list.mjs                               |      60 |        0 |      20 |      65 | 14,17,20,23-28                                                  
+  parameters-set.mjs                                |   30.55 |        0 |   33.33 |   31.03 | 43-48,63-100                                                    
+ liq-server/handlers/orgs/_lib                      |      25 |        0 |       0 |      25 |                                                                 
+  parameters-lib.mjs                                |      25 |        0 |       0 |      25 | 4-20                                                            
+ liq-server/handlers/playground                     |   89.28 |    66.66 |      60 |   83.33 |                                                                 
+  get.js                                            |      90 |      100 |      50 |   83.33 | 6                                                               
+  index.js                                          |     100 |    66.66 |     100 |     100 | 4                                                               
+  rebind.js                                         |   81.81 |      100 |      50 |   71.42 | 6-7                                                             
+ liq-server/handlers/playground/projects            |   82.35 |    76.92 |   83.33 |      76 |                                                                 
+  get-packageJSON.js                                |     100 |      100 |     100 |     100 |                                                                 
+  index.js                                          |     100 |    66.66 |     100 |     100 | 2                                                               
+  update.js                                         |   66.66 |    85.71 |   66.66 |   57.14 | 18-26                                                           
+ liq-server/handlers/server                         |   87.35 |    81.57 |   86.66 |   89.04 |                                                                 
+  api.mjs                                           |     100 |      100 |     100 |     100 |                                                                 
+  get.js                                            |   91.17 |    84.61 |     100 |   89.65 | 28,33-34                                                        
+  index.mjs                                         |     100 |    66.66 |     100 |     100 | 8                                                               
+  next-commands.mjs                                 |   86.31 |    82.45 |     100 |   91.66 | 33,91-97,157,162                                                
+  reload.mjs                                        |   78.57 |      100 |      50 |   72.72 | 17-22                                                           
+  stop.mjs                                          |      75 |      100 |      50 |    62.5 | 6-8                                                             
+ liq-server/handlers/server/_lib                    |   96.51 |    91.37 |     100 |   98.61 |                                                                 
+  next-options.mjs                                  |   95.83 |    90.56 |     100 |   98.27 | 62                                                              
+  options-tokenizer.mjs                             |     100 |      100 |     100 |     100 |                                                                 
+ liq-server/handlers/server/errors                  |   43.75 |    23.52 |   19.04 |   41.53 |                                                                 
+  detail.mjs                                        |   27.08 |        0 |   11.11 |      25 | 9-33,37-57,63-64,69-74                                          
+  index.js                                          |     100 |    66.66 |     100 |     100 | 2                                                               
+  list.mjs                                          |   62.96 |      100 |   18.18 |   72.22 | 13,16,21-24                                                     
+ liq-server/handlers/server/plugins                 |   85.45 |    66.66 |   11.11 |   94.59 |                                                                 
+  add.mjs                                           |      80 |      100 |       0 |    90.9 | 22                                                              
+  details.mjs                                       |   88.88 |      100 |       0 |     100 |                                                                 
+  index.mjs                                         |     100 |    66.66 |     100 |     100 | 6                                                               
+  list.mjs                                          |   81.81 |      100 |       0 |     100 |                                                                 
+  remove.mjs                                        |   83.33 |      100 |       0 |   88.88 | 15                                                              
+ liq-server/handlers/server/plugins/registries      |   59.59 |    36.36 |   33.33 |   57.14 |                                                                 
+  add.mjs                                           |   54.83 |       75 |      50 |      50 | 27-47                                                           
+  index.mjs                                         |     100 |    66.66 |     100 |     100 | 3                                                               
+  list.mjs                                          |   67.85 |        0 |      20 |   73.68 | 18,21,24,27-29                                                  
+  remove.mjs                                        |      50 |       25 |   33.33 |   46.42 | 23,28-49                                                        
+ liq-server/handlers/server/plugins/registries/_lib |      25 |        0 |       0 |   21.73 |                                                                 
+  determine-registry-data.mjs                       |      25 |        0 |       0 |   21.73 | 7-39                                                            
+ liq-server/handlers/tasks                          |      62 |    30.76 |   30.76 |   63.63 |                                                                 
+  get.js                                            |   47.36 |        0 |      50 |    37.5 | 14-29                                                           
+  index.js                                          |     100 |    66.66 |     100 |     100 | 2                                                               
+  list.js                                           |   65.38 |        0 |      20 |   85.71 | 20-22                                                           
+ liq-server/lib                                     |   67.16 |    58.88 |   54.79 |   67.57 |                                                                 
+  Organizations.mjs                                 |   78.84 |    73.07 |      75 |      78 | 59-64,73,87-88,94-100                                           
+  PlaygroundProject.mjs                             |     100 |      100 |     100 |     100 |                                                                 
+  PlaygroundProjects.mjs                            |   84.84 |    70.96 |      75 |   84.37 | 60-72                                                           
+  TaskManager.mjs                                   |    9.52 |        0 |    8.33 |    9.52 | 10-135                                                          
+  configurables.js                                  |   66.66 |      100 |       0 |     100 |                                                                 
+  filter-liq-dirs.mjs                               |     100 |      100 |     100 |     100 |                                                                 
+  get-server-settings.mjs                           |   76.92 |       80 |     100 |      75 | 15-21                                                           
+  index.js                                          |     100 |    66.66 |     100 |     100 | 1-4                                                             
+  init-server-settings.mjs                          |    64.7 |    78.26 |   66.66 |   65.62 | 24,30,34,43-58                                                  
+  json-helpers.mjs                                  |   82.35 |    77.77 |     100 |      80 | 17-21                                                           
+  load-plugins.js                                   |   93.33 |    63.15 |     100 |   96.29 | 19                                                              
+  path-resolvers.js                                 |      40 |        0 |    9.09 |   40.74 | 7-19,25,31-35,41,51,56                                          
+  register-handlers.js                              |   77.12 |    60.24 |   69.23 |   79.57 | 16-23,63,76-81,84,106,140,143,189-201,216,219,237-238           
+  reporter.js                                       |   63.15 |       50 |   42.85 |    64.7 | 27,37-47                                                        
+ liq-server/test/lib                                |     100 |      100 |     100 |     100 |                                                                 
+  test-utils.js                                     |     100 |      100 |     100 |     100 |                                                                 
+----------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------
+
+Test Suites: 9 passed, 9 total
+Tests:       95 passed, 95 total
+Snapshots:   0 total
+Time:        3.13 s
+Ran all test suites.
