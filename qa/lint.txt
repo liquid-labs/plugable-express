@@ -1,0 +1,8 @@
+Test git rev: 10c13cd41f8907406195dc6f07e43cc5abf70e2a
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/handlers/server/test/next-commands.test.js
+  48:36  error  Unexpected trailing comma  comma-dangle
+
+✖ 1 problem (1 error, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
