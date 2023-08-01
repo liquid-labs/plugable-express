@@ -1,6 +1,5 @@
 import { handlers as helpHandlers } from './help'
 import { handlers as orgsHandlers } from './orgs'
-import { handlers as pgHandlers } from './playground'
 import { handlers as srvrHandlers } from './server'
 import { handlers as taskHandlers } from './tasks'
 
@@ -10,7 +9,6 @@ const handlers = [
   heartbeat,
   ...helpHandlers,
   ...orgsHandlers,
-  ...pgHandlers,
   ...srvrHandlers,
   ...taskHandlers
 ]

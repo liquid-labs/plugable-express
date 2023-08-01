@@ -14,12 +14,14 @@ const parameters = [
 ]
 
 const func = ({ app, cache, model, reporter }) => async(req, res) => {
-  const { pluginPath } = req.query
+  const { pluginPath } = req.vars
 
-  // pluginPath default is set by loadPlugins is undef here
+  model.load()
+
+  // pluginPath default is set by loadPlugins if undef here
   await loadPlugins(app, { cache, model, pluginPath, reporter })
 
-  res.json({ message : 'Plugins loaded.' })
+  res.json({ message : 'Model and lugins reloaded.' })
   // res.json(app.liq.handlers)
 }
 
