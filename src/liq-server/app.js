@@ -55,6 +55,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     constants       : {},
     handlers        : [],
     pathResolvers   : commonPathResolvers,
+    pendingHandlers : [],
     // localSettings set below
     serverSettings  : getServerSettings(),
     serverVersion,
@@ -101,6 +102,10 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
       const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
       await loadPlugin({ app, cache, model, reporter, dir : pluginDir, pkg : packageJSON })
     }
+  }
+
+  for (const pendingHandler of app.liq.pendingHandlers) {
+    pendingHandler()
   }
 
   // log errors
