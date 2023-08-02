@@ -20,14 +20,19 @@ const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
   }
 
   if (setup !== undefined) reporter.log(`Running setup for ${npmName} plugins...`)
-  const setupData = setup ? setup({ app, model, reporter }) : {}
-
-  let handlersInfo = []
-  if (handlers !== undefined) {
-    handlersInfo = registerHandlers(app, { npmName, handlers, model, name, reporter, setupData, cache })
+  let setupData = setup?.({ app, model, reporter })
+  if (setupData?.then !== undefined) {
+    setupData = await setupData
   }
 
-  app.liq.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
+  app.liq.pendingHandlers.push(() => {
+    let handlersInfo = []
+    if (handlers !== undefined) {
+      handlersInfo = registerHandlers(app, { npmName, handlers, model, name, reporter, setupData, cache })
+    }
+
+    app.liq.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
+  })
 }
 
 /**
