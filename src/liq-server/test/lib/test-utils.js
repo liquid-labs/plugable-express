@@ -5,7 +5,7 @@ import { playgroundSimplePath } from '@liquid-labs/liq-test-lib'
 
 import { Reporter } from '../../lib/reporter'
 
-const COMMAND_COUNT = 27
+const COMMAND_COUNT = 23
 const HELP_COUNT = 8
 
 const defaultTestOptions = ({

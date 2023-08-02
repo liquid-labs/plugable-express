@@ -19,8 +19,8 @@ describe('GET:/server/next-commands', () => {
   afterAll(() => { cache?.release() })
 
   const testArrayUrl = [
-    ['', ['help', 'orgs', 'playground', 'server', 'tasks']],
-    ['/', ['help', 'orgs', 'playground', 'server', 'tasks']],
+    ['', ['help', 'orgs', 'server', 'tasks']],
+    ['/', ['help', 'orgs', 'server', 'tasks']],
     ['/o', ['orgs']],
     ['/org', ['orgs']],
     ['/orgs/', ['create', 'list', 'orgA']],

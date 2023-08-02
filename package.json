@@ -37,10 +37,6 @@
     "packageType": "node|server"
   },
   "devDependencies": {
-    "@fast-csv/format": "^4.3.5",
-    "@fast-csv/parse": "^4.3.6",
-    "@liquid-labs/bash-rollup": "^1.0.0-alpha.6",
-    "@liquid-labs/bash-toolkit": "^1.0.0-alpha.61",
     "@liquid-labs/catalyst-scripts-node-project": "^1.0.0-alpha.15",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
@@ -49,33 +45,21 @@
     "@liquid-labs/orgs-model": "^1.0.0-beta.108",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.6",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
-    "chalk": "^4.1.2",
-    "core-js-pure": "^3.26.1",
     "http-errors": "^2.0.0",
-    "lodash.kebabcase": "^4.1.1",
     "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0",
     "path-to-regexp": "^6.2.0",
     "supertest": "^6.1.6"
   },
   "dependencies": {
     "@liquid-labs/dependency-runner": "^1.0.0-alpha.4",
-    "@liquid-labs/github-toolkit": "^1.0.0-alpha.10",
-    "@liquid-labs/http-tabular-input": "^1.0.0-alpha.5",
-    "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.3",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.15",
     "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.2",
-    "@liquid-labs/md2x": "^1.0.0-alpha.9",
     "@liquid-labs/question-and-answer": "^1.0.0-alpha.11",
     "@liquid-labs/resource-model": "^1.0.0-alpha.8",
-    "@liquid-labs/shell-toolkit": "^1.0.0-alpha.6",
-    "adm-zip": "^0.5.9",
     "express": "^5.0.0-beta.1",
     "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",
     "find-root": "^1.1.0",
-    "js-yaml": "^4.1.0",
-    "json-diff": "^0.9.0",
-    "resolve": "^1.20.0"
+    "js-yaml": "^4.1.0"
   }
 }
