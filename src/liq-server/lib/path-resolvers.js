@@ -1,24 +1,4 @@
-import { CRED_TYPES } from '@liquid-labs/liq-credentials-db'
 import { emailEncodedOrNotReString } from '@liquid-labs/regex-repo'
-
-const credential = {
-  bitReString    : '(?:' + CRED_TYPES.join('|') + ')',
-  optionsFetcher : ({ currToken = '' }) => {
-    const results = []
-    if (currToken) {
-      for (const credName of CRED_TYPES) {
-        if (credName.startsWith(currToken)) {
-          results.push(credName)
-        }
-      }
-    }
-    else {
-      results.push(...CRED_TYPES)
-    }
-
-    return results
-  }
-}
 
 const handlerPluginName = {
   bitReString    : '[a-z][a-z0-9-]*',
@@ -56,6 +36,6 @@ const threadId = {
   optionsFetcher : ({ app }) => app.tasks.list()
 }
 
-const commonPathResolvers = { credential, localProjectName, newOrgKey, handlerPluginName, orgKey, staffKey, threadId }
+const commonPathResolvers = { localProjectName, newOrgKey, handlerPluginName, orgKey, staffKey, threadId }
 
 export { commonPathResolvers }
