@@ -18,6 +18,6 @@ const threadId = {
   optionsFetcher : ({ app }) => app.tasks.list()
 }
 
-const commonPathResolvers = { localProjectName, newOrgKey, handlerPluginName, orgKey, threadId }
+const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey, threadId }
 
 export { commonPathResolvers }
