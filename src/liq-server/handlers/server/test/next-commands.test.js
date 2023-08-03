@@ -45,7 +45,7 @@ describe('GET:/server/next-commands', () => {
     ['/server/errors/list -- noHeaders output=/users/foo/bar', []],
     ['/server/errors/list -- noHeaders output=/users/foo/bar ', ['fields=', 'format=', 'nesting=', 'writeFileLocally']],
     ['/server/errors/list -- noHeaders', ['noHeaders']],
-    ['/server/errors/list -- noHeaders ', ['fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally']],
+    ['/server/errors/list -- noHeaders ', ['fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally']]
     // uses the exclude setting to handle mutually exclusive parameters
     // TODO: find another example in the core endpoints
     // ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]
