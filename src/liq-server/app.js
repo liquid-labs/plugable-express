@@ -165,6 +165,8 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
 
   await initServerSettings()
 
+  console.error('model:', model) // DEBUG
+
   const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter } })
   for (const setupMethod of app.liq.setupMethods) {
     depRunner.enqueue(setupMethod)

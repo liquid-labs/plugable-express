@@ -34,8 +34,9 @@ const PlaygroundProjects = class extends ItemManager {
       reporter?.log(`Processing org: ${orgName}...`)
       const basePath = fsPath.join(LIQ_PLAYGROUND(), orgName)
       const projectDirs = filterLiqDirs({
-        files : fs.readdirSync(basePath, { withFileTypes : true }),
-        basePath
+        files    : fs.readdirSync(basePath, { withFileTypes : true }),
+        basePath,
+        reporter
       })
 
       reporter?.log(`Loading ${projectDirs.length} projects...`)

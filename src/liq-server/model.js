@@ -1,6 +1,10 @@
+import * as fs from 'node:fs'
+
+import { LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
+
 import { Model } from '@liquid-labs/resource-model'
 
-import { Organizations } from './lib/Organizations'
+import { filterLiqDirs } from './lib/filter-liq-dirs'
 import { PlaygroundProjects } from './lib/PlaygroundProjects'
 
 /**
@@ -37,10 +41,24 @@ const initModel = ({ reporter = console } = {}) => {
   const model = new Model()
 
   const playground = new Model()
-  model.bindSubModel('playground', playground) // .playground
-  playground.bindRootItemManager(new PlaygroundProjects({ reporter })) // .playground.projects
 
-  model.bindSubModel('orgs', new Organizations({ playground, reporter })) // .orgs
+  playground.orgDirs = () => {
+    return filterLiqDirs({
+      files    : fs.readdirSync(LIQ_PLAYGROUND(), { withFileTypes : true }),
+      basePath : LIQ_PLAYGROUND(),
+      reporter
+    })
+  }
+
+  playground.projectDirs = ({ orgPath }) => {
+    return filterLiqDirs({
+      files : fs.readdirSync(orgPath, { withFileTypes : true }),
+      basePath: orgPath
+    })
+  }
+
+  model.bindSubModel('playground', playground) // model.playground
+  playground.bindRootItemManager(new PlaygroundProjects({ reporter })) // model.playground.projects
 
   return model
 }

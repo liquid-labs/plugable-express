@@ -15,7 +15,7 @@ const safeJSONParse = (path) => {
   }
   catch (e) {
     if (e instanceof SyntaxError) {
-      throw new SyntaxError(`${e.message} while processing ${path}`)
+      throw new SyntaxError(`${e.message} while processing ${path}`, { cause: e })
     }
     else {
       throw e
