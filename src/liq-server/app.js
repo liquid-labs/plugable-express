@@ -59,8 +59,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     // localSettings set below
     serverSettings  : getServerSettings(),
     serverVersion,
-    setupMethods    : [],
-    orgSetupMethods : []
+    setupMethods    : []
   }
 
   app.liq.addCommandPath = (commandPath, parameters) => {
@@ -165,7 +164,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
 
   await initServerSettings()
 
-  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter } })
+  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter }, waitTillComplete : true })
   for (const setupMethod of app.liq.setupMethods) {
     depRunner.enqueue(setupMethod)
   }
