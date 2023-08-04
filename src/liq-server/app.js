@@ -8,7 +8,7 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { LIQ_HOME, LIQ_PLAYGROUND } from '@liquid-labs/liq-defaults'
+import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
