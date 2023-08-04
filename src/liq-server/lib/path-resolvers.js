@@ -1,6 +1,6 @@
 const handlerPluginName = {
   bitReString    : '[a-z][a-z0-9-]*',
-  optionsFetcher : ({ app }) => app.liq.handlerPlugins.map(({ name }) => name)
+  optionsFetcher : ({ app }) => app.ext.handlerPlugins.map(({ name }) => name)
 }
 
 const newOrgKey = {
@@ -15,7 +15,7 @@ const orgKey = {
 
 const threadId = {
   bitReString    : '[0-9]+',
-  optionsFetcher : ({ app }) => app.tasks.list()
+  optionsFetcher : ({ app }) => app.ext.tasks.list()
 }
 
 const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey, threadId }

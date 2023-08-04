@@ -101,7 +101,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   for (const pathBit of pathArr) {
     if (pathBit.startsWith(':')) {
       const pathVar = pathBit.slice(1)
-      const pathUtils = app.liq.pathResolvers[pathVar]
+      const pathUtils = app.ext.pathResolvers[pathVar]
       if (pathUtils === undefined) {
         throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
       }
@@ -120,7 +120,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
     }
   }
   reString += '[/#?]?$'
-  app.liq.addCommandPath(commandPath, parameters)
+  app.ext.addCommandPath(commandPath, parameters)
 
   return new RegExp(reString)
 }
@@ -241,7 +241,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
       // lockdown our internal setup
       Object.freeze(endpointDef)
       Object.freeze(parameters)
-      app.liq.handlers.push(endpointDef)
+      app.ext.handlers.push(endpointDef)
 
       if (help !== undefined) {
         if (!Array.isArray(path)) throw new Error(`Endpoint '${path}' defines help and must use an array style path.`)
@@ -268,7 +268,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
             matcher    : routableHelpPath.toString().slice(1, -1)
           }
           Object.freeze(helpEndpointDef)
-          app.liq.handlers.push(helpEndpointDef)
+          app.ext.handlers.push(helpEndpointDef)
         }
       } // load help 'if (help !== undefined)'
     } // for (const path of paths || [ aPath ]) {...}

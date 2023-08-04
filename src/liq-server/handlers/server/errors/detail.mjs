@@ -59,17 +59,17 @@ const httpOut = ({ data, req, res }) => {
 }
 
 const func = ({ app, model, reporter }) => {
-  app.liq.pathResolvers.errorKey = {
-    optionsFetcher : () => app.liq.errorsRetained.map((e) => e.id)
-      .concat(app.liq.errorsEphemeral.map((e) => e.id)),
+  app.ext.pathResolvers.errorKey = {
+    optionsFetcher : () => app.ext.errorsRetained.map((e) => e.id)
+      .concat(app.ext.errorsEphemeral.map((e) => e.id)),
     bitReString : '[a-z0-9]{5}'
   }
 
   return (req, res) => {
     const { errorKey } = req.vars
 
-    const error = app.liq.errorsRetained.find((e) => e.id === errorKey)
-    || app.liq.errorsEphemeral.find((e) => e.id === errorKey)
+    const error = app.ext.errorsRetained.find((e) => e.id === errorKey)
+    || app.ext.errorsEphemeral.find((e) => e.id === errorKey)
 
     httpOut({ data : error, req, res })
   }

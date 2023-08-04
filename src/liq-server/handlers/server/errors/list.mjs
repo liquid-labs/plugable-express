@@ -18,8 +18,8 @@ const terminalFormatter = (orgs) =>
 const textFormatter = (orgs) => terminalFormatter.replace(/<[a-z]+>/gm, '')
 
 const func = ({ app, model, reporter }) => (req, res) => {
-  const errors = app.liq.errorsRetained.map((e) => Object.assign({ protected : true }, e))
-    .concat(app.liq.errorsEphemeral.map((e) => Object.assign({ protected : false }, e)))
+  const errors = app.ext.errorsRetained.map((e) => Object.assign({ protected : true }, e))
+    .concat(app.ext.errorsEphemeral.map((e) => Object.assign({ protected : false }, e)))
 
   formatOutput({
     basicTitle : 'Error Report',

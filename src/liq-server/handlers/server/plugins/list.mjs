@@ -4,8 +4,8 @@ const { help, method, parameters } = listPluginsSetup({ pluginsDesc : 'sever end
 
 const path = ['server', 'plugins', 'list']
 
-const installedPluginsRetriever = ({ app }) => app.liq.handlerPlugins
-const hostVersionRetriever = ({ app }) => app.liq.serverVersion
+const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
+const hostVersionRetriever = ({ app }) => app.ext.serverVersion
 
 const func = listPluginsHandler({ hostVersionRetriever, installedPluginsRetriever, pluginType : 'handlers' })
 

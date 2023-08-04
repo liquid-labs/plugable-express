@@ -26,7 +26,7 @@ const parameters = [
 const func = ({ app, cache, reporter }) => (req, res) => {
   const { registryURLs } = req.vars
 
-  const serverSettings = app.liq.serverSettings
+  const serverSettings = app.ext.serverSettings
   if (!('registries' in serverSettings)) {
     serverSettings.registries = []
   }

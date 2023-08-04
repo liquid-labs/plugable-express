@@ -1,7 +1,7 @@
 import { LIQ_HANDLER_PLUGINS } from '@liquid-labs/liq-defaults'
 import { addPluginsHandler, addPluginsSetup } from '@liquid-labs/liq-plugins-lib'
 
-const hostVersionRetriever = ({ app }) => app.liq.serverVersion
+const hostVersionRetriever = ({ app }) => app.ext.serverVersion
 
 const pluginsDesc = 'server endpoint'
 
@@ -10,7 +10,7 @@ const { help, method, parameters } =
 
 const path = ['server', 'plugins', 'add']
 
-const installedPluginsRetriever = ({ app }) => app.liq.handlerPlugins
+const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const pluginPkgDirRetriever = LIQ_HANDLER_PLUGINS
 
 const func = addPluginsHandler({
