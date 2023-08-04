@@ -172,19 +172,6 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   depRunner.complete()
   await depRunner.await()
 
-  if (model.orgs !== undefined) {
-    const orgDepRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter } })
-    for (const org of Object.values(model.orgs)) {
-      for (const orgSetupMethod of app.liq.orgSetupMethods) {
-        const orgArgs = { org, orgKey : org.key }
-        const mergedEntry = Object.assign({ args : orgArgs }, orgSetupMethod)
-        orgDepRunner.enqueue(mergedEntry)
-      }
-    }
-    orgDepRunner.complete()
-    await orgDepRunner.await()
-  }
-
   if (noAPIUpdate !== true) {
     reporter.log('Registering API...')
     const apiSpecFile = fsPath.join(LIQ_HOME(), 'core-api.json')
