@@ -1,0 +1,7 @@
+Test git rev: d2dfbef0b35391d7a650d2020dac9203657e26a5
+
+/Users/zane/.liq/playground/liquid-labs/liq-core/src/liq-server/app.js
+  11:20  error  'LIQ_PLAYGROUND' is defined but never used  no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
