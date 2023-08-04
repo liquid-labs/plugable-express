@@ -36,13 +36,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   const cache = new WeakCache()
   options.cache = cache
 
-  app.tasks = new TaskManager()
-
-  app.reload = async(options) => {
-    app.router.stack = []
-    await appInit(options)
-  }
-
+  // setup app.ext
   app.ext = {
     handlerPlugins  : [],
     commandPaths    : {},
@@ -50,12 +44,14 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     errorsRetained  : [],
     constants       : {},
     handlers        : [],
+    localSettings   : {},
     pathResolvers   : commonPathResolvers,
     pendingHandlers : [],
     // localSettings set below
     serverSettings  : getServerSettings(),
     serverVersion,
-    setupMethods    : []
+    setupMethods    : [],
+    tasks           : new TaskManager()
   }
 
   app.ext.addCommandPath = (commandPath, parameters) => {
@@ -82,9 +78,16 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   if (existsSync(localSettingsPath)) {
     app.ext.localSettings = readFJSON(localSettingsPath)
   }
-  else {
-    app.ext.localSettings = {}
+  // done setting app.ext
+
+  // direct app extensions
+  app.reload = async(options) => {
+    app.router.stack = []
+    await appInit(options)
   }
+
+  app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)
+  // end direct app extensions
 
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign({}, options, { npmName : '@liquid-labs/liq-core', handlers }))

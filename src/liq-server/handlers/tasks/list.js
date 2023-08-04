@@ -17,7 +17,7 @@ const terminalFormatter = ({ data = [] }) => data.map((t) => `<h1>${t.threadId}<
 const textFormatter = ({ data = [] }) => data.map((t) => `${t.threadId} is: ${t.status} `).join('\n')
 
 const func = ({ app, reporter }) => (req, res) => {
-  const tasks = app.tasks.list()
+  const tasks = app.ext.tasks.list()
 
   formatOutput({
     basicTitle : 'Tasks',

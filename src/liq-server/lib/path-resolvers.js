@@ -15,7 +15,7 @@ const orgKey = {
 
 const threadId = {
   bitReString    : '[0-9]+',
-  optionsFetcher : ({ app }) => app.tasks.list()
+  optionsFetcher : ({ app }) => app.ext.tasks.list()
 }
 
 const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey, threadId }
