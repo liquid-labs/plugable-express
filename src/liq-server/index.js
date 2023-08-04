@@ -21,7 +21,7 @@ if (action === 'liq-server:run') {
   (async() => {
     const model = initModel()
     const { app, cache } = await appInit(Object.assign({ model }, config))
-    app.liq.config = config
+    app.ext.config = config
 
     const serverOptions = {
       PORT     : config[LIQ_PORT],

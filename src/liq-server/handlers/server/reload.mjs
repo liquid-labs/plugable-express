@@ -22,7 +22,7 @@ const func = ({ app, cache, model, reporter }) => async(req, res) => {
   await loadPlugins(app, { cache, model, pluginPath, reporter })
 
   res.json({ message : 'Model and lugins reloaded.' })
-  // res.json(app.liq.handlers)
+  // res.json(app.ext.handlers)
 }
 
 export { func, method, parameters, path }

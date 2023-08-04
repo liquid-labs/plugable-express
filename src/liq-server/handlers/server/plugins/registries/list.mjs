@@ -24,7 +24,7 @@ const textFormatter = ({ data }) =>
   data.map((p) => `- ${p.name ? p.name + ': ' : ''}${p.url}`).join('\n') + '\n'
 
 const func = ({ app, reporter }) => (req, res) => {
-  const data = app.liq.serverSettings.registries
+  const data = app.ext.serverSettings.registries
 
   formatOutput({
     basicTitle : 'Plugins Report',

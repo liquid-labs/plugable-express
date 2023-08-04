@@ -43,11 +43,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     await appInit(options)
   }
 
-  app.liq = {
-    // TMP
-    home            : LIQ_HOME,
-    playground      : LIQ_PLAYGROUND,
-    // PMT
+  app.ext = {
     handlerPlugins  : [],
     commandPaths    : {},
     errorsEphemeral : [],
@@ -62,8 +58,8 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     setupMethods    : []
   }
 
-  app.liq.addCommandPath = (commandPath, parameters) => {
-    let frontier = app.liq.commandPaths
+  app.ext.addCommandPath = (commandPath, parameters) => {
+    let frontier = app.ext.commandPaths
     for (const pathBit of commandPath) {
       if (!(pathBit in frontier)) {
         frontier[pathBit] = {}
@@ -84,10 +80,10 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(LIQ_HOME(), 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
-    app.liq.localSettings = readFJSON(localSettingsPath)
+    app.ext.localSettings = readFJSON(localSettingsPath)
   }
   else {
-    app.liq.localSettings = {}
+    app.ext.localSettings = {}
   }
 
   reporter.log('Loading core handlers...')
@@ -103,13 +99,13 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     }
   }
 
-  for (const pendingHandler of app.liq.pendingHandlers) {
+  for (const pendingHandler of app.ext.pendingHandlers) {
     pendingHandler()
   }
 
   // log errors
   app.use((error, req, res, next) => {
-    const errors = app.liq.errorsEphemeral
+    const errors = app.ext.errorsEphemeral
     const errorID = makeID()
     error.liqID = errorID
     errors.push({
@@ -165,7 +161,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   await initServerSettings()
 
   const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter }, waitTillComplete : true })
-  for (const setupMethod of app.liq.setupMethods) {
+  for (const setupMethod of app.ext.setupMethods) {
     depRunner.enqueue(setupMethod)
   }
   depRunner.complete()
@@ -174,7 +170,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   if (noAPIUpdate !== true) {
     reporter.log('Registering API...')
     const apiSpecFile = fsPath.join(LIQ_HOME(), 'core-api.json')
-    await fs.writeFile(apiSpecFile, JSON.stringify(app.liq.handlers, null, '  '))
+    await fs.writeFile(apiSpecFile, JSON.stringify(app.ext.handlers, null, '  '))
   }
 
   return { app, cache }

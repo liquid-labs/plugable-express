@@ -8,7 +8,7 @@ const determineRegistryData = async({ app, cache, update }) => {
 
   if (cachedData === undefined || update === true) {
     const data = {}
-    for (const { url: registryURL } of app.liq.serverSettings.registries || []) {
+    for (const { url: registryURL } of app.ext.serverSettings.registries || []) {
       let text
       try {
         const response = await fetch('https://' + registryURL)

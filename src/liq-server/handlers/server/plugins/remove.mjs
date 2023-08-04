@@ -5,7 +5,7 @@ const { help, method, parameters } = removePluginsSetup({ pluginsDesc : 'sever e
 
 const path = ['server', 'plugins', ':handlerPluginName', 'remove']
 
-const installedPluginsRetriever = ({ app }) => app.liq.handlerPlugins
+const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const pluginPkgDirRetriever = LIQ_HANDLER_PLUGINS
 
 const func = removePluginsHandler({

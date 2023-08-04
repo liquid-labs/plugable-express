@@ -20,14 +20,14 @@ const parameters = [
     isMultivalue : true,
     required     : true,
     description  : 'The URL of a registry to add. May specify multiple times to add multiple registries.',
-    optionsFunc  : ({ app }) => app.liq?.serverSettings?.registries?.map(({ url }) => url) || []
+    optionsFunc  : ({ app }) => app.ext?.serverSettings?.registries?.map(({ url }) => url) || []
   }
 ]
 
 const func = ({ app, cache, reporter }) => (req, res) => {
   const { registryURLs } = req.vars
 
-  const serverSettings = app.liq.serverSettings || {}
+  const serverSettings = app.ext.serverSettings || {}
   if (!('registries' in serverSettings)) {
     serverSettings.registries = []
   }

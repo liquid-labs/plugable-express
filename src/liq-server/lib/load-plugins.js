@@ -25,13 +25,13 @@ const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
     setupData = await setupData
   }
 
-  app.liq.pendingHandlers.push(() => {
+  app.ext.pendingHandlers.push(() => {
     let handlersInfo = []
     if (handlers !== undefined) {
       handlersInfo = registerHandlers(app, { npmName, handlers, model, name, reporter, setupData, cache })
     }
 
-    app.liq.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
+    app.ext.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
   })
 }
 

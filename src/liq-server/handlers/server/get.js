@@ -45,7 +45,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
         version  : os.version(),
         release  : os.release()
       },
-      api              : app.liq.handlers,
+      api              : app.ext.handlers,
       supportedMethods : http.METHODS
     }
 
