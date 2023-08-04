@@ -19,33 +19,33 @@ describe('GET:/server/next-commands', () => {
   afterAll(() => { cache?.release() })
 
   const testArrayUrl = [
-    ['', ['help', 'orgs', 'server', 'tasks']],
-    ['/', ['help', 'orgs', 'server', 'tasks']],
-    ['/o', ['orgs']],
-    ['/org', ['orgs']],
-    ['/orgs/', ['create', 'list', 'orgA']],
-    ['/orgs/li', ['list']],
-    ['/orgs/or', ['orgA']],
-    ['/orgs/list', ['list']],
-    ['/orgs/list ', ['--']],
+    ['', ['help', 'server', 'tasks']],
+    ['/', ['help', 'server', 'tasks']],
+    ['/s', ['server']],
+    ['/serve', ['server']],
+    ['/server/ ', ['--', 'api', 'errors', 'next-commands', 'plugins', 'reload', 'stop']],
+    ['/server/er', ['errors']],
+    ['/server/errors', ['errors']],
+    ['/server/errors/', ['list']],
+    ['/server/errors/list ', ['--']],
     // fields has a resolver
-    ['/orgs/list --', ['--']],
-    ['/orgs/list -- ', ['fields=', 'format=', 'nesting=', 'noHeaders', 'output', 'output=', 'writeFileLocally']],
-    ['/orgs/list -- fields', ['fields=']],
-    ['/orgs/list -- fields=', ['commonName', 'key', 'legalName']],
-    ['/orgs/list -- fields=common', ['commonName']],
-    ['/orgs/list -- out', ['output', 'output=']],
-    ['/orgs/list -- output', ['output', 'output=']],
+    ['/server/errors/list --', ['--']],
+    ['/server/errors/list -- ',
+      ['fields=', 'format=', 'nesting=', 'noHeaders', 'output', 'output=', 'writeFileLocally']],
+    ['/server/errors/list -- fields', ['fields=']],
+    ['/server/errors/list -- fields=', ['id', 'message', 'protected', 'stack', 'timestamp']],
+    ['/server/errors/list -- fields=me', ['message']],
+    ['/server/errors/list -- out', ['output', 'output=']],
+    ['/server/errors/list -- output', ['output', 'output=']],
     // output does not have a resolver
-    ['/orgs/list -- output=', []],
-    ['/orgs/list -- output=/users/foo/bar', []],
-    ['/orgs/list -- output=/users/foo/bar ', ['fields=', 'format=', 'nesting=', 'noHeaders', 'writeFileLocally']],
-    ['/orgs/list -- noHeaders output=/users/foo/bar', []],
-    ['/orgs/list -- noHeaders output=/users/foo/bar ', ['fields=', 'format=', 'nesting=', 'writeFileLocally']],
-    ['/orgs/list -- noHeaders', ['noHeaders']],
-    ['/orgs/list -- noHeaders ', ['fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally']],
-    ['/orgs/orgA', ['orgA']],
-    ['/orgs/orgA/', ['parameters']]
+    ['/server/errors/list -- output=', []],
+    ['/server/errors/list -- output=/users/foo/bar', []],
+    ['/server/errors/list -- output=/users/foo/bar ',
+      ['fields=', 'format=', 'nesting=', 'noHeaders', 'writeFileLocally']],
+    ['/server/errors/list -- noHeaders output=/users/foo/bar', []],
+    ['/server/errors/list -- noHeaders output=/users/foo/bar ', ['fields=', 'format=', 'nesting=', 'writeFileLocally']],
+    ['/server/errors/list -- noHeaders', ['noHeaders']],
+    ['/server/errors/list -- noHeaders ', ['fields=', 'format=', 'nesting=', 'output', 'output=', 'writeFileLocally']]
     // uses the exclude setting to handle mutually exclusive parameters
     // TODO: find another example in the core endpoints
     // ['/credentials/gitHubSSH/import -- leaveInPlace ', ['copyToStorage', 'path=', 'replace']]

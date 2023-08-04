@@ -1,8 +1,5 @@
 import { Model } from '@liquid-labs/resource-model'
 
-import { Organizations } from './lib/Organizations'
-import { PlaygroundProjects } from './lib/PlaygroundProjects'
-
 /**
 * The model looks like:
 * ```
@@ -35,12 +32,6 @@ import { PlaygroundProjects } from './lib/PlaygroundProjects'
 */
 const initModel = ({ reporter = console } = {}) => {
   const model = new Model()
-
-  const playground = new Model()
-  model.bindSubModel('playground', playground) // .playground
-  playground.bindRootItemManager(new PlaygroundProjects({ reporter })) // .playground.projects
-
-  model.bindSubModel('orgs', new Organizations({ playground, reporter })) // .orgs
 
   return model
 }

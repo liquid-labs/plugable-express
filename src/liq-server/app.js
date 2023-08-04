@@ -59,8 +59,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     // localSettings set below
     serverSettings  : getServerSettings(),
     serverVersion,
-    setupMethods    : [],
-    orgSetupMethods : []
+    setupMethods    : []
   }
 
   app.liq.addCommandPath = (commandPath, parameters) => {
@@ -165,23 +164,12 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
 
   await initServerSettings()
 
-  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter } })
+  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter }, waitTillComplete : true })
   for (const setupMethod of app.liq.setupMethods) {
     depRunner.enqueue(setupMethod)
   }
   depRunner.complete()
   await depRunner.await()
-
-  const orgDepRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter } })
-  for (const org of Object.values(model.orgs)) {
-    for (const orgSetupMethod of app.liq.orgSetupMethods) {
-      const orgArgs = { org, orgKey : org.key }
-      const mergedEntry = Object.assign({ args : orgArgs }, orgSetupMethod)
-      orgDepRunner.enqueue(mergedEntry)
-    }
-  }
-  orgDepRunner.complete()
-  await orgDepRunner.await()
 
   if (noAPIUpdate !== true) {
     reporter.log('Registering API...')
