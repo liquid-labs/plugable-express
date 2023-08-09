@@ -8,7 +8,7 @@
     "lint": "make lint",
     "lint:fix": "make lint-fix",
     "test": "make test",
-    "prepare": "make build",
+    "prepack": "make build",
     "preversion": "make test && make lint",
     "qa": "make qa"
   },
