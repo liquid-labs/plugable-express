@@ -6,9 +6,9 @@ import express from 'express'
 import fileUpload from 'express-fileupload'
 import findRoot from 'find-root'
 
-import { CredentialsDb } from '@liquid-labs/credentials-db'
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
+import { CredentialsDB } from '@liquid-labs/liq-credentials-db'
 import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
@@ -39,11 +39,11 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
 
   // setup app.ext
   // TODO: https://github.com/liquid-labs/liq-core/issues/124
-  const credentialsDb = new credentialsDb({ cache })
+  const credentialsDB = new CredentialsDB({ cache })
 
   app.ext = {
     handlerPlugins  : [],
-    credentialsDb,
+    credentialsDB,
     commandPaths    : {},
     errorsEphemeral : [],
     errorsRetained  : [],
