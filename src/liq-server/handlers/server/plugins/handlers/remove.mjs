@@ -3,7 +3,7 @@ import { removePluginsHandler, removePluginsSetup } from '@liquid-labs/liq-plugi
 
 const { help, method, parameters } = removePluginsSetup({ pluginsDesc : 'sever endpoint' })
 
-const path = ['server', 'plugins', ':handlerPluginName', 'remove']
+const path = ['server', 'plugins', 'handlers', ':handlerPluginName', 'remove']
 
 const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const pluginPkgDirRetriever = LIQ_HANDLER_PLUGINS

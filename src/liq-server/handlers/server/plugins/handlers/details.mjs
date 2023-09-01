@@ -2,7 +2,7 @@ import { detailsPluginHandler, detailsPluginSetup } from '@liquid-labs/liq-plugi
 
 const { help, method, parameters } = detailsPluginSetup({ pluginsDesc : 'sever endpoint' })
 
-const path = ['server', 'plugins', ':handlerPluginName', 'details']
+const path = ['server', 'plugins', 'handlers', ':handlerPluginName', 'details']
 
 const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 

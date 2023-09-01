@@ -8,7 +8,7 @@ const pluginsDesc = 'server endpoint'
 const { help, method, parameters } =
   addPluginsSetup({ hostVersionRetriever, pluginsDesc, pluginType : 'handlers' })
 
-const path = ['server', 'plugins', 'add']
+const path = ['server', 'plugins', 'handlers', 'add']
 
 const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const pluginPkgDirRetriever = LIQ_HANDLER_PLUGINS
