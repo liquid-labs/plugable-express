@@ -1,0 +1,1 @@
+npx catalyst-scripts-node-project --update-makefile --with-cli --lib-path-suffix=liq-server --name=liq-server

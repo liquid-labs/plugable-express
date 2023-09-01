@@ -1,9 +1,12 @@
 BUILD_KEY:=liq-server
 SRC:=src
 CATALYST_JS_LIB_SRC_PATH:=$(SRC)/liq-server
+CATALYST_NODE_PROJECT_LIB_ENTRY_POINT=$(CATALYST_JS_LIB_SRC_PATH)/index.js
 CATALYST_JS_CLI_SRC_PATH:=$(SRC)/cli
+CATALYST_NODE_PROJECT_CLI_ENTRY_POINT=$(CATALYST_JS_CLI_SRC_PATH)/index.js
 CATALYST_JS_CLI=$(DIST)/liq-server-cli.js
-
+# The following are set by the preamble when installed
+# BUILD_KEY, SRC, CATALYST_JS_LIB_SRC_PATH, CATALYST_JS_CLI_SRC_PATH, CATALYST_JS_CLI, CATALYST_NODE_PROJECT_CLI_ENTRY_POINT, CATALYST_NODE_PROJECT_LIB_ENTRY_POINT
 .DELETE_ON_ERROR:
 .PHONY: all build lint lint-fix qa test
 
@@ -23,19 +26,22 @@ CATALYST_JS_JEST:=npx jest
 CATALYST_JS_ROLLUP:=npx rollup
 CATALYST_JS_ESLINT:=npx eslint
 
+CATALYST_NODE_PROJECT_JS_SELECTOR=\( -name "*.js" -o -name "*.cjs" -o -name "*.mjs" \)
+CATALYST_NODE_PROJECT_DATA_SELECTOR=\( -path "*/test/data/*"  -o -path "*/test/data-*/*" -o -path "*/test-data/*" \)
+
 # all source files (cli and lib)
-CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/data/*" -not -path "*/test/data-*/*")
-CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) -name "*.js" -not -path "*/test/data/*" -not -path "*/test/data-*/*" -type f)
-CATALYST_JS_TEST_FILES_BUILT:=$(patsubst $(SRC)/%, test-staging/%, $(CATALYST_JS_TEST_FILES_SRC))
+CATALYST_JS_ALL_FILES_SRC:=$(shell find $(SRC) $(CATALYST_NODE_PROJECT_JS_SELECTOR) -not $(CATALYST_NODE_PROJECT_DATA_SELECTOR))
+CATALYST_JS_TEST_FILES_SRC:=$(shell find $(SRC) $(CATALYST_NODE_PROJECT_JS_SELECTOR) -not $(CATALYST_NODE_PROJECT_DATA_SELECTOR) -type f)
+CATALYST_JS_TEST_FILES_BUILT:=$(patsubst %.cjs, %.js, $(patsubst %.mjs, %.js, $(patsubst $(SRC)/%, test-staging/%, $(CATALYST_JS_TEST_FILES_SRC))))
 # all test data (cli and lib)
-CATALYST_JS_TEST_DATA_SRC:=$(shell find $(SRC) -type f \( -path "*/test/data/*"  -o -path "*/test/data-*/*" \))
+CATALYST_JS_TEST_DATA_SRC:=$(shell find $(SRC) -type f $(CATALYST_NODE_PROJECT_DATA_SELECTOR))
 CATALYST_JS_TEST_DATA_BUILT:=$(patsubst $(SRC)/%, $(TEST_STAGING)/%, $(CATALYST_JS_TEST_DATA_SRC))
 # lib specific files
-CATALYST_JS_LIB_FILES_SRC:=$(shell find $(CATALYST_JS_LIB_SRC_PATH) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/*" -not -name "*.test.js")
+CATALYST_JS_LIB_FILES_SRC:=$(shell find $(CATALYST_JS_LIB_SRC_PATH) $(CATALYST_NODE_PROJECT_JS_SELECTOR) -not $(CATALYST_NODE_PROJECT_DATA_SELECTOR) -not -name "*.test.js")
 CATALYST_JS_LIB:=dist/$(BUILD_KEY).js
 # cli speciifc files
 ifdef CATALYST_JS_CLI_SRC_PATH
-CATALYST_JS_CLI_FILES_SRC:=$(shell find $(CATALYST_JS_CLI_SRC_PATH) \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/test/*" -not -name "*.test.js")
+CATALYST_JS_CLI_FILES_SRC:=$(shell find $(CATALYST_JS_CLI_SRC_PATH) $(CATALYST_NODE_PROJECT_JS_SELECTOR) -not $(CATALYST_NODE_PROJECT_DATA_SELECTOR) -not -name "*.test.js")
 endif
 
 LINT_IGNORE_PATTERNS:=--ignore-pattern '$(DIST)/**/*' \
@@ -45,6 +51,10 @@ LINT_IGNORE_PATTERNS:=--ignore-pattern '$(DIST)/**/*' \
 # build rules
 INSTALL_BASE:=$(shell npm explore @liquid-labs/catalyst-scripts-node-project -- pwd)
 
+# We do this here so the 'rm -rf' to reset the built files will run before other targets (which may copy or create 
+# files).
+TEST_TARGETS:=$(CATALYST_JS_TEST_FILES_BUILT)
+
 ifneq ($(wildcard make/*.mk),)
 include make/*.mk
 endif
@@ -53,7 +63,7 @@ ifdef CATALYST_JS_LIB_SRC_PATH
 BUILD_TARGETS+=$(CATALYST_JS_LIB)
 
 $(CATALYST_JS_LIB): package.json $(CATALYST_JS_LIB_FILES_SRC)
-	JS_BUILD_TARGET=$(CATALYST_JS_LIB_SRC_PATH)/index.js \
+	JS_BUILD_TARGET=$(CATALYST_NODE_PROJECT_LIB_ENTRY_POINT) \
 	  JS_OUT=$@ \
 		$(CATALYST_JS_ROLLUP) --config $(INSTALL_BASE)/dist/rollup/rollup.config.mjs
 endif
@@ -63,7 +73,7 @@ BUILD_TARGETS+=$(CATALYST_JS_CLI)
 
 # see DEVELOPER_NOTES.md 'CLI build'
 $(CATALYST_JS_CLI): package.json $(CATALYST_JS_ALL_FILES_SRC)
-	JS_BUILD_TARGET=$(CATALYST_JS_CLI_SRC_PATH)/index.js \
+	JS_BUILD_TARGET=$(CATALYST_NODE_PROJECT_CLI_ENTRY_POINT) \
 	  JS_OUT=$@ \
 	  JS_OUT_PREAMBLE='#!/usr/bin/env -S node --enable-source-maps' \
 		$(CATALYST_JS_ROLLUP) --config $(INSTALL_BASE)/dist/rollup/rollup.config.mjs
@@ -95,9 +105,6 @@ $(CATALYST_JS_TEST_FILES_BUILT) &: $(CATALYST_JS_ALL_FILES_SRC)
 # independent, but in practice there are sometimes good reasons why it's useful or necessary to run sequentially); 
 # also, it may be faster this way; see:
 # https://stackoverflow.com/questions/43864793/why-does-jest-runinband-speed-up-tests
-ifdef TEST
-TEST:=-t "$(TEST)"
-endif
 $(UNIT_TEST_PASS_MARKER) $(UNIT_TEST_REPORT): package.json $(CATALYST_JS_TEST_FILES_BUILT) $(CATALYST_JS_TEST_DATA_BUILT)
 	@rm -f $@
 	@mkdir -p $(dir $@)
@@ -116,7 +123,7 @@ TEST_TARGETS+=$(UNIT_TEST_PASS_MARKER) $(UNIT_TEST_REPORT)
 # lint rules
 LINT_REPORT:=$(QA)/lint.txt
 LINT_PASS_MARKER:=$(QA)/.lint.passed
-$(LINT_PASS_MARKER) $(LINT_REPORT): $(CATALYST_JS_LIB_ALL_FILES)
+$(LINT_PASS_MARKER) $(LINT_REPORT): $(CATALYST_JS_ALL_FILES_SRC)
 	@mkdir -p $(dir $@)
 	@echo -n 'Test git rev: ' > $(LINT_REPORT)
 	@git rev-parse HEAD >> $(LINT_REPORT)
