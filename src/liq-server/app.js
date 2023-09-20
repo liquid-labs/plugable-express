@@ -43,12 +43,11 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
     commandPaths    : {},
     errorsEphemeral : [],
     errorsRetained  : [],
-    constants       : {},
+    constants       : {}, // what is this? is it used?
     handlers        : [],
     localSettings   : {},
     pathResolvers   : commonPathResolvers,
     pendingHandlers : [],
-    // localSettings set below
     serverSettings  : getServerSettings(),
     serverVersion,
     setupMethods    : [],
