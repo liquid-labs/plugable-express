@@ -50,7 +50,6 @@
   },
   "dependencies": {
     "@liquid-labs/dependency-runner": "^1.0.0-alpha.8",
-    "@liquid-labs/liq-credentials-db": "^1.0.0-alpha.6",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.15",
     "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.6",
     "@liquid-labs/question-and-answer": "^1.0.0-alpha.12",
