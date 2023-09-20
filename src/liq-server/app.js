@@ -37,7 +37,7 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   options.cache = cache
 
   // setup app.ext
-  
+
   app.ext = {
     handlerPlugins  : [],
     commandPaths    : {},
