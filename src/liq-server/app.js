@@ -8,7 +8,6 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { CredentialsDB } from '@liquid-labs/liq-credentials-db'
 import { LIQ_HOME } from '@liquid-labs/liq-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
@@ -38,12 +37,9 @@ const appInit = async({ app, noAPIUpdate = false, pluginDirs, skipCorePlugins = 
   options.cache = cache
 
   // setup app.ext
-  // TODO: https://github.com/liquid-labs/liq-core/issues/124
-  const credentialsDB = new CredentialsDB({ cache })
-
+  
   app.ext = {
     handlerPlugins  : [],
-    credentialsDB,
     commandPaths    : {},
     errorsEphemeral : [],
     errorsRetained  : [],
