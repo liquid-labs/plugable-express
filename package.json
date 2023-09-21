@@ -1,8 +1,8 @@
 {
-  "name": "@liquid-labs/liq-core",
+  "name": "@liquid-labs/pluggable-express",
   "version": "1.0.0-alpha.22",
-  "description": "",
-  "main": "dist/liq-server.js",
+  "description": "An Express based web server with ",
+  "main": "dist/pluggable-express.js",
   "scripts": {
     "build": "make",
     "lint": "make lint",
@@ -11,9 +11,6 @@
     "prepack": "make build",
     "preversion": "make test && make lint",
     "qa": "make qa"
-  },
-  "bin": {
-    "liq-server": "./dist/liq-server-cli.js"
   },
   "files": [
     "./dist"
@@ -26,21 +23,20 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Liquid-Labs/liq-core.git"
+    "url": "git+ssh://git@github.com/liquid-labs/pluggable-express.git"
   },
   "bugs": {
-    "url": "https://github.com/Liquid-Labs/liq-core/issues"
+    "url": "https://github.com/liquid-labs/pluggable-express/issues"
   },
-  "homepage": "https://github.com/Liquid-Labs/liq-core#readme",
+  "homepage": "https://github.com/liquid-labs/pluggable-express#readme",
   "liq": {
-    "orgBase": "git@github.com:Liquid-Labs/Liquid-Labs.git",
+    "orgBase": "git@github.com:liquid-labs/liquid-labs.git",
     "packageType": "node|server"
   },
   "devDependencies": {
     "@liquid-labs/catalyst-scripts-node-project": "^1.0.0-alpha.22",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
-    "@liquid-labs/liq-defaults": "^1.0.0-alpha.1",
     "@liquid-labs/liq-test-lib": "^1.0.0-alpha.1",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "http-errors": "^2.0.0",
@@ -54,6 +50,7 @@
     "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.6",
     "@liquid-labs/question-and-answer": "^1.0.0-alpha.12",
     "@liquid-labs/resource-model": "^1.0.0-alpha.8",
+    "command-line-args": "^5.2.1",
     "express": "^5.0.0-beta.1",
     "express-fileupload": "^1.2.1",
     "find-plugins": "^1.1.7",

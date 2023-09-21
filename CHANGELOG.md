@@ -1,4 +1,4 @@
-# liquid-labs/liq-core changelog
+# liquid-labs/pluggable-express changelog
 
 
 ## Release 1.0.0-alpha.1
