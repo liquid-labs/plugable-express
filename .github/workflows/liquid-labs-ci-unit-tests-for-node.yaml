@@ -1,4 +1,4 @@
-name: Liquid Labs CI Unit Tests for Node.js
+name: Unit tests
 
 on:
   push:
