@@ -1,21 +1,21 @@
 import * as fsPath from 'node:path'
 
-import createError from 'http-errors'
+import isEqual from 'lodash/isEqual'
 
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { Questioner } from '@liquid-labs/question-and-answer'
 
-import { defaults, LIQ_REGISTRIES } from '../defaults'
 import { getServerSettings } from './get-server-settings'
 
-const initServerSettings = async({ 
-  app, 
-  defaultRegistries, 
-  reAsk = false, 
-  serverSettings, 
-  useDefaultSettings = false 
+const initServerSettings = async({
+  app,
+  defaultRegistries,
+  reAsk = false,
+  serverSettings,
+  useDefaultSettings = false
 } = {}) => {
   serverSettings = serverSettings || getServerSettings(app.ext.serverHome)
+  const origSettings = structuredClone(serverSettings)
 
   const ibActions = []
   const initInterrogationBundle = {
@@ -23,19 +23,9 @@ const initServerSettings = async({
   }
 
   const registries = serverSettings.registries
-  const envRegistries = process.env[LIQ_REGISTRIES]
-  if (envRegistries !== undefined) {
-    if (Array.isArray(envRegistries)) {
-      serverSettings.registries = structuredClone(envRegistries)
-    }
-    else if (typeof envRegistries === 'string') {
-      serverSettings.registries = envRegistries.split(/\s*,\s*/)
-    }
-    else {
-      throw createError.BadRequest(`Invalid value for env variable '${LIQ_REGISTRIES}'; must be string or array of strings.`)
-    }
-  }
-  else {
+
+  // at the moment, registries is the only config, so we just skip everything if not using registries
+  if (app.ext.noRegistries !== true) {
     if (useDefaultSettings === true) {
       Object.assign(serverSettings, { defaultRegistries })
     }
@@ -47,23 +37,25 @@ const initServerSettings = async({
         default   : defaultRegistries
       })
     }
+  }
 
-    if (ibActions.length > 0) {
-      const questioner = new Questioner({
-        interrogationBundle : initInterrogationBundle,
-        noSkipDefined       : reAsk,
-        parameters          : serverSettings
-      })
-      await questioner.question()
+  if (ibActions.length > 0) {
+    const questioner = new Questioner({
+      interrogationBundle : initInterrogationBundle,
+      noSkipDefined       : reAsk,
+      parameters          : serverSettings
+    })
+    await questioner.question()
 
-      // TODO: do a deep merge
-      const values = questioner.values
-      if (values.registries) {
-        values.registries = values.registries.map((url) => ({ url }))
-      }
-      Object.assign(serverSettings, questioner.values)
+    // TODO: do a deep merge
+    const values = questioner.values
+    if (values.registries) {
+      values.registries = values.registries.map((url) => ({ url }))
     }
+    Object.assign(serverSettings, questioner.values)
+  }
 
+  if (!isEqual(origSettings, serverSettings)) {
     const serverSettingsPath = fsPath.join(app.ext.serverHome, 'server-settings.yaml')
     writeFJSON({ file : serverSettingsPath, data : serverSettings })
   }

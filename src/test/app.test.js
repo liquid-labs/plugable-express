@@ -5,8 +5,6 @@ import request from 'supertest'
 import { pluginsPath } from '@liquid-labs/liq-test-lib'
 
 import { appInit } from '../app'
-import { LIQ_REGISTRIES } from '../defaults'
-import { initModel } from '../model'
 import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
 
 const fooPath = path.join(pluginsPath, 'node_modules', 'foo')
@@ -26,13 +24,10 @@ const registrationRegExp = /^registering handler for path: [A-Z]+:/
 describe('app', () => {
   describe('default setup provides useful info', () => {
     const testOptions = mockLogOptions()
-    let cache, model
+    let cache
 
     beforeAll(async() => {
-      process.env[LIQ_REGISTRIES] = ['https://foo.com/registry.json']
-      process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-      model = initModel(testOptions);
-      ({ cache } = await appInit(Object.assign(testOptions, { model, noAPIUpdate : true })))
+      ({ cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
     })
 
     afterAll(() => {
@@ -58,8 +53,6 @@ describe('app', () => {
 
     beforeAll(async() => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-      const model = initModel(testOptions)
-      testOptions.model = model
       testOptions.pluginsPath = pluginsPath
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;

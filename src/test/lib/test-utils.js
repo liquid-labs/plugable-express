@@ -2,8 +2,6 @@ import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as fsPath from 'node:path'
 
-import { playgroundSimplePath } from '@liquid-labs/liq-test-lib'
-
 import { Reporter } from '../../lib/reporter'
 
 const COMMAND_COUNT = 18

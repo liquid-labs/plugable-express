@@ -39,6 +39,7 @@ const appInit = async({
   app,
   defaultRegistries,
   noAPIUpdate = false,
+  noRegistries,
   pluginPaths,
   pluginsPath,
   reporter,
@@ -60,8 +61,6 @@ const appInit = async({
 
   const cache = new WeakCache()
 
-  console.error('serverHome:', serverHome) // DEBUG
-
   // setup app.ext
   app.ext = {
     handlerPlugins  : [],
@@ -71,6 +70,7 @@ const appInit = async({
     constants       : {}, // what is this? is it used?
     handlers        : [],
     localSettings   : {},
+    noRegistries,
     pathResolvers   : commonPathResolvers,
     pendingHandlers : [],
     pluginsPath,

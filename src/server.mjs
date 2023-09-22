@@ -39,9 +39,6 @@ const startServer = async({
     throw new Error("No 'port' provided; bailing out.")
   }
 
-  // const result = appInit({ configDir, defaultRegistries, pluginPaths, pluginsPath, reporter, serverHome })
-  // console.error('result:', result) // DEBUG
-  // const { app, cache } = result
   const { app, cache } = await appInit({ configDir, defaultRegistries, pluginPaths, pluginsPath, reporter, serverHome })
 
   const server = app.listen(port, (err) => {

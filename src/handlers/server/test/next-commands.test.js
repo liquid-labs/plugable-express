@@ -2,13 +2,12 @@
 import request from 'supertest'
 
 import { appInit } from '../../../app'
-import { initModel } from '../../../model'
 import { defaultTestOptions } from '../../../test/lib/test-utils'
 
 const testOptions = defaultTestOptions()
 
 describe('GET:/server/next-commands', () => {
-  let app, cache, model
+  let app, cache
 
   beforeAll(async() => {
     process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH;

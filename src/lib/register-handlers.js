@@ -136,6 +136,12 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
     const { func, help, method, parameters, path: aPath } = handler
     const paths = handler.paths || [aPath] // we can now use regularized 'paths'
 
+    if (app.ext.noRegistries === true
+          && paths.some((p) => p[0] === 'server' && p[1] === 'plugins' && p[2] === 'registries')) {
+      // then it's a registry endpoint, but we're not using registries so we skip it
+      continue
+    }
+
     if ((aPath === undefined && handler.paths === undefined) || method === undefined || func === undefined) {
       throw new Error(`A handler from '${npmName}' does not fully define 'method', 'path', and/or 'func' exports.`)
     }
