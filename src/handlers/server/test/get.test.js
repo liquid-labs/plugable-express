@@ -4,8 +4,6 @@ import request from 'supertest'
 import { appInit } from '../../../app'
 import { CURR_VER, defaultTestOptions } from '../../../test/lib/test-utils'
 
-const testOptions = defaultTestOptions()
-
 describe('GET:/server', () => {
   let app, cache
   beforeAll(async() => {

@@ -4,8 +4,6 @@ import request from 'supertest'
 import { appInit } from '../../../app'
 import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib/test-utils'
 
-const testOptions = defaultTestOptions()
-
 describe('GET:/server/api', () => {
   let app, cache
 
