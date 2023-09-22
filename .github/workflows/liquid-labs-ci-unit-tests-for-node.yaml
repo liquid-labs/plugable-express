@@ -1,4 +1,4 @@
-name: Liquid Labs CI Unit Tests for Node.js
+name: Unit tests
 
 on:
   push:
@@ -25,4 +25,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: TERM=xterm-256color npm run build --if-present
-      - run: TERM=xterm-256color LIQ_REGISTRIES=raw.githubusercontent.com/liquid-labs/liq-registry/main/registry.yaml npm test
+      - run: TERM=xterm-256color npm test
