@@ -2,18 +2,15 @@
 import request from 'supertest'
 
 import { appInit } from '../../../app'
-import { initModel } from '../../../model'
 import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib/test-utils'
 
 const testOptions = defaultTestOptions()
 
 describe('GET:/server/api', () => {
-  let app, cache, model
+  let app, cache
 
   beforeAll(async() => {
-    process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-    model = initModel(testOptions);
-    ({ app, cache } = await appInit(defaultTestOptions({ model, noAPIUpdate : true })))
+    ({ app, cache } = await appInit(defaultTestOptions({ noAPIUpdate : true })))
   })
 
   afterAll(() => {
