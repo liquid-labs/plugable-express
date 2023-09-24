@@ -35,13 +35,13 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     }
 
     versionInfo = {
-      name         : app.ext.name,
-      version      : app.ext.version,
+      name               : app.ext.name,
+      version            : app.ext.version,
       'plugable-express' : pkgJSON.version,
-      node         : process.version,
-      fullNode     : process.versions,
-      platform     : `${os.type()} ${os.release()}`,
-      fullPlatform : {
+      node               : process.version,
+      fullNode           : process.versions,
+      platform           : `${os.type()} ${os.release()}`,
+      fullPlatform       : {
         platform : os.platform(),
         type     : os.type(),
         version  : os.version(),
