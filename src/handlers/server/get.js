@@ -35,11 +35,13 @@ const func = ({ app, cache, reporter }) => (req, res) => {
     }
 
     versionInfo = {
-      server       : pkgJSON.version,
-      node         : process.version,
-      fullNode     : process.versions,
-      platform     : `${os.type()} ${os.release()}`,
-      fullPlatform : {
+      name               : app.ext.name,
+      version            : app.ext.version,
+      'plugable-express' : pkgJSON.version,
+      node               : process.version,
+      fullNode           : process.versions,
+      platform           : `${os.type()} ${os.release()}`,
+      fullPlatform       : {
         platform : os.platform(),
         type     : os.type(),
         version  : os.version(),
@@ -58,7 +60,10 @@ const func = ({ app, cache, reporter }) => (req, res) => {
   }
   else if (req.accepts('text')) {
     res.setHeader('content-type', 'text/plain')
-      .send(`liq-server: ${versionInfo.server}\nnode: ${versionInfo.node}\nplatform:${versionInfo.platform}\n`)
+      .send(`${app.ext.name}: ${app.ext.version}
+plugable-express: ${versionInfo.server}
+node: ${versionInfo.node}
+platform:${versionInfo.platform}\n`)
   }
   else {
     res.status(406).json({ message : "The server does not support any response format acceptable to the client. Try one or more of:\nAccept: application/json'\nAccept: text/plain" })

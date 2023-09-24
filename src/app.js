@@ -38,6 +38,7 @@ const appInit = async({
   apiSpecPath,
   app,
   defaultRegistries,
+  name,
   noAPIUpdate = false,
   noRegistries,
   pluginPaths,
@@ -45,7 +46,8 @@ const appInit = async({
   reporter,
   serverHome,
   skipCorePlugins = false,
-  useDefaultSettings
+  useDefaultSettings,
+  version
 }) => {
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
@@ -70,6 +72,7 @@ const appInit = async({
     constants       : {}, // what is this? is it used?
     handlers        : [],
     localSettings   : {},
+    name,
     noRegistries,
     pathResolvers   : commonPathResolvers,
     pendingHandlers : [],
@@ -78,7 +81,8 @@ const appInit = async({
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
     setupMethods    : [],
-    tasks           : new TaskManager()
+    tasks           : new TaskManager(),
+    version
   }
 
   app.ext.addCommandPath = (commandPath, parameters) => {
