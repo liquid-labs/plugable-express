@@ -58,7 +58,6 @@ plugable-express: ${versionInfo.server}
 node: ${versionInfo.node}
 platform:${versionInfo.platform}
 `
-  console.log('versionInfo:', versionInfo) // DEBUG
   httpSmartResponse({ msg, data : versionInfo, req, res })
 }
 
