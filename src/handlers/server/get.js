@@ -3,6 +3,8 @@ import http from 'node:http'
 import * as os from 'node:os'
 import * as sysPath from 'node:path'
 
+import { httpSmartResponse } from '@liquid-labs/http-smart-response'
+
 import { safeJSONParse } from '../../lib/json-helpers'
 
 const method = 'get'
@@ -13,14 +15,12 @@ const func = ({ app, cache, reporter }) => (req, res) => {
   let versionInfo = cache.get(func) // we assume versions are stable while running
 
   if (versionInfo === undefined) {
-    // Note, you might think we could use the playground, but the server might be running as an installed package.
-    // for es builds
-    // const dirpath = import.meta.url.replace('file://', '').split(path.sep)
     const dirpath = __dirname
     const pkgLocations = [
       sysPath.join(dirpath, '..', 'package.json'), // production
       sysPath.join(dirpath, '..', '..', '..', 'package.json') // testing
     ]
+
     const pkgPath = pkgLocations.find((testPath) => {
       return fs.existsSync(testPath)
     })
@@ -47,27 +47,18 @@ const func = ({ app, cache, reporter }) => (req, res) => {
         version  : os.version(),
         release  : os.release()
       },
-      api              : app.ext.handlers,
       supportedMethods : http.METHODS
     }
 
     cache.put(func, versionInfo)
   }
 
-  if (req.accepts('json')) {
-    res.setHeader('content-type', 'application/json')
-      .json(versionInfo)
-  }
-  else if (req.accepts('text')) {
-    res.setHeader('content-type', 'text/plain')
-      .send(`${app.ext.name}: ${app.ext.version}
+  const msg = `${app.ext.name}: ${app.ext.version}
 plugable-express: ${versionInfo.server}
 node: ${versionInfo.node}
-platform:${versionInfo.platform}\n`)
-  }
-  else {
-    res.status(406).json({ message : "The server does not support any response format acceptable to the client. Try one or more of:\nAccept: application/json'\nAccept: text/plain" })
-  }
+platform:${versionInfo.platform}
+`
+  httpSmartResponse({ msg, data : versionInfo, req, res })
 }
 
 export { func, path, method, parameters }
