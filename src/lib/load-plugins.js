@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import * as path from 'path'
 
 import findPlugins from 'find-plugins'
@@ -50,7 +51,7 @@ const loadPlugins = async(app, { model, cache, reporter, pluginsPath }) => {
     filter : () => true // every dependency is a plugin
   }
 
-  const plugins = findPlugins(pluginOptions)
+  const plugins = existsSync(pluginPkg) ? findPlugins(pluginOptions) : []
 
   reporter.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
 
