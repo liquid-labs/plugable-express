@@ -37,6 +37,7 @@ const serverVersion = pkgJSON.version
 const appInit = async({
   apiSpecPath,
   app,
+  cliName,
   defaultRegistries,
   name,
   noAPIUpdate = false,
@@ -65,6 +66,7 @@ const appInit = async({
 
   // setup app.ext
   app.ext = {
+    cliName,
     handlerPlugins  : [],
     commandPaths    : {},
     errorsEphemeral : [],

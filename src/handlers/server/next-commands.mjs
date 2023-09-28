@@ -29,7 +29,7 @@ const func = ({ app, cache, model }) => async(req, res) => {
     if (commandPath.indexOf('/') === -1 || (firstSpace !== -1 && firstSpace < firstSlash)) { // then it's the CLI form
       cmdSep = CLI_STYLE
       cmdsLeft = commandPath.split(/\s+/)
-      if (cmdsLeft.length !== 0 && cmdsLeft[0].startsWith('liq')) {
+      if (cmdsLeft.length !== 0 && cmdsLeft[0].startsWith(app.ext.cliName)) {
         cmdsLeft.shift() // drop any leading 'liq' that we might see in this form
       }
     }
