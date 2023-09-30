@@ -67,12 +67,12 @@ const appInit = async({
   // setup app.ext
   app.ext = {
     cliName,
-    handlerPlugins  : [],
     commandPaths    : {},
     errorsEphemeral : [],
     errorsRetained  : [],
     constants       : {}, // what is this? is it used?
     handlers        : [],
+    handlerPlugins  : [],
     localSettings   : {},
     name,
     noRegistries,
@@ -85,24 +85,6 @@ const appInit = async({
     setupMethods    : [],
     tasks           : new TaskManager(),
     version
-  }
-
-  app.ext.addCommandPath = (commandPath, parameters) => {
-    let frontier = app.ext.commandPaths
-    for (const pathBit of commandPath) {
-      if (!(pathBit in frontier)) {
-        frontier[pathBit] = {}
-      }
-      frontier = frontier[pathBit]
-    }
-
-    if (frontier._parameters !== undefined) {
-      throw new Error(`Non-unique command path: ${commandPath.join('/')}`)
-    }
-
-    // 'parameters' are deep frozen, so safe to share. We use a function here to future proof in case we need to
-    // unfreeze and then maybe make copies here to prevent clients from changing the shared parameters data.
-    frontier._parameters = () => parameters
   }
 
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
