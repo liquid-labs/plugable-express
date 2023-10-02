@@ -92,7 +92,7 @@ const appInit = async(initArgs) => {
   }
 
   app.ext.findPackage = ({ npmName }) => {
-    let [ org, basename ] = npmName.split('/')
+    let [org, basename] = npmName.split('/')
     if (basename === undefined) {
       basename = org
       org = undefined
@@ -100,8 +100,8 @@ const appInit = async(initArgs) => {
     else if (org.startsWith('@')) {
       org = org.slice(1) // we will add back on later to test both
     }
-    const pkgPath = org === undefined 
-      ? fsPath.join(basename, 'package.json') 
+    const pkgPath = org === undefined
+      ? fsPath.join(basename, 'package.json')
       : fsPath.join(org, basename, 'package.json')
     for (const devPath of devPaths) {
       // TODO: this is a workaround until we transition fully to matching NPM names
