@@ -34,22 +34,25 @@ const serverVersion = pkgJSON.version
 * - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
 *    primarily used in conjuction with `pluginPaths` for testing.
 */
-const appInit = async({
-  apiSpecPath,
-  app,
-  cliName,
-  defaultRegistries,
-  name,
-  noAPIUpdate = false,
-  noRegistries,
-  pluginPaths,
-  pluginsPath,
-  reporter,
-  serverHome,
-  skipCorePlugins = false,
-  useDefaultSettings,
-  version
-}) => {
+const appInit = async(initArgs) => {
+  let { app } = initArgs
+  const {
+    apiSpecPath,
+    cliName,
+    devPaths,
+    defaultRegistries,
+    name,
+    noAPIUpdate = false,
+    noRegistries,
+    pluginPaths,
+    pluginsPath,
+    reporter,
+    serverHome,
+    skipCorePlugins = false,
+    useDefaultSettings,
+    version
+  } = initArgs
+
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
   }
@@ -68,6 +71,7 @@ const appInit = async({
   app.ext = {
     cliName,
     commandPaths    : {},
+    devPaths,
     errorsEphemeral : [],
     errorsRetained  : [],
     constants       : {}, // what is this? is it used?
@@ -87,6 +91,30 @@ const appInit = async({
     version
   }
 
+  app.ext.findPackage = ({ npmName }) => {
+    let [ org, basename ] = npmName.split('/')
+    if (basename === undefined) {
+      basename = org
+      org = undefined
+    }
+    else if (org.startsWith('@')) {
+      org = org.slice(1) // we will add back on later to test both
+    }
+    const pkgPath = org === undefined 
+      ? fsPath.join(basename, 'package.json') 
+      : fsPath.join(org, basename, 'package.json')
+    for (const devPath of devPaths) {
+      // TODO: this is a workaround until we transition fully to matching NPM names
+      for (const testPath of [fsPath.join(devPath, pkgPath), fsPath.join(devPath, '@' + pkgPath)]) {
+        if (existsSync(testPath)) {
+          return testPath
+        }
+      }
+    }
+
+    return null
+  }
+
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(serverHome, 'local-settings.yaml')
@@ -96,9 +124,9 @@ const appInit = async({
   // done setting app.ext
 
   // direct app extensions
-  app.reload = async(options) => {
+  app.reload = async() => {
     app.router.stack = []
-    await appInit(options)
+    await appInit(initArgs)
   }
 
   app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)

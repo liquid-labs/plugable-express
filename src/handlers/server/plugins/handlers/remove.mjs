@@ -10,7 +10,7 @@ const func = removePluginsHandler({
   installedPluginsRetriever,
   nameKey               : 'handlerPluginName',
   pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath,
-  reloadFunc            : ({ app, ...options }) => app.reload({ app, ...options })
+  reloadFunc            : ({ app }) => app.reload()
 })
 
 export { func, help, method, parameters, path }
