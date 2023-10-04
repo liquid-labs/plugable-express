@@ -34,7 +34,9 @@
     "packageType": "node|server"
   },
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts-node-project": "^1.0.0-alpha.22",
+    "@liquid-labs/catalyst-resource-babel-and-rollup": "^1.0.0-alpha.1",
+    "@liquid-labs/catalyst-resource-eslint": "^1.0.0-alpha.1",
+    "@liquid-labs/catalyst-resource-jest": "^1.0.0-alpha.1",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
     "@liquid-labs/http-smart-response": "^1.0.0-alpha.3",
     "@liquid-labs/liq-test-lib": "^1.0.0-alpha.1",
