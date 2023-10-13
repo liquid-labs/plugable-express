@@ -17,7 +17,6 @@ const parameterCharacteristics = (p) => {
   return output
 }
 
-const indent = 2
 const textFormatter = ({ name, path, summary, parameters, description, references }, title) => {
   let output = `${title || name}\n${printPath(path)}\n\n`
 

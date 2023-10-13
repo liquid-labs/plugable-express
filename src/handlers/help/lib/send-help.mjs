@@ -18,7 +18,7 @@ const sendHelp = ({ help, method, path, parameters }) => {
       defaultFields     : defaultHelpFields,
       mdFormatter       : mdFormatterGen(),
       terminalFormatter : terminalFormatterGen(),
-      textFormatter     : textFormatter,
+      textFormatter,
       next,
       noDateMark        : true,
       reporter,

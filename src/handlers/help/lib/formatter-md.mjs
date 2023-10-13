@@ -16,7 +16,6 @@ const parameterCharacteristics = (p) => {
   return output
 }
 
-const indent = 2
 const mdFormatterGen = ({ nesting = 0 } = {}) => ({ name, path, summary, parameters, description, references }, title) => {
   let output = `#${'#'.repeat(nesting)} ${title || name}\n*${printPath(path)}*\n\n`
 
