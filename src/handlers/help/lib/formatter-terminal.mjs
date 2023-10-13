@@ -1,5 +1,4 @@
 import { printPath } from './print-path'
-import { wrap } from './wrap'
 
 // TODO: support nesting with incrementing headers and adding indent levels
 const parameterCharacteristics = (p) => {
@@ -19,21 +18,23 @@ const parameterCharacteristics = (p) => {
 }
 
 const indent = 2
-const terminalFormatterGen = ({
-  width = 80,
-  nesting = 0
-} = {}) => ({ name, path, summary, parameters, description, references }, title) => {
-  let output = `\n<h1>${name}<rst>\n\nPath: <em>${printPath(path)}<rst>\n\n`
+const terminalFormatterGen = ({ nesting = 0 } = {}) => {
+  const hLvl = (base) => base + nesting
+
+  return ({ data /* we ignore title */ }) => {
+  const { path, summary, parameters, description, references } = data
+
+  let output = `\n<h${hLvl(1)}><bold>/${path.join('/')}<rst>\n\n`
 
   if (summary) {
     output += summary
   }
 
   if (parameters) {
-    output += '\n\n<h2>Parameters<rst>'
+    output += `\n\n<h${hLvl(2)}>Parameters<rst>`
     output += parameters.reduce((output, p) => {
       output += '\n- <code><underline>' + p.name + '<rst>: ('
-      output += parameterCharacteristics(p, { indent, width }) + ')\n'
+      output += parameterCharacteristics(p, { indent }) + ')\n'
       output += p.description
       return output
     }, '')
@@ -41,12 +42,12 @@ const terminalFormatterGen = ({
   }
 
   if (description) {
-    output += '\n<h2>Description<rst>\n'
-    output += wrap(description + '\n', { width, formatTerminal : true })
+    output += `\n<h${hLvl(2)}>Description<rst>\n`
+    output += description + '\n'
   }
 
   if (references) {
-    output += '\n<h2>References<rst>\n'
+    output += `\n<h${hLvl(2)}>References<rst>\n`
     references.reduce((output, r) => {
       output += `- <em>${r.name}<rst>${r.description ? ': ' : ''}${r.description}${r.description ? ' ' : ''}${r.url}`
       return output
@@ -55,9 +56,7 @@ const terminalFormatterGen = ({
 
   output += '\n'
 
-  output = wrap(output, { width, indent, ignoreTags : true, smartIndent : true })
-
   return output
-}
+}}
 
 export { terminalFormatterGen }

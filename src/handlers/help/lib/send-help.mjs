@@ -2,9 +2,9 @@ import { formatOutput } from '@liquid-labs/liq-handlers-lib'
 
 import { mdFormatterGen } from './formatter-md'
 import { terminalFormatterGen } from './formatter-terminal'
-import { textFormatterGen } from './formatter-text'
+import { textFormatter } from './formatter-text'
 
-const allHelpFields = ['description', 'method', 'name', 'parameters', 'path', 'references', 'summary']
+const allHelpFields = ['description', 'method', 'parameters', 'path', 'references', 'summary']
 const defaultHelpFields = allHelpFields
 
 const sendHelp = ({ help, method, path, parameters }) => {
@@ -13,13 +13,12 @@ const sendHelp = ({ help, method, path, parameters }) => {
 
   const func = ({ model, reporter }) => (req, res, next) => {
     formatOutput({
-      basicTitle        : 'Help',
       data              : { method, parameters : sortedParameters, path, ...help },
       allFields         : allHelpFields,
       defaultFields     : defaultHelpFields,
       mdFormatter       : mdFormatterGen(),
       terminalFormatter : terminalFormatterGen(),
-      textFormatter     : textFormatterGen(),
+      textFormatter     : textFormatter,
       next,
       noDateMark        : true,
       reporter,
