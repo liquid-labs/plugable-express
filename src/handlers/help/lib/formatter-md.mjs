@@ -1,5 +1,4 @@
 import { printPath } from './print-path'
-import { wrap } from './wrap'
 
 const parameterCharacteristics = (p) => {
   let output = '*' + (p.required ? 'REQUIRED' : 'OPTIONAL')
@@ -17,8 +16,7 @@ const parameterCharacteristics = (p) => {
   return output
 }
 
-const indent = 2
-const mdFormatterGen = ({ width = 80, nesting = 0 } = {}) => ({ name, path, summary, parameters, description, references }, title) => {
+const mdFormatterGen = ({ nesting = 0 } = {}) => ({ name, path, summary, parameters, description, references }, title) => {
   let output = `#${'#'.repeat(nesting)} ${title || name}\n*${printPath(path)}*\n\n`
 
   if (summary) {
@@ -29,15 +27,15 @@ const mdFormatterGen = ({ width = 80, nesting = 0 } = {}) => ({ name, path, summ
     output += `\n\n##${'#'.repeat(nesting)} Parameters\n`
     parameters.reduce((output, p) => {
       output += '- *' + p.name + '*: <br />\n'
-      output += wrap(parameterCharacteristics(p), { indent, width }) + '\n\n'
-      output += wrap(p.description, { indent, width }) + '\n'
+      output += parameterCharacteristics(p) + '\n\n'
+      output += p.description + '\n'
       return output
     }, output)
   }
 
   if (description) {
     output += `\n##${'#'.repeat(nesting)} Description\n`
-    output += wrap(description, { width }) + '\n'
+    output += description + '\n'
   }
 
   if (references) {

@@ -1,5 +1,4 @@
 import { printPath } from './print-path'
-import { wrap } from './wrap'
 
 // TODO: support nesting with adding indent levels
 const parameterCharacteristics = (p) => {
@@ -18,8 +17,7 @@ const parameterCharacteristics = (p) => {
   return output
 }
 
-const indent = 2
-const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parameters, description, references }, title) => {
+const textFormatter = ({ name, path, summary, parameters, description, references }, title) => {
   let output = `${title || name}\n${printPath(path)}\n\n`
 
   if (summary) {
@@ -30,8 +28,8 @@ const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parame
     output += '\n\nParameters'
     parameters.reduce((output, p) => {
       output += '\n- ' + p.name + '\n'
-      output += wrap(parameterCharacteristics(p), { indent, width }) + '\n\n'
-      output += wrap(p.description, { indent, width })
+      output += parameterCharacteristics(p) + '\n\n'
+      output += p.description
 
       return output
     }, output)
@@ -39,7 +37,7 @@ const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parame
 
   if (description) {
     output += '\n\nDescription\n'
-    output += wrap(description, { indent, width })
+    output += description
   }
 
   if (references) {
@@ -53,4 +51,4 @@ const textFormatterGen = ({ width = 80 } = 80) => ({ name, path, summary, parame
   return output
 }
 
-export { textFormatterGen }
+export { textFormatter }
