@@ -32,7 +32,7 @@ const terminalFormatterGen = ({ nesting = 0 } = {}) => {
       output += `\n\n<h${hLvl(2)}>Parameters<rst>`
       output += parameters.reduce((output, p) => {
         output += '\n- <code><underline>' + p.name + '<rst>: ('
-        output += parameterCharacteristics(p, { indent }) + ')\n'
+        output += parameterCharacteristics(p, { indent }) + ') '
         output += p.description
         return output
       }, '')
