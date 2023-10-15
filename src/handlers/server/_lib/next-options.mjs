@@ -10,11 +10,14 @@ const nextOptionValueOptions = async({
   prevElements,
   req
 }) => {
+  const fetcher = lastOptionParamDef.optionsFunc || lastOptionParamDef.optionsFetcher
   // we expect to always get a param def, otherwise the param wouldn't have been matched to get to the value
-  if (!lastOptionParamDef.optionsFunc) return []
-  let possibleValues = lastOptionParamDef.optionsFunc({ app, cache, lastOptionValue, model, req, ...prevElements })
+  if (fetcher === undefined) return []
+  let possibleValues = fetcher({ app, cache, lastOptionValue, model, req, ...prevElements })
   if (possibleValues.then) possibleValues = await possibleValues
-  possibleValues.sort()
+  // The completion infrastructure itself will sort the options. Additionally, this will cause a problem if the options
+  // are a static array that's been Object.frozen()
+  // possibleValues.sort()
 
   if (possibleValues.includes(lastOptionValue)) return [lastOptionValue]
   else if (!lastOptionValue) {
