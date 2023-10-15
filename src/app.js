@@ -15,7 +15,6 @@ import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
-import { TaskManager } from './lib/TaskManager'
 import { initModel } from './model'
 
 const pkgRoot = findRoot(__dirname)
@@ -87,7 +86,6 @@ const appInit = async(initArgs) => {
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
     setupMethods    : [],
-    tasks           : new TaskManager(),
     version
   }
 

@@ -13,11 +13,6 @@ const orgKey = {
   optionsFetcher : ({ model }) => Object.keys(model.orgs)
 }
 
-const threadId = {
-  bitReString    : '[0-9]+',
-  optionsFetcher : ({ app }) => app.ext.tasks.list()
-}
-
-const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey, threadId }
+const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey }
 
 export { commonPathResolvers }
