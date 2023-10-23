@@ -86,6 +86,7 @@ const appInit = async(initArgs) => {
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
     setupMethods    : [],
+    teardownMethods : [],
     version
   }
 
