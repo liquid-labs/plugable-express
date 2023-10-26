@@ -265,7 +265,9 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
       app.ext.handlers.push(endpointDef)
 
       if (help !== undefined) {
-        if (!Array.isArray(path)) throw new Error(`Endpoint '${path}' defines help and must use an array style path.`)
+        if (!Array.isArray(path)) {
+          throw new Error(`Endpoint '${path}' (from ${npmName}) defines help and must use an array style path.`)
+        }
 
         const helpPrefix = [...path]
         helpPrefix.unshift('help')
