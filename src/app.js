@@ -22,6 +22,8 @@ const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
 const pkgJSON = JSON.parse(pkgJSONContents)
 const serverVersion = pkgJSON.version
 
+let appParameters
+
 /**
 * Initializes the express app.
 *
@@ -51,6 +53,8 @@ const appInit = async(initArgs) => {
     useDefaultSettings,
     version
   } = initArgs
+
+  appParameters = initArgs
 
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
@@ -88,30 +92,6 @@ const appInit = async(initArgs) => {
     setupMethods    : [],
     teardownMethods : [],
     version
-  }
-
-  app.ext.findPackage = ({ npmName }) => {
-    let [org, basename] = npmName.split('/')
-    if (basename === undefined) {
-      basename = org
-      org = undefined
-    }
-    else if (org.startsWith('@')) {
-      org = org.slice(1) // we will add back on later to test both
-    }
-    const pkgPath = org === undefined
-      ? fsPath.join(basename, 'package.json')
-      : fsPath.join(org, basename, 'package.json')
-    for (const devPath of devPaths) {
-      // TODO: this is a workaround until we transition fully to matching NPM names
-      for (const testPath of [fsPath.join(devPath, pkgPath), fsPath.join(devPath, '@' + pkgPath)]) {
-        if (existsSync(testPath)) {
-          return testPath
-        }
-      }
-    }
-
-    return null
   }
 
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
@@ -241,6 +221,12 @@ const makeID = (length = 5) => {
   return result
 }
 
+const reloadApp = (app) => {
+  const parameters = Object.assign({ app }, appParameters)
+
+  appInit(parameters)
+}
+
 const statusText = {
   400 : 'BadRequest',
   401 : 'Unauthorized',
@@ -285,4 +271,4 @@ const statusText = {
   511 : 'NetworkAuthenticationRequired'
 }
 
-export { appInit }
+export { appInit, reloadApp }
