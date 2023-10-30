@@ -15,7 +15,6 @@ import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
-import { initModel } from './model'
 
 const pkgRoot = findRoot(__dirname)
 const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
@@ -59,8 +58,6 @@ const appInit = async(initArgs) => {
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
   }
-
-  const model = initModel({ reporter })
 
   app = app || express()
 
@@ -111,7 +108,7 @@ const appInit = async(initArgs) => {
   app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)
   // end direct app extensions
 
-  const options = { cache, model, pluginsPath, reporter }
+  const options = { cache, pluginsPath, reporter }
 
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign(
@@ -126,7 +123,7 @@ const appInit = async(initArgs) => {
   if (pluginPaths?.length > 0) {
     for (const pluginDir of pluginPaths) {
       const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
-      await loadPlugin({ app, cache, model, reporter, dir : pluginDir, pkg : packageJSON })
+      await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
     }
   }
 
@@ -191,7 +188,7 @@ const appInit = async(initArgs) => {
 
   await initServerSettings({ app, defaultRegistries, useDefaultSettings })
 
-  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter }, waitTillComplete : true })
+  const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
   for (const setupMethod of app.ext.setupMethods) {
     depRunner.enqueue(setupMethod)
   }

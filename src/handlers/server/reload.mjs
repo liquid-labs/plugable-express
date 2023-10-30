@@ -1,26 +1,13 @@
-import { loadPlugins } from '../../lib'
+import { reloadApp } from '../../app'
 
 const method = 'put'
 const path = ['server', 'reload']
-const parameters = [
-  {
-    name          : 'pluginsPath',
-    required      : false,
-    isSingleValue : true,
-    description   : 'The path to search for plugins, overriding the server default.'
-  }
-]
+const parameters = []
 
-const func = ({ app, cache, model, reporter }) => async(req, res) => {
-  const { pluginsPath } = req.vars
+const func = ({ app, cache, reporter }) => async(req, res) => {
+  reloadApp()
 
-  model.load()
-
-  // pluginPath default is set by loadPlugins if undef here
-  await loadPlugins(app, { cache, model, pluginsPath, reporter })
-
-  res.json({ message : 'Model and lugins reloaded.' })
-  // res.json(app.ext.handlers)
+  res.json({ message : 'App reloaded.' })
 }
 
 export { func, method, parameters, path }
