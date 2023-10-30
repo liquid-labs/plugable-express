@@ -8,11 +8,6 @@ const newOrgKey = {
   optionsFetcher : ({ currToken, newOrgKey }) => newOrgKey ? [newOrgKey] : []
 }
 
-const orgKey = {
-  bitReString    : '[a-zA-Z0-9][a-zA-Z0-9-]*',
-  optionsFetcher : ({ model }) => Object.keys(model.orgs)
-}
-
-const commonPathResolvers = { newOrgKey, handlerPluginName, orgKey }
+const commonPathResolvers = { newOrgKey, handlerPluginName }
 
 export { commonPathResolvers }

@@ -15,12 +15,13 @@ import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
-import { initModel } from './model'
 
 const pkgRoot = findRoot(__dirname)
 const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
 const pkgJSON = JSON.parse(pkgJSONContents)
 const serverVersion = pkgJSON.version
+
+let appParameters
 
 /**
 * Initializes the express app.
@@ -52,11 +53,11 @@ const appInit = async(initArgs) => {
     version
   } = initArgs
 
+  appParameters = initArgs
+
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
   }
-
-  const model = initModel({ reporter })
 
   app = app || express()
 
@@ -90,30 +91,6 @@ const appInit = async(initArgs) => {
     version
   }
 
-  app.ext.findPackage = ({ npmName }) => {
-    let [org, basename] = npmName.split('/')
-    if (basename === undefined) {
-      basename = org
-      org = undefined
-    }
-    else if (org.startsWith('@')) {
-      org = org.slice(1) // we will add back on later to test both
-    }
-    const pkgPath = org === undefined
-      ? fsPath.join(basename, 'package.json')
-      : fsPath.join(org, basename, 'package.json')
-    for (const devPath of devPaths) {
-      // TODO: this is a workaround until we transition fully to matching NPM names
-      for (const testPath of [fsPath.join(devPath, pkgPath), fsPath.join(devPath, '@' + pkgPath)]) {
-        if (existsSync(testPath)) {
-          return testPath
-        }
-      }
-    }
-
-    return null
-  }
-
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
   const localSettingsPath = fsPath.join(serverHome, 'local-settings.yaml')
@@ -131,7 +108,7 @@ const appInit = async(initArgs) => {
   app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)
   // end direct app extensions
 
-  const options = { cache, model, pluginsPath, reporter }
+  const options = { cache, pluginsPath, reporter }
 
   reporter.log('Loading core handlers...')
   registerHandlers(app, Object.assign(
@@ -146,7 +123,7 @@ const appInit = async(initArgs) => {
   if (pluginPaths?.length > 0) {
     for (const pluginDir of pluginPaths) {
       const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
-      await loadPlugin({ app, cache, model, reporter, dir : pluginDir, pkg : packageJSON })
+      await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
     }
   }
 
@@ -211,7 +188,7 @@ const appInit = async(initArgs) => {
 
   await initServerSettings({ app, defaultRegistries, useDefaultSettings })
 
-  const depRunner = new DependencyRunner({ runArgs : { app, cache, model, reporter }, waitTillComplete : true })
+  const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
   for (const setupMethod of app.ext.setupMethods) {
     depRunner.enqueue(setupMethod)
   }
@@ -239,6 +216,12 @@ const makeID = (length = 5) => {
     counter += 1
   }
   return result
+}
+
+const reloadApp = (app) => {
+  const parameters = Object.assign({ app }, appParameters)
+
+  appInit(parameters)
 }
 
 const statusText = {
@@ -285,4 +268,4 @@ const statusText = {
   511 : 'NetworkAuthenticationRequired'
 }
 
-export { appInit }
+export { appInit, reloadApp }

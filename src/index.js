@@ -1,5 +1,5 @@
-import { appInit } from './app'
+import { appInit, reloadApp } from './app'
 import { Reporter } from './lib/reporter'
 import { startServer } from './server'
 
-export { appInit, Reporter, startServer }
+export { appInit, reloadApp, Reporter, startServer }
