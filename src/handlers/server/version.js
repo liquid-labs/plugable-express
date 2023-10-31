@@ -1,18 +1,13 @@
-import * as fs from 'node:fs'
 import http from 'node:http'
 import * as os from 'node:os'
-import * as sysPath from 'node:path'
 
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
-
-import { safeJSONParse } from '../../lib/json-helpers'
 
 const method = 'get'
 const path = ['server', 'version']
 const parameters = []
 
 const func = ({ app, cache, reporter }) => (req, res) => {
-
   const versionInfo = {
     name               : app.ext.name,
     version            : app.ext.version,

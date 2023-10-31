@@ -18,7 +18,7 @@ describe('GET:/server', () => {
 
   test('processes JSON requests', async() => {
     const { status, body, headers } = await request(app)
-      .get('/server') // it reads weird, but this MUST go first
+      .get('/server/version') // it reads weird, but this MUST go first
       .set('Accept', 'application/json')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/json/)
@@ -28,7 +28,7 @@ describe('GET:/server', () => {
 
   test('processes plain text requests', async() => {
     const { status, text, headers } = await request(app)
-      .get('/server') // it reads weird, but this MUST go first
+      .get('/server/version') // it reads weird, but this MUST go first
       .set('Accept', 'text/plain')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/text\/plain/)
@@ -37,7 +37,7 @@ describe('GET:/server', () => {
 
   test('results in a 406 with unsupported accept types', async() => {
     const { status } = await request(app)
-      .get('/server') // it reads weird, but this MUST go first
+      .get('/server/version') // it reads weird, but this MUST go first
       .set('Accept', 'application/xml')
 
     expect(status).toBe(406)

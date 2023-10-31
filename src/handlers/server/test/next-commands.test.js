@@ -21,7 +21,7 @@ describe('GET:/server/next-commands', () => {
     ['/', ['help', 'server']],
     ['/s', ['server']],
     ['/serve', ['server']],
-    ['/server/ ', ['--', 'api', 'errors', 'next-commands', 'plugins', 'reload', 'stop']],
+    ['/server/', ['api', 'errors', 'next-commands', 'plugins', 'reload', 'stop', 'version']],
     ['/server/er', ['errors']],
     ['/server/errors', ['errors']],
     ['/server/errors/', ['list']],
