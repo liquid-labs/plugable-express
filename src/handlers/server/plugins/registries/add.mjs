@@ -2,8 +2,7 @@ import * as fsPath from 'node:path'
 
 import { writeFJSON } from '@liquid-labs/federated-json'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
-
-import { REGISTRY_DATA_KEY } from './_lib/determine-registry-data'
+import { REGISTRY_DATA_KEY } from '@liquid-labs/liq-plugins-lib'
 
 const help = {
   name        : 'Registries add',

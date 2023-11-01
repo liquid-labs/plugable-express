@@ -12,7 +12,7 @@ const parameters = [
 const CLI_STYLE = ' '
 const URL_STYLE = '/'
 
-const func = ({ app, cache, model }) => async(req, res) => {
+const func = ({ app, cache }) => async(req, res) => {
   try {
     const format = req.accepts(['json', 'text'])
     const { command = '/' } = req.query
@@ -67,7 +67,7 @@ const func = ({ app, cache, model }) => async(req, res) => {
             prevElements[typeKey] = commandBit // save the value of the variable
             const elementConfig = app.ext.pathResolvers[typeKey]
             const { bitReString, optionsFetcher } = elementConfig
-            let myOptions = optionsFetcher({ app, currToken : commandBit, model, ...prevElements })
+            let myOptions = optionsFetcher({ app, cache, currToken : commandBit, ...prevElements })
             if (myOptions?.then) myOptions = await myOptions
             if (myOptions?.length > 0) finalOptions.push(...myOptions)
 
@@ -112,10 +112,10 @@ const func = ({ app, cache, model }) => async(req, res) => {
           if (k.startsWith(':')) {
             const elementConfig = app.ext.pathResolvers[k.slice(1)] // this should already be validated
             const { optionsFetcher } = elementConfig
-            let fOpts = optionsFetcher({ app, currToken : '', model, req, ...prevElements })
+            let fOpts = optionsFetcher({ app, cache, currToken : '', req, ...prevElements })
             if (fOpts?.then) fOpts = await fOpts
             acc.push(...fOpts)
-          // acc.push(...optionsFetcher({ currToken: '', model, ...prevElements }))
+          // acc.push(...optionsFetcher({ currToken: '', ...prevElements }))
           }
           // the blank happens because the root command is '', but it doesn't make sense to reflect it back
           // '_' vars are either hidden (if actually options) or internal vars
@@ -139,7 +139,6 @@ const func = ({ app, cache, model }) => async(req, res) => {
           cache,
           command,
           lastCmd,
-          model,
           nextCommands,
           optionString,
           paramsSpec : frontier._parameters(),
