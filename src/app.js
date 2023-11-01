@@ -21,8 +21,6 @@ const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
 const pkgJSON = JSON.parse(pkgJSONContents)
 const serverVersion = pkgJSON.version
 
-let appParameters
-
 /**
 * Initializes the express app.
 *
@@ -52,8 +50,6 @@ const appInit = async(initArgs) => {
     useDefaultSettings,
     version
   } = initArgs
-
-  appParameters = initArgs
 
   if (!serverHome) {
     throw new Error("No 'serverHome' defined; bailing out.")
@@ -102,7 +98,7 @@ const appInit = async(initArgs) => {
   // direct app extensions
   app.reload = async() => {
     app.router.stack = []
-    await appInit(initArgs)
+    await appInit(Object.assign({}, initArgs, { app }))
   }
 
   app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)
@@ -218,12 +214,6 @@ const makeID = (length = 5) => {
   return result
 }
 
-const reloadApp = (app) => {
-  const parameters = Object.assign({ app }, appParameters)
-
-  appInit(parameters)
-}
-
 const statusText = {
   400 : 'BadRequest',
   401 : 'Unauthorized',
@@ -268,4 +258,4 @@ const statusText = {
   511 : 'NetworkAuthenticationRequired'
 }
 
-export { appInit, reloadApp }
+export { appInit }
