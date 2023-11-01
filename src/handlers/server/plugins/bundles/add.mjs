@@ -104,7 +104,7 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
     }
   }
 
-  httpSmartResponse({ msg: message, req, res })
+  httpSmartResponse({ msg : message, req, res })
 }
 
 export { func, help, method, parameters, path }
