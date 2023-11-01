@@ -37,7 +37,6 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
   const bundles = await getRegistryBundles({ app, cache/*, update */ })
   const bundlesToInstall = bundles.filter(({ name }) => installBundles.includes(name))
 
-  console.log('bundlesToInstall:', bundlesToInstall) // DEBUG
   // first, we check that we can hadle all the install 'types'
   for (const bundle of bundlesToInstall) {
     for (const type of Object.keys(bundle)) {
