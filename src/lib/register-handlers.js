@@ -186,9 +186,9 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
         handlerFunc)
       // for or own informational purposes
       const endpointDef = Object.assign({
-        pluginName : name,
         npmName,
-        path       : routablePath.toString()
+        routablePath : routablePath.toString(),
+        pluginName   : name,
       },
       handler
       )
@@ -269,30 +269,29 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
           throw new Error(`Endpoint '${path}' (from ${npmName}) defines help and must use an array style path.`)
         }
 
-        const helpPrefix = [...path]
-        helpPrefix.unshift('help')
+        const helpPathTemplate = [...path]
+        helpPathTemplate.unshift('help')
         // const helpPostfix = [...path]
         // helpPostfix.push('help')
 
-        for (const helpPathTmpl of [helpPrefix]) {
-          const helpPath = helpPathTmpl.map((b) => b.startsWith(':') ? b.slice(1) : b)
-          const routableHelpPath =
-            cleanReForExpress(processCommandPath({ app, model, pathArr : helpPath, parameters : helpParameters }))
-          const helpFunc = sendHelp({ help, method, path, parameters }) // from the main endpoint
-          app.get(routableHelpPath,
-            processParams({ parameters : helpParameters, path : helpPath }),
-            helpFunc({ model, reporter }))
+        const helpPath = helpPathTemplate.map((b) => b.startsWith(':') ? '-' + b.slice(1) + '-' : b)
+        const routableHelpPath =
+          cleanReForExpress(processCommandPath({ app, model, pathArr : helpPath, parameters : helpParameters }))
+        const helpFunc = sendHelp({ help, method, path, parameters }) // from the main endpoint
+        app.get(routableHelpPath,
+          processParams({ parameters : helpParameters, path : helpPath }),
+          helpFunc({ model, reporter }))
 
-          const helpEndpointDef = {
-            method     : 'GET',
-            parameters : helpParameters,
-            path       : routableHelpPath.toString(),
-            npmName,
-            matcher    : routableHelpPath.toString().slice(1, -1)
-          }
-          Object.freeze(helpEndpointDef)
-          app.ext.handlers.push(helpEndpointDef)
+        const helpEndpointDef = {
+          method     : 'GET',
+          parameters : helpParameters,
+          path       : helpPathTemplate,
+          routabblePath : routableHelpPath.toString(),
+          npmName,
+          matcher    : routableHelpPath.toString().slice(1, -1)
         }
+        Object.freeze(helpEndpointDef)
+        app.ext.handlers.push(helpEndpointDef)
       } // load help 'if (help !== undefined)'
     } // for (const path of paths || [ aPath ]) {...}
     handlersInfo.push({
