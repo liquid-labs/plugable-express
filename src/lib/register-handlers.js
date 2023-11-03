@@ -188,7 +188,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
       const endpointDef = Object.assign({
         npmName,
         routablePath : routablePath.toString(),
-        pluginName   : name,
+        pluginName   : name
       },
       handler
       )
@@ -283,12 +283,12 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
           helpFunc({ model, reporter }))
 
         const helpEndpointDef = {
-          method     : 'GET',
-          parameters : helpParameters,
-          path       : helpPathTemplate,
+          method        : 'GET',
+          parameters    : helpParameters,
+          path          : helpPathTemplate,
           routabblePath : routableHelpPath.toString(),
           npmName,
-          matcher    : routableHelpPath.toString().slice(1, -1)
+          matcher       : routableHelpPath.toString().slice(1, -1)
         }
         Object.freeze(helpEndpointDef)
         app.ext.handlers.push(helpEndpointDef)
