@@ -1,5 +1,5 @@
 const method = 'get'
-const path = ['']
+const path = ['heartbeat']
 const parameters = []
 
 const func = ({ reporter }) => (req, res) => {
