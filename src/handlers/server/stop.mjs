@@ -1,3 +1,8 @@
+const help = {
+  name: 'Server stop',
+  summary: 'Stops or shuts down the server.',
+}
+
 const method = 'unbind'
 const path = ['server', 'stop?']
 const parameters = []
@@ -16,4 +21,4 @@ const func = ({ app, cache }) => async(req, res) => {
   process.kill(process.pid, 'SIGTERM')
 }
 
-export { func, path, method, parameters }
+export { func, help, path, method, parameters }

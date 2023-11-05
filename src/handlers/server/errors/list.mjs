@@ -1,5 +1,11 @@
 import { commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
 
+const help = {
+  name: 'List errors',
+  summary: 'Lists known errors.',
+  description: 'The system will retain information on recent errors for a time. This endpoint lists the current known errors. Older error references may not be present.'
+}
+
 const method = 'get'
 // const path = new RegExp('/orgs(?:/list)?[/#?]?$')
 const path = ['server', 'errors', 'list?']
@@ -36,4 +42,4 @@ const func = ({ app, model, reporter }) => (req, res) => {
   })
 }
 
-export { func, parameters, path, method }
+export { func, help, parameters, path, method }

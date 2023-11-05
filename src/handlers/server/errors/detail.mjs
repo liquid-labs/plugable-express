@@ -1,5 +1,11 @@
 import yaml from 'js-yaml'
 
+const help = {
+  name: 'Detail errors',
+  summary: 'Provides detailed information on the refenced error.',
+  description: 'Error reports are stored (temporarily) by the server and this endpoint retrieves details regarding a particular error.'
+}
+
 const method = 'get'
 // const path = new RegExp('/orgs(?:/list)?[/#?]?$')
 const path = ['server', 'errors', ':errorKey', 'detail']
@@ -75,4 +81,4 @@ const func = ({ app, model, reporter }) => {
   }
 }
 
-export { func, parameters, path, method }
+export { func, help, parameters, path, method }
