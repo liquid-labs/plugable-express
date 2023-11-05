@@ -1,6 +1,6 @@
 const help = {
-  name: 'Server stop',
-  summary: 'Stops or shuts down the server.',
+  name    : 'Server stop',
+  summary : 'Stops or shuts down the server.'
 }
 
 const method = 'unbind'

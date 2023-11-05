@@ -1,9 +1,9 @@
 import { commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
 
 const help = {
-  name: 'List errors',
-  summary: 'Lists known errors.',
-  description: 'The system will retain information on recent errors for a time. This endpoint lists the current known errors. Older error references may not be present.'
+  name        : 'List errors',
+  summary     : 'Lists known errors.',
+  description : 'The system will retain information on recent errors for a time. This endpoint lists the current known errors. Older error references may not be present.'
 }
 
 const method = 'get'

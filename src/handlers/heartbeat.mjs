@@ -1,6 +1,6 @@
 const help = {
-  name: 'server heartbeat',
-  summary: 'Endpoint to check that the server is up and listening.'
+  name    : 'server heartbeat',
+  summary : 'Endpoint to check that the server is up and listening.'
 }
 
 const method = 'get'

@@ -1,9 +1,9 @@
 import { nextOptions } from './_lib/next-options'
 
 const help = {
-  name: 'Next commands',
-  summary: 'Given a partial or incomplete command string, lists possible "next commands" to complete or follow the given partial.',
-  description: 'Given a partial or incomplete command string, lists possible "next commands" to complete or follow the given partial. The provided command string may be blank. This is used primarily to support the built-in shell tab-completion support, allowing the server to generate possible completions dynamically as plugins are loaded and removed.'
+  name        : 'Next commands',
+  summary     : 'Given a partial or incomplete command string, lists possible "next commands" to complete or follow the given partial.',
+  description : 'Given a partial or incomplete command string, lists possible "next commands" to complete or follow the given partial. The provided command string may be blank. This is used primarily to support the built-in shell tab-completion support, allowing the server to generate possible completions dynamically as plugins are loaded and removed.'
 }
 
 const method = 'get'

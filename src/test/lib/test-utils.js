@@ -5,7 +5,7 @@ import * as fsPath from 'node:path'
 import { Reporter } from '../../lib/reporter'
 
 const COMMAND_COUNT = 19
-const HELP_COUNT = 10
+const HELP_COUNT = 18
 
 const defaultTestOptions = ({
   serverHome = fsPath.join(os.tmpdir(), 'plugable-express-' + Math.round(Math.random() * 10000000000000000)),

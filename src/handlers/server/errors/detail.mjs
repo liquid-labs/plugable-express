@@ -1,9 +1,9 @@
 import yaml from 'js-yaml'
 
 const help = {
-  name: 'Detail errors',
-  summary: 'Provides detailed information on the refenced error.',
-  description: 'Error reports are stored (temporarily) by the server and this endpoint retrieves details regarding a particular error.'
+  name        : 'Detail errors',
+  summary     : 'Provides detailed information on the refenced error.',
+  description : 'Error reports are stored (temporarily) by the server and this endpoint retrieves details regarding a particular error.'
 }
 
 const method = 'get'

@@ -4,9 +4,9 @@ import * as os from 'node:os'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
 const help = {
-  name: 'Server version',
-  summary: 'Provides version information for the server aand its components.',
-  descirption: "Provides version information for the server aand its components. This includes the underlying 'plugable-server' version (which is used to determine plugin compatibility), as well as information on node and the platform where the server is running."
+  name        : 'Server version',
+  summary     : 'Provides version information for the server aand its components.',
+  descirption : "Provides version information for the server aand its components. This includes the underlying 'plugable-server' version (which is used to determine plugin compatibility), as well as information on node and the platform where the server is running."
 }
 
 const method = 'get'
