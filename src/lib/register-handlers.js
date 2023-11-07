@@ -145,8 +145,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
 // '/'
 const cleanReForExpress = (pathRe) => new RegExp(pathRe.toString().replaceAll(regexParamRegExp, '').slice(1, -1))
 
-const registerHandlers = (app, { npmName, handlers, model, name, reporter, setupData, cache }) => {
-  const handlersInfo = []
+const registerHandlers = (app, { npmName, handlers, model, reporter, setupData, cache }) => {
   for (const handler of handlers) {
     const { func, help, method, parameters, path: aPath } = handler
     const paths = handler.paths || [aPath] // we can now use regularized 'paths'
@@ -187,8 +186,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
       // for or own informational purposes
       const endpointDef = Object.assign({
         npmName,
-        routablePath : routablePath.toString(),
-        pluginName   : name
+        routablePath : routablePath.toString()
       },
       handler
       )
@@ -294,13 +292,7 @@ const registerHandlers = (app, { npmName, handlers, model, name, reporter, setup
         app.ext.handlers.push(helpEndpointDef)
       } // load help 'if (help !== undefined)'
     } // for (const path of paths || [ aPath ]) {...}
-    handlersInfo.push({
-      name : help?.name || 'UNKNOWN',
-      paths
-    })
   } // for (const handler of handlers) {...}
-
-  return handlersInfo
 }
 
 export {
