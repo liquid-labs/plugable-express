@@ -8,6 +8,6 @@ const path = ['server', 'plugins', 'handlers', ':' + pluginNameKey, 'details']
 
 const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 
-const func = detailsPluginHandler({ installedPluginsRetriever, nameKey: pluginNameKey })
+const func = detailsPluginHandler({ installedPluginsRetriever, nameKey : pluginNameKey })
 
 export { func, help, method, parameters, path }
