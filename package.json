@@ -50,8 +50,9 @@
   "dependencies": {
     "@liquid-labs/dependency-runner": "^1.0.0-alpha.8",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.15",
-    "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.13",
+    "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.14",
     "@liquid-labs/question-and-answer": "^1.0.0-alpha.12",
+    "@liquid-labs/regex-repo": "^1.1.1",
     "command-line-args": "^5.2.1",
     "express": "^5.0.0-beta.1",
     "express-fileupload": "^1.2.1",

@@ -11,33 +11,35 @@ import { registerHandlers } from './register-handlers'
 /**
  * Loads a single plugin.
  */
-const loadPlugin = async({ app, cache, model, reporter, dir, pkg }) => {
-  const { main, name: npmName, version } = pkg
-  const { handlers, name = 'UNKNOWN', setup, summary } = await import(`${dir}/${main}`) || {}
+const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
+  const { main, name: npmName, description, version } = pkg
+  // Since we pull the 'summary' from the package.json description, there may be unecessary context which is clear when 
+  // asking 'describe this plugin'. So, we look for this specific phrase and remove it.
+  const summary = description.replace(/ +(?:for|in) a @liquid-labs\/plugable-express server/, '')
+  const { handlers, setup } = await import(`${dir}/${main}`) || {}
   if (handlers === undefined && setup === undefined) {
     throw new Error(`Plugin from '${npmName}' does not export 'handlers' or 'setup'; bailing out.`)
   }
 
   if (setup !== undefined) reporter.log(`Running setup for ${npmName} plugins...`)
-  let setupData = setup?.({ app, cache, model, reporter })
+  let setupData = setup?.({ app, cache, reporter })
   if (setupData?.then !== undefined) {
     setupData = await setupData
   }
 
   app.ext.pendingHandlers.push(() => {
-    let handlersInfo = []
     if (handlers !== undefined) {
-      handlersInfo = registerHandlers(app, { npmName, handlers, model, name, reporter, setupData, cache })
+      registerHandlers(app, { npmName, handlers, reporter, setupData, cache })
     }
 
-    app.ext.handlerPlugins.push({ name, summary, npmName, handlersInfo, version })
+    app.ext.handlerPlugins.push({ summary, npmName, version })
   })
 }
 
 /**
- * Given an app, model, cache, reporter, and plugin path, loads plugins from the path.
+ * Given an app, cache, reporter, and plugin path, loads plugins from the path.
  */
-const loadPlugins = async(app, { model, cache, reporter, pluginsPath }) => {
+const loadPlugins = async(app, { cache, reporter, pluginsPath }) => {
   if (pluginsPath === null) {
     throw new Error("No 'pluginsPath' defined when trying to load plugins.")
   }
@@ -56,7 +58,7 @@ const loadPlugins = async(app, { model, cache, reporter, pluginsPath }) => {
   reporter.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
 
   for (const plugin of plugins) {
-    await loadPlugin({ app, cache, model, reporter, ...plugin })
+    await loadPlugin({ app, cache, reporter, ...plugin })
   }
 }
 
