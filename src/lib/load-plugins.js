@@ -15,7 +15,7 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
   const { main, name: npmName, description, version } = pkg
   // Since we pull the 'summary' from the package.json description, there may be unecessary context which is clear when 
   // asking 'describe this plugin'. So, we look for this specific phrase and remove it.
-  const summary = description.replace(/ +(?:for|in) a @liquid-labs\/plugable-express server/, '')
+  const summary = description?.replace(/ +(?:for|in) a @liquid-labs\/plugable-express server/, '')
   const { handlers, setup } = await import(`${dir}/${main}`) || {}
   if (handlers === undefined && setup === undefined) {
     throw new Error(`Plugin from '${npmName}' does not export 'handlers' or 'setup'; bailing out.`)
