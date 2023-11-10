@@ -42,7 +42,7 @@ const func = ({ app, cache }) => async(req, res) => {
       cmdsLeft = commandPath.split('/')
       cmdsLeft.shift() // drop '' from leading '/'
     }
-    if (cmdsLeft[cmdsLeft.length - 1].match(/^\s*$/)) { // TODO: this may not be necessary
+    if (cmdsLeft[cmdsLeft.length - 1]?.match(/^\s*$/)) { // TODO: this may not be necessary
       cmdsLeft.pop()
     }
 
