@@ -52,7 +52,7 @@ describe('GET:/server/next-commands', () => {
     const hasSep = r[0].match(/ --/)
     let [cmdPath, options] = r[0].split('--')
     if (!cmdPath.match(/^\s*$/)) {
-      cmdPath = cmdPath.slice(1).replaceAll('/', ' ')
+      cmdPath = 'cli-command ' + cmdPath.slice(1).replaceAll('/', ' ')
     }
     let cliPath = cmdPath
     if (hasSep) cliPath += '--'

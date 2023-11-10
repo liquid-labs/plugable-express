@@ -36,7 +36,6 @@ const appInit = async(initArgs) => {
   let { app } = initArgs
   const {
     apiSpecPath,
-    cliName,
     devPaths,
     defaultRegistries,
     name,
@@ -65,7 +64,6 @@ const appInit = async(initArgs) => {
 
   // setup app.ext
   app.ext = {
-    cliName,
     commandPaths    : {},
     devPaths,
     errorsEphemeral : [],
