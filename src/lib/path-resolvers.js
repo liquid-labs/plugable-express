@@ -5,7 +5,6 @@ import { getRegistryBundles } from '../handlers/server/plugins/bundles/_lib/get-
 const handlerPluginName = {
   bitReString    : npmPackageNameRE.toString().slice(1, -1),
   optionsFetcher : ({ app }) => {
-    console.log('hey') // DEBUG
     return app.ext.handlerPlugins.map(({ npmName }) => npmName)
   }
 }
