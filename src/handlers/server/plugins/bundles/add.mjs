@@ -14,7 +14,7 @@ const method = 'put'
 const path = ['server', 'plugins', 'bundles', 'add']
 const parameters = [
   {
-    name           : 'installBundles',
+    name           : 'bundles',
     isMultivalue   : true,
     description    : 'The name of the bundle to install.',
     optionsFetcher : async({ app, cache }) => {
@@ -24,18 +24,20 @@ const parameters = [
   },
   {
     name        : 'orgKey',
-    description : "The org key under which to install org-scoped plugins, if any. This parameter is requried for bundles containing plugin types other than 'handlers' or 'integrations'."
+    description : `The org key under which to install org-scoped plugins, if any. This parameter is currently requried for bundles containing plugin types other than 'handlers' or 'integrations'.
+
+An "org-scoped" plugin is associated with an org rather than the server as a whole. E.g., a "company policy" plugin would be scoped to a particular org.`
   }
 ]
 
 const func = ({ app, cache, reporter }) => async(req, res) => {
-  const { installBundles = [], orgKey } = req.vars
-  if (installBundles.length === 0) {
+  const { bundles = [], orgKey } = req.vars
+  if (bundles.length === 0) {
     throw createError.BadRequest('Must specify at least one bundle to install.')
   }
 
   const bundles = await getRegistryBundles({ app, cache/*, update */ })
-  const bundlesToInstall = bundles.filter(({ name }) => installBundles.includes(name))
+  const bundlesToInstall = bundles.filter(({ name }) => bundles.includes(name))
 
   // first, we check that we can hadle all the install 'types'
   for (const bundle of bundlesToInstall) {
