@@ -26,18 +26,18 @@ const parameters = [
     name        : 'orgKey',
     description : `The org key under which to install org-scoped plugins, if any. This parameter is currently requried for bundles containing plugin types other than 'handlers' or 'integrations'.
 
-An "org-scoped" plugin is associated with an org rather than the server as a whole. E.g., a "company policy" plugin would be scoped to a particular org.`
+An "org-scoped" plugin is associated with an org rather than the server as a whole. E.g., each "company policy" plugin would be scoped to a particular org and may be entirely absent for others.`
   }
 ]
 
 const func = ({ app, cache, reporter }) => async(req, res) => {
-  const { bundles = [], orgKey } = req.vars
-  if (bundles.length === 0) {
+  const { bundles : bundleNames = [], orgKey } = req.vars
+  if (bundleNames.length === 0) {
     throw createError.BadRequest('Must specify at least one bundle to install.')
   }
 
   const bundles = await getRegistryBundles({ app, cache/*, update */ })
-  const bundlesToInstall = bundles.filter(({ name }) => bundles.includes(name))
+  const bundlesToInstall = bundles.filter(({ name }) => bundleNames.includes(name))
 
   // first, we check that we can hadle all the install 'types'
   for (const bundle of bundlesToInstall) {
