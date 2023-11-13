@@ -43,7 +43,7 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
   // first, we check that we can hadle all the install 'types'
   for (const bundle of bundlesToInstall) {
     for (const type of Object.keys(bundle)) {
-      reporter.log(`Checking handling of bundle ${bundle} type ${type}...`)
+      reporter.log(`Checking handling of bundle ${bundle.name} type ${type}...`)
       // TODO: what's type 'name'? Is it used?
       if (type === 'name' || type === 'handlers') { // we don't care about 'name' and handle 'handlers' ourself
         continue
@@ -53,8 +53,8 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
           throw createError.BadRequest(`Found bundle containing org-scoped plugins type '${type}'; you must define the 'orgKey' parameter.`)
         }
 
-        const canHandle = app.ext.integrations.hasHook({ providerFor : type + ' plugins', hook : 'installedPlugins' })
-          && app.ext.integrations.hasHook({ providerFor : type + ' plugins', hook : 'pluginPackageDir' })
+        const canHandle = app.ext.integrations?.hasHook({ providerFor : type + ' plugins', hook : 'installedPlugins' })
+          && app.ext.integrations?.hasHook({ providerFor : type + ' plugins', hook : 'pluginPackageDir' })
 
         if (canHandle !== true) {
           throw createError.BadRequest(`Bundle cannot be installed; do not know how to handle plugin type '${type}'.`)
