@@ -27,7 +27,7 @@ const initServerSettings = async({
   // at the moment, registries is the only config, so we just skip everything if not using registries
   if (app.ext.noRegistries !== true) {
     if (useDefaultSettings === true) {
-      Object.assign(serverSettings, { defaultRegistries })
+      serverSettings.registries = defaultRegistries
     }
     else if (registries === undefined || registries.length === 0 || reAsk === true) {
       ibActions.push({
