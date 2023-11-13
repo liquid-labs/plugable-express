@@ -141,7 +141,10 @@ const appInit = async(initArgs) => {
       errors.shift()
       i += 1
     }
-    console.error(error)
+    process.stderr.write(error.stack + '\n')
+    if (error.cause) {
+      process.stderr.write('Cause:\n' + error.cause.stack + '\n')
+    }
     next(error)
   })
   // generate user response
