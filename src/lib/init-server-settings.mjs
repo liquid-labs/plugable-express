@@ -25,11 +25,11 @@ const initServerSettings = async({
   const registries = serverSettings.registries
 
   // at the moment, registries is the only config, so we just skip everything if not using registries
-  if (app.ext.noRegistries !== true) {
+  if (app.ext.noRegistries !== true && (registries === undefined || registries.length === 0 || reAsk === true)) {
     if (useDefaultSettings === true) {
       serverSettings.registries = defaultRegistries
     }
-    else if (registries === undefined || registries.length === 0 || reAsk === true) {
+    else if (reAsk === true) {
       ibActions.push({
         prompt    : 'Enter the plugin registr(y/ies) to use:',
         multValue : true,
