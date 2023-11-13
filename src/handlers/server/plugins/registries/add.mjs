@@ -14,7 +14,7 @@ const path = ['server', 'plugins', 'registries', 'add']
 
 const parameters = [
   {
-    name         : 'registryURLs',
+    name         : 'urls',
     isMultivalue : true,
     required     : true,
     description  : 'The URL of a registry to add. May specify multiple times to add multiple registries.'
@@ -22,7 +22,7 @@ const parameters = [
 ]
 
 const func = ({ app, cache, reporter }) => (req, res) => {
-  const { registryURLs } = req.vars
+  const { urls: registryURLs } = req.vars
 
   const serverSettings = app.ext.serverSettings
   if (!('registries' in serverSettings)) {
