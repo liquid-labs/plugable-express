@@ -38,15 +38,18 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
 
   const bundles = await getRegistryBundles({ app, cache/*, update */ })
   const bundlesToInstall = bundles.filter(({ name }) => bundleNames.includes(name))
+  reporter.log(`Identified ${bundlesToInstall.length} bundles to install...`)
 
   // first, we check that we can hadle all the install 'types'
   for (const bundle of bundlesToInstall) {
     for (const type of Object.keys(bundle)) {
+      reporter.log(`Checking handling of bundle ${bundle} type ${type}...`)
+      // TODO: what's type 'name'? Is it used?
       if (type === 'name' || type === 'handlers') { // we don't care about 'name' and handle 'handlers' ourself
         continue
       }
       else {
-        if (type !== 'handlers' && type !== 'integrations') {
+        if (type !== 'handlers' && type !== 'integrations' && orgKey === undefined) {
           throw createError.BadRequest(`Found bundle containing org-scoped plugins type '${type}'; you must define the 'orgKey' parameter.`)
         }
 
@@ -63,6 +66,7 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
   let message = ''
   for (const bundle of bundlesToInstall) {
     for (const [type, npmNames] of Object.entries(bundle)) {
+      reporter.log(`Installing ${npmNames.length} plugins of type ${type} for bundle ${bundle}...`)
       let installedPlugins, pluginPkgDir
 
       if (type === 'name') { // we don't care about 'name'
@@ -73,6 +77,7 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
         pluginPkgDir = app.ext.pluginsPath
       }
       else {
+        reporter.log(`Determining support for ${type} type handlers...`)
         installedPlugins = await app.ext.integrations.callHook({
           providerFor : type + ' plugins',
           hook        : 'installedPlugins',
