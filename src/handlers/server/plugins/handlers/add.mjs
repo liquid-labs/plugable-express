@@ -16,7 +16,7 @@ const func = addPluginsHandler({
   installedPluginsRetriever,
   pluginsDesc,
   pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath,
-  pluginType            : 'handler',
+  pluginType            : 'handlers',
   reloadFunc            : ({ app }) => app.reload()
 })
 
