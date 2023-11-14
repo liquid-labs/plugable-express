@@ -57,6 +57,9 @@ const startServer = async({
       cache.release()
       reporter.log('Server shut down.')
     })
+
+    // see https://github.com/liquid-labs/plugable-express/issues/211
+    process.exit()
   })
 
   return server
