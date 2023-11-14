@@ -1,9 +1,7 @@
-import { npmPackageNameRE } from '@liquid-labs/regex-repo'
-
 import { getRegistryBundles } from '../handlers/server/plugins/bundles/_lib/get-registry-bundles'
 
 const handlerPluginName = {
-  bitReString    : npmPackageNameRE.toString().slice(1, -1),
+  bitReString    : '((?:@|%40)[a-z0-9-~][a-z0-9-._~]*(?:[/]|%2f|%2F))?([a-z0-9-~][a-z0-9-._~]*)',
   optionsFetcher : ({ app }) => {
     return app.ext.handlerPlugins.map(({ npmName }) => npmName)
   }
