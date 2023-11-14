@@ -27,7 +27,7 @@ describe('app', () => {
     let cache
 
     beforeAll(async() => {
-      ({ cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
+      ({ cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
     })
 
     afterAll(() => {
@@ -56,7 +56,7 @@ describe('app', () => {
       testOptions.pluginsPath = pluginsPath
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = await appInit(testOptions))
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
     })
 
     afterAll(() => {

@@ -8,9 +8,10 @@ describe('GET:/server', () => {
   let app, cache
   beforeAll(async() => {
     ({ app, cache } = await appInit(defaultTestOptions({
-      name        : 'pluggable-test',
-      noAPIUpdate : true,
-      version     : '1.1-test.0'
+      name         : 'pluggable-test',
+      noAPIUpdate  : true,
+      noRegistries : true,
+      version      : '1.1-test.0'
     })))
   })
 

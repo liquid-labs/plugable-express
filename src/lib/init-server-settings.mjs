@@ -19,7 +19,7 @@ const initServerSettings = async({ ask = false, defaultRegistries, noRegistries 
   const registries = serverSettings.registries
 
   // at the moment, registries is the only config, so we just skip everything if not using registries
-  if (noRegistries !== true && (registries === undefined || registries.length === 0 || reAsk === true)) {
+  if (noRegistries !== true && (registries === undefined || registries.length === 0 || ask === true)) {
     if (ask !== true && defaultRegistries !== undefined) {
       serverSettings.registries = defaultRegistries
     }
@@ -36,7 +36,7 @@ const initServerSettings = async({ ask = false, defaultRegistries, noRegistries 
   if (ibActions.length > 0) {
     const questioner = new Questioner({
       interrogationBundle : initInterrogationBundle,
-      noSkipDefined       : reAsk,
+      noSkipDefined       : ask,
       parameters          : serverSettings
     })
     await questioner.question()
