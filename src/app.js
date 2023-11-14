@@ -46,7 +46,6 @@ const appInit = async(initArgs) => {
     reporter,
     serverHome,
     skipCorePlugins = false,
-    useDefaultSettings,
     version
   } = initArgs
 
@@ -183,7 +182,8 @@ const appInit = async(initArgs) => {
     }
   })
 
-  await initServerSettings({ app, defaultRegistries, useDefaultSettings })
+  await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverHome })
+  app.ext.serverSettings = getServerSettings(serverHome)
 
   const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
   for (const setupMethod of app.ext.setupMethods) {

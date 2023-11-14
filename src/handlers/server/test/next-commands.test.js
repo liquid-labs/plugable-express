@@ -11,7 +11,7 @@ describe('GET:/server/next-commands', () => {
 
   beforeAll(async() => {
     process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH;
-    ({ app, cache } = await appInit(defaultTestOptions({ noAPIUpdate : true })))
+    ({ app, cache } = await appInit(defaultTestOptions({ noAPIUpdate : true, noRegistries : true })))
   })
 
   afterAll(() => { cache?.release() })

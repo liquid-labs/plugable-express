@@ -8,7 +8,7 @@ describe('GET:/server/api', () => {
   let app, cache
 
   beforeAll(async() => {
-    ({ app, cache } = await appInit(defaultTestOptions({ noAPIUpdate : true })))
+    ({ app, cache } = await appInit(defaultTestOptions({ noAPIUpdate : true, noRegistries : true })))
   })
 
   afterAll(() => {
