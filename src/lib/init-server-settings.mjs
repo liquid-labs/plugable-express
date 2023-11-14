@@ -7,14 +7,8 @@ import { Questioner } from '@liquid-labs/question-and-answer'
 
 import { getServerSettings } from './get-server-settings'
 
-const initServerSettings = async({
-  app,
-  defaultRegistries,
-  reAsk = false,
-  serverSettings,
-  useDefaultSettings = false
-} = {}) => {
-  serverSettings = serverSettings || getServerSettings(app.ext.serverHome)
+const initServerSettings = async({ ask = false, defaultRegistries, noRegistries = false, serverHome } = {}) => {
+  const serverSettings = getServerSettings(serverHome) || {}
   const origSettings = structuredClone(serverSettings)
 
   const ibActions = []
@@ -25,11 +19,11 @@ const initServerSettings = async({
   const registries = serverSettings.registries
 
   // at the moment, registries is the only config, so we just skip everything if not using registries
-  if (app.ext.noRegistries !== true && (registries === undefined || registries.length === 0 || reAsk === true)) {
-    if (useDefaultSettings === true) {
+  if (noRegistries !== true && (registries === undefined || registries.length === 0 || reAsk === true)) {
+    if (ask !== true && defaultRegistries !== undefined) {
       serverSettings.registries = defaultRegistries
     }
-    else if (reAsk === true) {
+    else {
       ibActions.push({
         prompt    : 'Enter the plugin registr(y/ies) to use:',
         multValue : true,
@@ -56,7 +50,7 @@ const initServerSettings = async({
   }
 
   if (!isEqual(origSettings, serverSettings)) {
-    const serverSettingsPath = fsPath.join(app.ext.serverHome, 'server-settings.yaml')
+    const serverSettingsPath = fsPath.join(serverHome, 'server-settings.yaml')
     writeFJSON({ file : serverSettingsPath, data : serverSettings })
   }
 

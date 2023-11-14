@@ -183,7 +183,7 @@ const appInit = async(initArgs) => {
     }
   })
 
-  await initServerSettings({ app, defaultRegistries, useDefaultSettings })
+  await initServerSettings({ defaultRegistries, noRegistries: app.ext.noRegistries, serverHome: app.ext.serverHome, })
 
   const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
   for (const setupMethod of app.ext.setupMethods) {
