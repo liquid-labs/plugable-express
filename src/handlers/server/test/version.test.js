@@ -8,7 +8,7 @@ describe('GET:/server', () => {
   let app, cache
   beforeAll(async() => {
     ({ app, cache } = await appInit(defaultTestOptions({
-      name         : 'pluggable-test',
+      name         : 'plugable-test',
       noAPIUpdate  : true,
       noRegistries : true,
       version      : '1.1-test.0'
@@ -33,7 +33,7 @@ describe('GET:/server', () => {
       .set('Accept', 'text/plain')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/text\/plain/)
-    expect(text).toMatch(/pluggable-test: 1.1-test.0/)
+    expect(text).toMatch(/plugable-test: 1.1-test.0/)
   })
 
   test('results in a 406 with unsupported accept types', async() => {
