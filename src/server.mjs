@@ -5,7 +5,7 @@ const startServer = async({
   name,
   reporter, // customized reporter
   // the rest are app options
-  port,
+  port
 }) => {
   reporter = reporter || new Reporter()
 

@@ -35,7 +35,6 @@ const serverVersion = pkgJSON.version
 *    primarily used in conjuction with `pluginPaths` for testing.
 */
 const appInit = async(initArgs) => {
-  console.log('initArgs (2):', initArgs) // DEBUG
   let { app } = initArgs
   const {
     apiSpecPath,
