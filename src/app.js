@@ -8,6 +8,7 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
+import { PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
@@ -37,7 +38,7 @@ const appInit = async(initArgs) => {
   const {
     apiSpecPath,
     devPaths,
-    defaultRegistries,
+    defaultRegistries = [PLUGABLE_REGISTRY],
     name,
     noAPIUpdate = false,
     noRegistries,
@@ -107,7 +108,7 @@ const appInit = async(initArgs) => {
   registerHandlers(app, Object.assign(
     {},
     options,
-    { name : 'core', npmName : '@liquid-labs/pluggable-express', handlers }
+    { name : 'core', npmName : '@liquid-labs/plugable-express', handlers }
   ))
 
   if (skipCorePlugins !== true) {
