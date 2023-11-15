@@ -16,6 +16,7 @@ import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
+import { Reporter } from './lib/reporter'
 
 const pkgRoot = findRoot(__dirname)
 const pkgJSONContents = readFileSync(fsPath.join(pkgRoot, 'package.json'))
@@ -38,19 +39,19 @@ const appInit = async(initArgs) => {
   const {
     apiSpecPath,
     devPaths,
-    defaultRegistries = [PLUGABLE_REGISTRY],
+    defaultRegistries = [PLUGABLE_REGISTRY()],
     name,
     noAPIUpdate = false,
     noRegistries,
     pluginPaths,
     pluginsPath,
-    reporter,
+    reporter = new Reporter(),
     serverHome,
     skipCorePlugins = false,
     version
   } = initArgs
 
-  if (!serverHome) {
+  if (serverHome === undefined) {
     throw new Error("No 'serverHome' defined; bailing out.")
   }
 
