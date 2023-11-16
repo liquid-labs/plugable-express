@@ -8,7 +8,7 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
+import { PLUGABLE_PLAYGROUND, PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
@@ -38,7 +38,7 @@ const appInit = async(initArgs) => {
   let { app } = initArgs
   const {
     apiSpecPath,
-    devPaths,
+    devPaths = [PLUGABLE_PLAYGROUND()],
     defaultRegistries = [PLUGABLE_REGISTRY()],
     name,
     noAPIUpdate = false,
