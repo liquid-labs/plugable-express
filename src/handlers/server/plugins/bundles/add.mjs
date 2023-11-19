@@ -44,7 +44,7 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
   for (const bundle of bundlesToInstall) {
     for (const type of Object.keys(bundle)) {
       reporter.log(`Checking handling of bundle ${bundle.name} type ${type}...`)
-      // TODO: what's type 'name'? Is it used?
+      // TODO: what's type 'name'?
       if (type === 'name' || type === 'handlers') { // we don't care about 'name' and handle 'handlers' ourself
         continue
       }
