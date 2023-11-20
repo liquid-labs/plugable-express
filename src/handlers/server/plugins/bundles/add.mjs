@@ -3,7 +3,7 @@ import createError from 'http-errors'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 import { installPlugins } from '@liquid-labs/liq-plugins-lib'
 
-import { getRegistryBundles } from './_lib/get-registry-bundles'
+import { getServerBundles } from './_lib/get-server-bundles'
 
 const help = {
   name        : 'Bundles add',
@@ -18,96 +18,40 @@ const parameters = [
     isMultivalue   : true,
     description    : 'The name of the bundle to install.',
     optionsFetcher : async({ app, cache }) => {
-      const bundles = await getRegistryBundles({ app, cache })
+      const bundles = await getServerBundles({ app, cache })
       return bundles.map(({ name }) => name)
     }
-  },
-  {
-    name        : 'orgKey',
-    description : `The org key under which to install org-scoped plugins, if any. This parameter is currently requried for bundles containing plugin types other than 'handlers' or 'integrations'.
-
-An "org-scoped" plugin is associated with an org rather than the server as a whole. E.g., each "company policy" plugin would be scoped to a particular org and may be entirely absent for others.`
   }
 ]
 
 const func = ({ app, cache, reporter }) => async(req, res) => {
-  const { bundles : bundleNames = [], orgKey } = req.vars
+  const { bundles : bundleNames = [] } = req.vars
   if (bundleNames.length === 0) {
     throw createError.BadRequest('Must specify at least one bundle to install.')
   }
 
-  const bundles = await getRegistryBundles({ app, cache/*, update */ })
+  const bundles = await getServerBundles({ app, cache/*, update */ })
   const bundlesToInstall = bundles.filter(({ name }) => bundleNames.includes(name))
   reporter.log(`Identified ${bundlesToInstall.length} bundles to install...`)
 
-  // first, we check that we can hadle all the install 'types'
-  for (const bundle of bundlesToInstall) {
-    for (const type of Object.keys(bundle)) {
-      reporter.log(`Checking handling of bundle ${bundle.name} type ${type}...`)
-      // TODO: what's type 'name'?
-      if (type === 'name' || type === 'handlers') { // we don't care about 'name' and handle 'handlers' ourself
-        continue
-      }
-      else {
-        if (type !== 'handlers' && type !== 'integrations' && orgKey === undefined) {
-          throw createError.BadRequest(`Found bundle containing org-scoped plugins type '${type}'; you must define the 'orgKey' parameter.`)
-        }
+  const installedPlugins = app.ext.handlerPlugins
+  const pluginPkgDir = app.ext.pluginsPath
 
-        const canHandle = app.ext.integrations?.hasHook({ providerFor : type + ' plugins', hook : 'installedPlugins' })
-          && app.ext.integrations?.hasHook({ providerFor : type + ' plugins', hook : 'pluginPackageDir' })
-
-        if (canHandle !== true) {
-          throw createError.BadRequest(`Bundle cannot be installed; do not know how to handle plugin type '${type}'.`)
-        }
-      }
-    }
-  }
-  // else, if we get here then we can handle all the plugins installs
   let message = ''
-  for (const bundle of bundlesToInstall) {
-    for (const [type, npmNames] of Object.entries(bundle)) {
-      reporter.log(`Installing ${npmNames.length} plugins of type ${type} for bundle ${bundle}...`)
-      let installedPlugins, pluginPkgDir
-
-      if (type === 'name') { // we don't care about 'name'
-        continue
-      }
-      else if (type === 'handlers') {
-        installedPlugins = app.ext.handlerPlugins
-        pluginPkgDir = app.ext.pluginsPath
-      }
-      else {
-        reporter.log(`Determining support for ${type} type handlers...`)
-        installedPlugins = await app.ext.integrations.callHook({
-          providerFor : type + ' plugins',
-          hook        : 'installedPlugins',
-          hookArgs    : { app, orgKey }
-        })
-        pluginPkgDir = await app.ext.integrations.callHook({
-          providerFor : type + ' plugins',
-          hook        : 'pluginPackageDir',
-          hookArgs    : { app, orgKey }
-        })
-      }
-
-      if (message !== '') {
-        message += '\n\n'
-      }
-
-      message += await installPlugins({
-        app,
-        cache,
-        hostVersion : app.ext.serverVersion,
-        installedPlugins,
-        npmNames,
-        pluginPkgDir,
-        pluginType  : type,
-        reloadFunc  : app.reload,
-        reporter,
-        req,
-        res
-      })
-    }
+  for (const { plugins : npmNames } of bundlesToInstall) {
+    message += await installPlugins({
+      app,
+      cache,
+      hostVersion : app.ext.serverVersion,
+      installedPlugins,
+      npmNames,
+      pluginPkgDir,
+      pluginType  : 'server',
+      reloadFunc  : app.reload,
+      reporter,
+      req,
+      res
+    })
   }
 
   httpSmartResponse({ msg : message, req, res })

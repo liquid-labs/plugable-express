@@ -1,6 +1,6 @@
 import { commonOutputParams, formatOutput } from '@liquid-labs/liq-handlers-lib'
 
-import { getRegistryBundles } from './_lib/get-registry-bundles'
+import { getServerBundles } from './_lib/get-server-bundles'
 
 const help = {
   name        : 'Bundles list available',
@@ -34,7 +34,8 @@ const terminalFormatter = ({ data }) => (data?.length > 0
 const func = ({ app, cache, reporter }) => async(req, res) => {
   const { update = false } = req.vars
 
-  const data = await getRegistryBundles({ app, cache, update })
+  const data = await getServerBundles({ app, cache, update })
+  console.log('data:', data) // DEBUG
 
   formatOutput({
     ...req.vars,

@@ -1,6 +1,6 @@
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
-import { getRegistryBundles } from './_lib/get-registry-bundles'
+import { getServerBundles } from './_lib/get-server-bundles'
 
 const help = {
   name        : 'Bundles detail',
@@ -14,7 +14,7 @@ const parameters = []
 const func = ({ app, cache }) => async(req, res) => {
   const { pluginBundle } = req.vars
 
-  const bundles = await getRegistryBundles({ app, cache/*, update */ })
+  const bundles = await getServerBundles({ app, cache/*, update */ })
   const bundle = bundles.find((b) => b.name === pluginBundle)
 
   httpSmartResponse({ data : bundle, req, res })
