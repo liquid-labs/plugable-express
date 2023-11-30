@@ -180,7 +180,7 @@ const registerHandlers = (app, { npmName, handlers, model, reporter, setupData, 
           : cleanReForExpress(path) // then it's a regular expression
       reporter.log(`registering handler for path: ${methodUpper}:${routablePath}`)
 
-      app[method](routablePath,
+      app[method.toLowerCase()](routablePath,
         processParams({ parameters, path }),
         handlerFunc)
       // for or own informational purposes

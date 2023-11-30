@@ -35,7 +35,6 @@ const func = ({ app, cache, reporter }) => async(req, res) => {
   const { update = false } = req.vars
 
   const data = await getServerBundles({ app, cache, update })
-  console.log('data:', data) // DEBUG
 
   formatOutput({
     ...req.vars,
