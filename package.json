@@ -39,7 +39,6 @@
     "@liquid-labs/catalyst-resource-eslint": "^1.0.0-alpha.1",
     "@liquid-labs/catalyst-resource-jest": "^1.0.0-alpha.1",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
-    "@liquid-labs/http-smart-response": "^1.0.0-alpha.4",
     "@liquid-labs/liq-test-lib": "^1.0.0-alpha.8",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "http-errors": "^2.0.0",
@@ -49,6 +48,7 @@
   },
   "dependencies": {
     "@liquid-labs/dependency-runner": "^1.0.0-alpha.8",
+    "@liquid-labs/http-smart-response": "^1.0.0-alpha.5",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.15",
     "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.22",
     "@liquid-labs/plugable-defaults": "^1.0.0-alpha.4",
