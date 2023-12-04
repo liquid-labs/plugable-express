@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@liquid-labs/dependency-runner": "^1.0.0-alpha.8",
-    "@liquid-labs/http-smart-response": "^1.0.0-alpha.5",
+    "@liquid-labs/http-smart-response": "^1.0.0-alpha.6",
     "@liquid-labs/liq-handlers-lib": "^1.0.0-alpha.15",
     "@liquid-labs/liq-plugins-lib": "^1.0.0-alpha.22",
     "@liquid-labs/plugable-defaults": "^1.0.0-alpha.4",
