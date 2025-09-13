@@ -48,6 +48,7 @@ const appInit = async(initArgs) => {
     reporter = new Reporter(),
     serverHome,
     skipCorePlugins = false,
+    standardPackages,
     version
   } = initArgs
 
@@ -82,6 +83,7 @@ const appInit = async(initArgs) => {
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
     setupMethods    : [],
+    standardPackages,
     teardownMethods : [],
     version
   }
@@ -124,6 +126,50 @@ const appInit = async(initArgs) => {
 
   for (const pendingHandler of app.ext.pendingHandlers) {
     pendingHandler()
+  }
+
+  // Add standard packages setup method if standardPackages are provided
+  if (standardPackages && standardPackages.length > 0) {
+    // Create a setup method to install standard packages
+    const installStandardPackages = {
+      name : 'install-standard-packages',
+      func : async({ app, cache, reporter }) => {
+        // Import the necessary handlers
+        const listModule = await import('./handlers/server/plugins/list')
+        const addModule = await import('./handlers/server/plugins/add')
+
+        // Get currently installed plugins
+        const installedPlugins = await listModule.func({ app, cache, reporter })
+        const installedPackageNames = (installedPlugins?.data || []).map(plugin => plugin.npmName)
+
+        // Determine which standard packages need to be installed
+        const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
+
+        if (packagesToInstall.length > 0) {
+          reporter.log(`Installing ${packagesToInstall.length} standard packages...`)
+
+          // Install missing packages
+          const req = {
+            vars : {
+              packages : packagesToInstall.join(' ')
+            }
+          }
+          const res = {
+            json   : () => {},
+            status : () => ({ json : () => {} })
+          }
+
+          await addModule.func({ app, cache, reporter, req, res })
+          reporter.log('Standard packages installation complete.')
+        }
+        else {
+          reporter.log('All standard packages already installed.')
+        }
+      }
+    }
+
+    // Insert at the beginning of setupMethods to ensure standard packages are installed first
+    app.ext.setupMethods.unshift(installStandardPackages)
   }
 
   // log errors
