@@ -33,6 +33,8 @@ const serverVersion = pkgJSON.version
 *    used for testing.
 * - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
 *    primarily used in conjuction with `pluginPaths` for testing.
+* - `standardPackages` (opt): an array of NPM package names that should be automatically installed as plugins when the
+*    server starts. These packages will be installed if they are not already present in the plugin directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
