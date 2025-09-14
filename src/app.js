@@ -134,9 +134,13 @@ const appInit = async(initArgs) => {
     const installStandardPackages = {
       name : 'install-standard-packages',
       func : async({ app, cache, reporter }) => {
-        // Import the necessary handlers
-        const listModule = await import('./handlers/server/plugins/list')
-        const addModule = await import('./handlers/server/plugins/add')
+        const handlerBasePath = fsPath.join(__dirname, 'handlers', 'server', 'plugins')
+        const listModulePath = fsPath.join(handlerBasePath, 'list')
+        const addModulePath = fsPath.join(handlerBasePath, 'add')
+
+        // Import the necessary handlers using constructed paths
+        const listModule = await import(listModulePath)
+        const addModule = await import(addModulePath)
 
         // Get currently installed plugins
         const installedPlugins = await listModule.func({ app, cache, reporter })
@@ -146,7 +150,7 @@ const appInit = async(initArgs) => {
         const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
 
         if (packagesToInstall.length > 0) {
-          reporter.log(`Installing ${packagesToInstall.length} standard packages...`)
+          reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
 
           // Install missing packages
           const req = {
