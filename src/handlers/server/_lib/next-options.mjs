@@ -82,7 +82,7 @@ const residualOptions = ({ command, currOptNameAndValues, lastOptionName, lastOp
       for (const possibleOpt of possibleOptions) {
         const paramDef = paramsSpec.find((p) => p.name === possibleOpt)
         // paramDef guaranteed because we're using parameterNames built from the spec as the key
-        options.push(...parameterOptions({ options, paramDef }))
+        options.push(...parameterOptions({ paramDef }))
       }
     }
   }
