@@ -64,8 +64,6 @@ const appInit = async(initArgs) => {
   app.use(express.urlencoded({ extended : true })) // handle POST body params
   app.use(fileUpload({ parseNested : true }))
 
-  const cache = new WeakCache()
-
   // setup app.ext
   app.ext = {
     commandPaths    : {},
@@ -106,147 +104,154 @@ const appInit = async(initArgs) => {
 
   app.addSetupTask = (entry) => app.ext.setupMethods.push(entry)
   // end direct app extensions
+  const cache = new WeakCache()
+  // from here on out, we need to release the cache if we run into an exception which prevents us from returning it
+  // (in which case it is the responsibility of the caller to release the cache)
+  try {
+    const options = { cache, pluginsPath, reporter }
 
-  const options = { cache, pluginsPath, reporter }
+    reporter.log('Loading core handlers...')
+    registerHandlers(app, Object.assign(
+      {},
+      options,
+      { name : 'core', npmName : '@liquid-labs/plugable-express', handlers }
+    ))
 
-  reporter.log('Loading core handlers...')
-  registerHandlers(app, Object.assign(
-    {},
-    options,
-    { name : 'core', npmName : '@liquid-labs/plugable-express', handlers }
-  ))
-
-  if (skipCorePlugins !== true) {
-    await loadPlugins(app, options)
-  }
-  if (pluginPaths?.length > 0) {
-    for (const pluginDir of pluginPaths) {
-      const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
-      await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
+    if (skipCorePlugins !== true) {
+      await loadPlugins(app, options)
     }
-  }
-
-  for (const pendingHandler of app.ext.pendingHandlers) {
-    pendingHandler()
-  }
-
-  // Add standard packages setup method if standardPackages are provided
-  if (standardPackages && standardPackages.length > 0) {
-    // Dynamically import installPlugins at the top level to avoid importing in the setup function
-    const { installPlugins } = await import('@liquid-labs/liq-plugins-lib')
-
-    // Create a setup method to install standard packages
-    const installStandardPackages = {
-      name : 'install-standard-packages',
-      func : async({ app, cache, reporter }) => {
-        const installedPlugins = app.ext.handlerPlugins || []
-        const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
-
-        // Determine which standard packages need to be installed
-        const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
-
-        if (packagesToInstall.length > 0) {
-          reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
-
-          await installPlugins({
-            app,
-            cache,
-            hostVersion  : app.ext.serverVersion,
-            installedPlugins,
-            npmNames     : packagesToInstall,
-            pluginPkgDir : app.ext.pluginsPath,
-            pluginType   : 'server',
-            reloadFunc   : () => app.reload(),
-            reporter
-          })
-
-          reporter.log('Standard packages installation complete.')
-        }
-        else {
-          reporter.log('All standard packages already installed.')
-        }
+    if (pluginPaths?.length > 0) {
+      for (const pluginDir of pluginPaths) {
+        const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
+        await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
       }
     }
 
-    // Insert at the beginning of setupMethods to ensure standard packages are installed first
-    app.ext.setupMethods.unshift(installStandardPackages)
-  }
+    for (const pendingHandler of app.ext.pendingHandlers) {
+      pendingHandler()
+    }
 
-  // log errors
-  app.use((error, req, res, next) => {
-    const errors = app.ext.errorsEphemeral
-    const errorID = makeID()
-    error.liqID = errorID
-    errors.push({
-      id        : errorID,
-      message   : error.message,
-      stack     : error.stack,
-      timestamp : new Date().getTime()
+    // Add standard packages setup method if standardPackages are provided
+    if (standardPackages && standardPackages.length > 0) {
+      // Dynamically import installPlugins at the top level to avoid importing in the setup function
+      const { installPlugins } = await import('@liquid-labs/liq-plugins-lib')
+
+      // Create a setup method to install standard packages
+      const installStandardPackages = {
+        name : 'install-standard-packages',
+        func : async({ app, cache, reporter }) => {
+          const installedPlugins = app.ext.handlerPlugins || []
+          const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
+
+          // Determine which standard packages need to be installed
+          const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
+
+          if (packagesToInstall.length > 0) {
+            reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
+
+            await installPlugins({
+              app,
+              cache,
+              hostVersion  : app.ext.serverVersion,
+              installedPlugins,
+              npmNames     : packagesToInstall,
+              pluginPkgDir : app.ext.pluginsPath,
+              pluginType   : 'server',
+              reloadFunc   : () => app.reload(),
+              reporter
+            })
+
+            reporter.log('Standard packages installation complete.')
+          }
+          else {
+            reporter.log('All standard packages already installed.')
+          }
+        }
+      }
+
+      // Insert at the beginning of setupMethods to ensure standard packages are installed first
+      app.ext.setupMethods.unshift(installStandardPackages)
+    }
+
+    // log errors
+    app.use((error, req, res, next) => {
+      const errors = app.ext.errorsEphemeral
+      const errorID = makeID()
+      error.liqID = errorID
+      errors.push({
+        id        : errorID,
+        message   : error.message,
+        stack     : error.stack,
+        timestamp : new Date().getTime()
+      })
+      let i = 0
+      while (errors.length > 1000 && i < errors.length) {
+        errors.shift()
+        i += 1
+      }
+      process.stderr.write(error.stack + '\n')
+      if (error.cause) {
+        process.stderr.write('Cause:\n' + error.cause.stack + '\n')
+      }
+      next(error)
     })
-    let i = 0
-    while (errors.length > 1000 && i < errors.length) {
-      errors.shift()
-      i += 1
-    }
-    process.stderr.write(error.stack + '\n')
-    if (error.cause) {
-      process.stderr.write('Cause:\n' + error.cause.stack + '\n')
-    }
-    next(error)
-  })
-  // generate user response
-  app.use((error, req, res, next) => {
-    if (res.headersSent) return next(error)
+    // generate user response
+    app.use((error, req, res, next) => {
+      if (res.headersSent) return next(error)
 
-    const status = error.status || 500
-    res.status(status)
+      const status = error.status || 500
+      res.status(status)
 
-    const errorSource = status >= 400 && status < 500
-      ? 'Client'
-      : status >= 500 && status < 600
-        ? 'Server'
-        : 'Unknown'
-    let msg = `<error>${errorSource} error ${status}: ${statusText[status]}<rst>\n\n<em>${error.message}<rst>\n\n`
-    // if the error stack isn't registered, we display it here
-    if (error.liqID === undefined && error.stack) {
-      msg += error.stack
-    }
-    else {
-      msg += 'error ref: <code>/server/errors/' + error.liqID + '<rst>'
-    }
-
-    if (req.accepts('html')) {
-      next(error) // defer to default error handling
-    }
-    else {
-      if (req.accepts('text/terminal')) {
-        res.setHeader('content-type', 'text/terminal')
+      const errorSource = status >= 400 && status < 500
+        ? 'Client'
+        : status >= 500 && status < 600
+          ? 'Server'
+          : 'Unknown'
+      let msg = `<error>${errorSource} error ${status}: ${statusText[status]}<rst>\n\n<em>${error.message}<rst>\n\n`
+      // if the error stack isn't registered, we display it here
+      if (error.liqID === undefined && error.stack) {
+        msg += error.stack
       }
       else {
-        msg = msg.replaceAll(/<[a-z]+>/g, '')
-        res.setHeader('content-type', 'text/plain')
+        msg += 'error ref: <code>/server/errors/' + error.liqID + '<rst>'
       }
-      res.send(msg)
+
+      if (req.accepts('html')) {
+        next(error) // defer to default error handling
+      }
+      else {
+        if (req.accepts('text/terminal')) {
+          res.setHeader('content-type', 'text/terminal')
+        }
+        else {
+          msg = msg.replaceAll(/<[a-z]+>/g, '')
+          res.setHeader('content-type', 'text/plain')
+        }
+        res.send(msg)
+      }
+    })
+
+    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverHome })
+    app.ext.serverSettings = getServerSettings(serverHome)
+
+    const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
+    for (const setupMethod of app.ext.setupMethods) {
+      depRunner.enqueue(setupMethod)
     }
-  })
+    depRunner.complete()
+    await depRunner.await()
 
-  await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverHome })
-  app.ext.serverSettings = getServerSettings(serverHome)
+    if (noAPIUpdate !== true) {
+      reporter.log('Registering API...')
+      const apiSpecFile = apiSpecPath || fsPath.join(serverHome, 'core-api.json')
+      await fs.writeFile(apiSpecFile, JSON.stringify(app.ext.handlers, null, '  '))
+    }
 
-  const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
-  for (const setupMethod of app.ext.setupMethods) {
-    depRunner.enqueue(setupMethod)
+    return { app, cache }
+  } catch (error) {
+    cache.release()
+    throw error
   }
-  depRunner.complete()
-  await depRunner.await()
-
-  if (noAPIUpdate !== true) {
-    reporter.log('Registering API...')
-    const apiSpecFile = apiSpecPath || fsPath.join(serverHome, 'core-api.json')
-    await fs.writeFile(apiSpecFile, JSON.stringify(app.ext.handlers, null, '  '))
-  }
-
-  return { app, cache }
 }
 
 // TODO: credit from stackoverflow...
