@@ -1,49 +1,48 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global afterAll afterEach beforeAll beforeEach describe expect jest test */
 
 // Mock @liquid-labs/liq-plugins-lib to avoid actual npm installs
 // This must be hoisted before any imports
+import * as path from 'path'
+
+import { appInit } from '../app'
+import { defaultTestOptions } from './lib/test-utils'
+
 jest.mock('@liquid-labs/liq-plugins-lib', () => {
   const actualModule = jest.requireActual('@liquid-labs/liq-plugins-lib')
   return {
     ...actualModule,
-    installPlugins: jest.fn(async ({ npmNames = [], reporter } = {}) => {
+    installPlugins : jest.fn(async({ npmNames = [], reporter } = {}) => {
       if (reporter && reporter.log) {
         reporter.log(`Mock installing plugins: ${npmNames.join(', ')}`)
       }
       // Simulate successful installation
       return {
-        success: true,
-        installedPackages: npmNames.map(name => ({
-          npmName: name,
-          version: '1.0.0'
+        success           : true,
+        installedPackages : npmNames.map(name => ({
+          npmName : name,
+          version : '1.0.0'
         }))
       }
     })
   }
 })
 
-import * as path from 'path'
-import request from 'supertest'
-
-import { appInit } from '../app'
-import { defaultTestOptions } from './lib/test-utils'
-
 describe('standard packages', () => {
   describe('when standard packages are defined', () => {
-    let app, cache
+    let cache
     const testPluginsPath = path.join(__dirname, 'plugins', 'node_modules')
     const logs = []
 
     const testOptions = {
       ...defaultTestOptions(),
-      pluginsPath: testPluginsPath,
-      standardPackages: [
+      pluginsPath      : testPluginsPath,
+      standardPackages : [
         '@test-org/standard-plugin-a',
         '@test-org/standard-plugin-b'
       ],
-      skipCorePlugins: true,
-      noAPIUpdate: true,
-      noRegistries: true
+      skipCorePlugins : true,
+      noAPIUpdate     : true,
+      noRegistries    : true
     }
 
     // Mock reporter to capture logs
@@ -51,9 +50,9 @@ describe('standard packages', () => {
       logs.push(msg)
     })
 
-    beforeAll(async () => {
+    beforeAll(async() => {
       // Initialize app with standard packages
-      ({ app, cache } = await appInit(testOptions))
+      ({ cache } = await appInit(testOptions))
     })
 
     afterAll(() => {
@@ -86,9 +85,9 @@ describe('standard packages', () => {
     test('logs installation process', () => {
       // Check that installation was logged
       const installationLogs = logs.filter(log =>
-        log.includes('Installing') ||
-        log.includes('Mock installing') ||
-        log.includes('Standard packages installation complete')
+        log.includes('Installing')
+        || log.includes('Mock installing')
+        || log.includes('Standard packages installation complete')
       )
       expect(installationLogs.length).toBeGreaterThan(0)
     })
@@ -109,10 +108,10 @@ describe('standard packages', () => {
   })
 
   describe('when packages need installation', () => {
-    let app, cache
+    let cache
     const logs = []
 
-    beforeAll(async () => {
+    beforeAll(async() => {
       // Reset the mock
       const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
       installPlugins.mockClear()
@@ -120,21 +119,21 @@ describe('standard packages', () => {
       const testPluginsPath = path.join(__dirname, 'plugins', 'node_modules')
       const testOptions = {
         ...defaultTestOptions(),
-        pluginsPath: testPluginsPath,
+        pluginsPath      : testPluginsPath,
         // Request a plugin that should be installed
-        standardPackages: ['@test-org/standard-plugin-a'],
-        skipCorePlugins: true,
-        noAPIUpdate: true,
-        noRegistries: true
+        standardPackages : ['@test-org/standard-plugin-a'],
+        skipCorePlugins  : true,
+        noAPIUpdate      : true,
+        noRegistries     : true
       }
 
       testOptions.reporter.log = jest.fn((msg) => {
         logs.push(String(msg))
-      })
+      });
 
       // Initialize app - since our test plugins aren't real loaded plugins,
       // the standard packages feature will attempt to install them
-      ({ app, cache } = await appInit(testOptions))
+      ({ cache } = await appInit(testOptions))
     })
 
     afterAll(() => {
@@ -161,7 +160,7 @@ describe('standard packages', () => {
   })
 
   describe('when standard packages are already installed', () => {
-    test('does not reinstall if plugins are already in handlerPlugins', async () => {
+    test('does not reinstall if plugins are already in handlerPlugins', async() => {
       // Clear previous mocks
       const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
       installPlugins.mockClear()
@@ -170,29 +169,29 @@ describe('standard packages', () => {
 
       // Create a minimal mock app with pre-existing plugins
       const mockApp = {
-        ext: {
-          handlerPlugins: [
-            { npmName: '@test-org/already-installed-plugin', version: '1.0.0' }
+        ext : {
+          handlerPlugins : [
+            { npmName : '@test-org/already-installed-plugin', version : '1.0.0' }
           ],
-          serverVersion: '1.0.0',
-          pluginsPath: '/test/plugins'
+          serverVersion : '1.0.0',
+          pluginsPath   : '/test/plugins'
         },
-        reload: jest.fn()
+        reload : jest.fn()
       }
 
       const mockCache = {
-        get: jest.fn(),
-        put: jest.fn()
+        get : jest.fn(),
+        put : jest.fn()
       }
 
       const mockReporter = {
-        log: jest.fn((msg) => logs.push(msg))
+        log : jest.fn((msg) => logs.push(msg))
       }
 
       // Directly call the standard packages installer function
       const standardPackages = ['@test-org/already-installed-plugin']
       const installStandardPackages = {
-        func: async({ app, cache, reporter }) => {
+        func : async({ app, cache, reporter }) => {
           const installedPlugins = app.ext.handlerPlugins || []
           const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
 
@@ -204,17 +203,18 @@ describe('standard packages', () => {
             await installPlugins({
               app,
               cache,
-              hostVersion: app.ext.serverVersion,
+              hostVersion  : app.ext.serverVersion,
               installedPlugins,
-              npmNames: packagesToInstall,
-              pluginPkgDir: app.ext.pluginsPath,
-              pluginType: 'server',
-              reloadFunc: () => app.reload(),
+              npmNames     : packagesToInstall,
+              pluginPkgDir : app.ext.pluginsPath,
+              pluginType   : 'server',
+              reloadFunc   : () => app.reload(),
               reporter
             })
 
             reporter.log('Standard packages installation complete.')
-          } else {
+          }
+          else {
             reporter.log('All standard packages already installed.')
           }
         }
@@ -222,9 +222,9 @@ describe('standard packages', () => {
 
       // Run the installer
       await installStandardPackages.func({
-        app: mockApp,
-        cache: mockCache,
-        reporter: mockReporter
+        app      : mockApp,
+        cache    : mockCache,
+        reporter : mockReporter
       })
 
       // Verify installPlugins was NOT called since package was already installed
@@ -255,13 +255,13 @@ describe('standard packages', () => {
       // Cleanup handled in afterEach
     })
 
-    test('propagates installation errors', async () => {
+    test('propagates installation errors', async() => {
       // Mock installPlugins to throw an error
       jest.doMock('@liquid-labs/liq-plugins-lib', () => {
         const actual = jest.requireActual('@liquid-labs/liq-plugins-lib')
         return {
           ...actual,
-          installPlugins: jest.fn(async () => {
+          installPlugins : jest.fn(async() => {
             throw new Error('Failed to install plugins: Network error')
           })
         }
@@ -272,10 +272,10 @@ describe('standard packages', () => {
 
       const testOptions = {
         ...defaultTestOptions(),
-        standardPackages: ['@test-org/failing-plugin'],
-        skipCorePlugins: true,
-        noAPIUpdate: true,
-        noRegistries: true
+        standardPackages : ['@test-org/failing-plugin'],
+        skipCorePlugins  : true,
+        noAPIUpdate      : true,
+        noRegistries     : true
       }
 
       // Since there's no try-catch in the standard packages installer,
@@ -293,10 +293,12 @@ describe('standard packages', () => {
         // If an error occurs in a setup function, it depends on how appInit handles it
         // Let's check if the app was created successfully despite the error
         expect(result.app).toBeDefined()
-      } catch (error) {
+      }
+      catch (error) {
         initError = error
         expect(initError.message).toContain('Failed to install plugins')
-      } finally {
+      }
+      finally {
         cache?.release()
       }
 

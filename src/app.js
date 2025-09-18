@@ -248,7 +248,8 @@ const appInit = async(initArgs) => {
     }
 
     return { app, cache }
-  } catch (error) {
+  }
+  catch (error) {
     cache.release()
     throw error
   }
