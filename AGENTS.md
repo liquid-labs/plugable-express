@@ -22,15 +22,11 @@ npm test
 # Run a specific test file
 make test TEST=path/to/test.js
 
-# Lint the code (uses ESLint via Makefile)
-make lint
-# or
-npm run lint
-
-# Fix linting issues
+# Lint the code (and fix issues; uses ESLint via Makefile)
+# It's generally not necessary to lint and fix seperately
 make lint-fix
 # or
-npm run lint:fix
+npm run lint:lint
 
 # Run full QA (tests + lint)
 make qa
