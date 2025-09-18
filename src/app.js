@@ -132,21 +132,15 @@ const appInit = async(initArgs) => {
 
   // Add standard packages setup method if standardPackages are provided
   if (standardPackages && standardPackages.length > 0) {
+    // Dynamically import installPlugins at the top level to avoid importing in the setup function
+    const { installPlugins } = await import('@liquid-labs/liq-plugins-lib')
+
     // Create a setup method to install standard packages
     const installStandardPackages = {
       name : 'install-standard-packages',
       func : async({ app, cache, reporter }) => {
-        const handlerBasePath = fsPath.join(__dirname, 'handlers', 'server', 'plugins')
-        const listModulePath = fsPath.join(handlerBasePath, 'list')
-        const addModulePath = fsPath.join(handlerBasePath, 'add')
-
-        // Import the necessary handlers using constructed paths
-        const listModule = await import(listModulePath)
-        const addModule = await import(addModulePath)
-
-        // Get currently installed plugins
-        const installedPlugins = await listModule.func({ app, cache, reporter })
-        const installedPackageNames = (installedPlugins?.data || []).map(plugin => plugin.npmName)
+        const installedPlugins = app.ext.handlerPlugins || []
+        const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
 
         // Determine which standard packages need to be installed
         const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
@@ -154,18 +148,18 @@ const appInit = async(initArgs) => {
         if (packagesToInstall.length > 0) {
           reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
 
-          // Install missing packages
-          const req = {
-            vars : {
-              packages : packagesToInstall.join(' ')
-            }
-          }
-          const res = {
-            json   : () => {},
-            status : () => ({ json : () => {} })
-          }
+          await installPlugins({
+            app,
+            cache,
+            hostVersion  : app.ext.serverVersion,
+            installedPlugins,
+            npmNames     : packagesToInstall,
+            pluginPkgDir : app.ext.pluginsPath,
+            pluginType   : 'server',
+            reloadFunc   : () => app.reload(),
+            reporter
+          })
 
-          await addModule.func({ app, cache, reporter, req, res })
           reporter.log('Standard packages installation complete.')
         }
         else {
