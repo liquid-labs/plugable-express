@@ -7,22 +7,14 @@ import * as path from 'path'
 import { appInit } from '../app'
 import { defaultTestOptions } from './lib/test-utils'
 
-jest.mock('@liquid-labs/liq-plugins-lib', () => {
-  const actualModule = jest.requireActual('@liquid-labs/liq-plugins-lib')
+jest.mock('../handlers/server/plugins/_lib/install-plugins.js', () => {
+  // Mock the installPlugins function from the library
   return {
-    ...actualModule,
     installPlugins : jest.fn(async({ npmNames = [], reporter } = {}) => {
       if (reporter && reporter.log) {
         reporter.log(`Mock installing plugins: ${npmNames.join(', ')}`)
       }
-      // Simulate successful installation
-      return {
-        success           : true,
-        installedPackages : npmNames.map(name => ({
-          npmName : name,
-          version : '1.0.0'
-        }))
-      }
+      return '<em>Installed<rst> <code>' + npmNames.join('<rst>, <code>') + '<rst> production packages\n'
     })
   }
 })
@@ -62,7 +54,7 @@ describe('standard packages', () => {
 
     test('attempts to install standard packages on initialization', () => {
       // Get the mock from the module
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
 
       // Verify installPlugins was called
       expect(installPlugins).toHaveBeenCalled()
@@ -70,7 +62,7 @@ describe('standard packages', () => {
 
     test('passes correct package names to installPlugins', () => {
       // Get the mock from the module
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
 
       // Get the call arguments
       const callArgs = installPlugins.mock.calls[0][0]
@@ -94,7 +86,7 @@ describe('standard packages', () => {
 
     test('provides correct plugin configuration to installPlugins', () => {
       // Get the mock from the module
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
 
       const callArgs = installPlugins.mock.calls[0][0]
 
@@ -113,7 +105,7 @@ describe('standard packages', () => {
 
     beforeAll(async() => {
       // Reset the mock
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
       installPlugins.mockClear()
 
       const testPluginsPath = path.join(__dirname, 'plugins', 'node_modules')
@@ -143,7 +135,7 @@ describe('standard packages', () => {
 
     test('attempts to install packages not in handlerPlugins', () => {
       // Get the mock from the module
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
 
       // Since our test plugins aren't actually loaded by the plugin loader,
       // they won't be in handlerPlugins, so standard packages will try to install them
@@ -162,7 +154,7 @@ describe('standard packages', () => {
   describe('when standard packages are already installed', () => {
     test('does not reinstall if plugins are already in handlerPlugins', async() => {
       // Clear previous mocks
-      const { installPlugins } = require('@liquid-labs/liq-plugins-lib')
+      const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
       installPlugins.mockClear()
 
       const logs = []
@@ -200,6 +192,7 @@ describe('standard packages', () => {
           if (packagesToInstall.length > 0) {
             reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
 
+            const { installPlugins } = require('../handlers/server/plugins/_lib/install-plugins.js')
             await installPlugins({
               app,
               cache,
@@ -257,8 +250,8 @@ describe('standard packages', () => {
 
     test('propagates installation errors', async() => {
       // Mock installPlugins to throw an error
-      jest.doMock('@liquid-labs/liq-plugins-lib', () => {
-        const actual = jest.requireActual('@liquid-labs/liq-plugins-lib')
+      jest.doMock('../handlers/server/plugins/_lib/install-plugins.js', () => {
+        const actual = jest.requireActual('../handlers/server/plugins/_lib/install-plugins.js')
         return {
           ...actual,
           installPlugins : jest.fn(async() => {

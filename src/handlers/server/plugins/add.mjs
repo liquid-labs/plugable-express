@@ -1,23 +1,63 @@
-import { addPluginsHandler, addPluginsSetup } from '@liquid-labs/liq-plugins-lib'
+import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
+import { determineRegistryData } from './_lib/registry-utils'
+import { selectMatchingPlugins } from './_lib/plugin-selection'
+import { installPlugins } from './_lib/install-plugins'
+
+// Handler setup and implementation
 const hostVersionRetriever = ({ app }) => app.ext.serverVersion
+const pluginType = 'server'
 
-const pluginsDesc = 'server endpoint'
+const help = {
+  name        : `add ${pluginType} plugins`,
+  summary     : `Installs one or more ${pluginType} plugins.`,
+  description : `Installs one or more ${pluginType} plugins.`
+}
 
-const { help, method, parameters } =
-  addPluginsSetup({ hostVersionRetriever, pluginsDesc, pluginType : 'server' })
+const method = 'put'
+
+const parameters = [
+  {
+    name         : 'npmNames',
+    isMultivalue : true,
+    description  : 'The plugins to install, by their NPM package name. Include multiple times to install multiple plugins.',
+    optionsFunc  : async({ app, cache, reporter }) => {
+      if (app.ext.noRegistries === true) {
+        return []
+      }
+      const hostVersion = hostVersionRetriever({ app })
+      const registryData = await determineRegistryData({
+        cache,
+        registries : app.ext.serverSettings.registries,
+        reporter
+      })
+      const plugins = selectMatchingPlugins({ hostVersion, pluginType, registryData })
+      return plugins.map(({ npmName }) => npmName)
+    }
+  }
+]
 
 const path = ['server', 'plugins', 'add']
 
-const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
+const func = ({ app, cache, reporter }) => async(req, res) => {
+  const installedPlugins = app.ext.handlerPlugins || []
+  const { npmNames } = req.vars
+  const hostVersion = app.ext.serverVersion
+  const pluginPkgDir = app.ext.pluginsPath
 
-const func = addPluginsHandler({
-  hostVersionRetriever,
-  installedPluginsRetriever,
-  pluginsDesc,
-  pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath,
-  pluginType            : 'server',
-  reloadFunc            : ({ app }) => app.reload()
-})
+  const msg = await installPlugins({
+    app,
+    cache,
+    hostVersion,
+    installedPlugins,
+    npmNames,
+    pluginPkgDir,
+    pluginType,
+    reloadFunc : ({ app }) => app.reload(),
+    reporter
+  })
 
-export { func, help, method, parameters, path }
+  httpSmartResponse({ msg, req, res })
+}
+
+export { func, help, method, parameters, path, installPlugins }
