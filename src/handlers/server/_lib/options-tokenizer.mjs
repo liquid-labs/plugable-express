@@ -11,7 +11,7 @@ const optionsTokenizer = (optionString) =>
           value = value.slice(1, -1)
           const qt = match[1]
           const deEscapeRe = new RegExp('\\' + qt, 'g')
-          value.replace(deEscapeRe, qt)
+          value = value.replace(deEscapeRe, qt)
         }
       }
 

@@ -1,4 +1,5 @@
-import { installPlugins } from '@liquid-labs/liq-plugins-lib'
+// Import the installPlugins function from the local library
+import { installPlugins } from './install-plugins'
 
 /**
  * Adds plugins to the server.

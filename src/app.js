@@ -12,6 +12,7 @@ import { PLUGABLE_PLAYGROUND, PLUGABLE_REGISTRY } from '@liquid-labs/plugable-de
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
+import { installPlugins } from './handlers/server/plugins/_lib/install-plugins'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
@@ -133,9 +134,6 @@ const appInit = async(initArgs) => {
 
     // Add standard packages setup method if standardPackages are provided
     if (standardPackages && standardPackages.length > 0) {
-      // Dynamically import installPlugins at the top level to avoid importing in the setup function
-      const { installPlugins } = await import('@liquid-labs/liq-plugins-lib')
-
       // Create a setup method to install standard packages
       const installStandardPackages = {
         name : 'install-standard-packages',
