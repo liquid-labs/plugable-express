@@ -1,10 +1,6 @@
 /* global beforeEach describe expect jest test */
 
 import { selectMatchingSeries, selectMatchingPlugins } from '../plugin-selection'
-import * as semver from 'semver'
-
-// Mock semver
-// jest.mock('semver')
 
 describe('plugin-selection', () => {
   beforeEach(() => {
