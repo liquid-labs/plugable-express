@@ -4,7 +4,7 @@ import { selectMatchingSeries, selectMatchingPlugins } from '../plugin-selection
 import * as semver from 'semver'
 
 // Mock semver
-jest.mock('semver')
+// jest.mock('semver')
 
 describe('plugin-selection', () => {
   beforeEach(() => {
@@ -22,15 +22,10 @@ describe('plugin-selection', () => {
         },
         registry2 : {
           series : [
-            { versions : '>=1.5.0', name : 'series3' }
+            { versions : '<=1.5.0', name : 'series3' }
           ]
         }
       }
-
-      semver.satisfies
-        .mockReturnValueOnce(true) // series1 matches
-        .mockReturnValueOnce(false) // series2 doesn't match
-        .mockReturnValueOnce(true) // series3 matches
 
       const result = selectMatchingSeries({
         hostVersion : '1.0.0',
@@ -39,7 +34,7 @@ describe('plugin-selection', () => {
 
       expect(result).toHaveLength(2)
       expect(result[0]).toEqual({ versions : '>=1.0.0', name : 'series1', source : 'registry1' })
-      expect(result[1]).toEqual({ versions : '>=1.5.0', name : 'series3', source : 'registry2' })
+      expect(result[1]).toEqual({ versions : '<=1.5.0', name : 'series3', source : 'registry2' })
     })
 
     test('returns empty array when no series match', () => {
@@ -50,8 +45,6 @@ describe('plugin-selection', () => {
           ]
         }
       }
-
-      semver.satisfies.mockReturnValue(false)
 
       const result = selectMatchingSeries({
         hostVersion : '1.0.0',
@@ -93,8 +86,6 @@ describe('plugin-selection', () => {
         { npmName : 'plugin-a', version : '1.0.0' }
       ]
 
-      semver.satisfies.mockReturnValue(true)
-
       const result = selectMatchingPlugins({
         hostVersion : '1.0.0',
         installedPlugins,
@@ -133,8 +124,6 @@ describe('plugin-selection', () => {
         }
       }
 
-      semver.satisfies.mockReturnValue(true)
-
       const result = selectMatchingPlugins({
         hostVersion : '1.0.0',
         pluginType  : 'server',
@@ -159,8 +148,6 @@ describe('plugin-selection', () => {
           ]
         }
       }
-
-      semver.satisfies.mockReturnValue(true)
 
       const result = selectMatchingPlugins({
         hostVersion : '1.0.0',

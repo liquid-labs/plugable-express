@@ -33,7 +33,7 @@ describe('install-plugins', () => {
 
     mockCache = { get : jest.fn(), put : jest.fn() }
     mockReporter = { log : jest.fn() }
-    mockReloadFunc = jest.fn().mockReturnValue(undefined)
+    mockReloadFunc = jest.fn().mockReturnValue(Promise.resolve())
 
     fs.mkdir.mockResolvedValue()
   })

@@ -19,9 +19,18 @@ const determineInstallationOrder = async({ installedPlugins, pluginSeries, toIns
   }, [])
 
   const graph = new DepGraph()
-  const toInstallClone = structuredClone(toInstall)
+  const processed = new Set()
+  const toProcess = [...toInstall]
 
-  for (const packageToInstall of toInstallClone) {
+  // Process dependencies iteratively to avoid infinite loops
+  while (toProcess.length > 0) {
+    const packageToInstall = toProcess.shift()
+
+    if (processed.has(packageToInstall)) {
+      continue
+    }
+    processed.add(packageToInstall)
+
     if (!graph.hasNode(packageToInstall)) {
       graph.addNode(packageToInstall)
     }
@@ -30,13 +39,13 @@ const determineInstallationOrder = async({ installedPlugins, pluginSeries, toIns
     const { dependencies = [] } = pluginEntries.find((e) => e.npmName === name) || {}
 
     for (const dependency of dependencies) {
-      if (installedPlugins.includes(dependency)) {
+      if (installedPlugins.includes(dependency) || processed.has(dependency)) {
         continue
       }
 
       if (!graph.hasNode(dependency)) {
         graph.addNode(dependency)
-        toInstallClone.push(dependency)
+        toProcess.push(dependency)
       }
 
       graph.addDependency(packageToInstall, dependency)
