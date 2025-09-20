@@ -1,26 +1,63 @@
 import { DepGraph } from 'dependency-graph'
 import { getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
+import createError from 'http-errors'
+import fs from 'fs/promises'
+import yaml from 'yaml'
+import path from 'path'
 
 /**
- * Determines the installation order for packages based on dependencies
+ * Determines the installation order for packages based on dependencies from plugable-express.yaml files
  * @param {Object} options - Installation order options
  * @param {Array} options.installedPlugins - Currently installed plugins
- * @param {Array} options.pluginSeries - Plugin series data containing dependency information
+ * @param {string} options.packageDir - Directory containing package installations
  * @param {Array} options.toInstall - Package names to install
  * @returns {Promise<Array>} Array of installation series (arrays of packages to install in each batch)
  */
-const determineInstallationOrder = async({ installedPlugins, pluginSeries, toInstall }) => {
-  const pluginEntries = pluginSeries.reduce((acc, series) => {
-    const { plugins } = series
-    for (const pluginList of Object.values(plugins)) {
-      acc.push(...pluginList)
-    }
-    return acc
-  }, [])
-
+const determineInstallationOrder = async({ installedPlugins, packageDir, toInstall }) => {
   const graph = new DepGraph()
   const processed = new Set()
   const toProcess = [...toInstall]
+
+  /**
+   * Reads dependencies from a package's plugable-express.yaml file
+   * @param {string} packageName - Package name
+   * @returns {Promise<Array>} Array of dependency package names
+   */
+  const readPackageDependencies = async(packageName) => {
+    const yamlPath = path.resolve(packageDir, packageName, 'plugable-express.yaml')
+
+    let yamlContent
+    try {
+      yamlContent = await fs.readFile(yamlPath, 'utf8')
+    }
+    catch (error) {
+      if (error.code === 'ENOENT') {
+        // File doesn't exist, no dependencies
+        return []
+      }
+      else if (error.code === 'EACCES') {
+        throw createError(403, error, {
+          message : `Cannot access 'plugable-express.yaml'. ERR: ${error.message}`
+        })
+      }
+      else {
+        // Re-throw other unexpected file system errors
+        throw error
+      }
+    }
+
+    // Parse YAML content
+    try {
+      const config = yaml.parse(yamlContent)
+      return config.dependencies || []
+    }
+    catch (error) {
+      throw createError(500, error, {
+        message : `Error parsing 'plugable-express.yaml'; possibly invalid yaml. ERR: ${error.message}`,
+        expose  : true
+      })
+    }
+  }
 
   // Process dependencies iteratively to avoid infinite loops
   while (toProcess.length > 0) {
@@ -36,7 +73,7 @@ const determineInstallationOrder = async({ installedPlugins, pluginSeries, toIns
     }
 
     const { name } = await getPackageOrgBasenameAndVersion(packageToInstall)
-    const { dependencies = [] } = pluginEntries.find((e) => e.npmName === name) || {}
+    const dependencies = await readPackageDependencies(name)
 
     for (const dependency of dependencies) {
       if (installedPlugins.includes(dependency) || processed.has(dependency)) {

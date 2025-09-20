@@ -4,7 +4,7 @@ import * as fsPath from 'node:path'
 
 import { Reporter } from '../../lib/reporter'
 
-const COMMAND_COUNT = 16
+const COMMAND_COUNT = 13
 const HELP_COUNT = 15
 
 const defaultTestOptions = ({
