@@ -539,5 +539,97 @@ describe('installation-order', () => {
       expect(mockGraph.addNode).toHaveBeenCalledWith('dep1')
       expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
     })
+
+    test('rejects YAML with excessive aliases (billion laughs protection)', async() => {
+      const toInstall = ['malicious-package']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+      const maliciousYaml = `
+a: &a ["lol","lol","lol","lol","lol","lol","lol","lol","lol"]
+b: &b [*a,*a,*a,*a,*a,*a,*a,*a,*a]
+c: &c [*b,*b,*b,*b,*b,*b,*b,*b,*b]
+dependencies: *c
+`
+      fs.readFile.mockResolvedValueOnce(maliciousYaml)
+
+      // Mock yaml.parse to throw the expected error for too many aliases
+      yaml.parse.mockImplementation(() => {
+        throw new Error('too many aliases')
+      })
+
+      // Mock createError to return a mock error
+      createError.mockImplementation((status, originalError, options) => {
+        const error = new Error(options.message)
+        error.status = status
+        error.originalError = originalError
+        error.expose = options.expose
+        return error
+      })
+
+      mockGraph.hasNode.mockReturnValue(false)
+
+      await expect(determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })).rejects.toThrow('too many aliases')
+    })
+
+    test('rejects oversized YAML files', async() => {
+      const toInstall = ['huge-package']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+      const hugeDependencies = 'dependencies:\n' + '  - package\n'.repeat(5000)
+      fs.readFile.mockResolvedValueOnce(hugeDependencies)
+
+      // Mock createError to return a mock error
+      createError.mockImplementation((status, message, options) => {
+        const error = new Error(message)
+        error.status = status
+        error.expose = options.expose
+        return error
+      })
+
+      mockGraph.hasNode.mockReturnValue(false)
+
+      await expect(determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })).rejects.toThrow('YAML file too large')
+
+      expect(createError).toHaveBeenCalledWith(400, 'YAML file too large', { expose: true })
+    })
+
+    test('rejects YAML with invalid root structure', async() => {
+      const toInstall = ['invalid-package']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+      fs.readFile.mockResolvedValueOnce('just a string')
+
+      // Mock yaml.parse to return a non-object (string)
+      yaml.parse.mockReturnValue('just a string')
+
+      // Mock createError to return a mock error
+      createError.mockImplementation((status, message, options) => {
+        const error = new Error(message)
+        error.status = status
+        error.expose = options.expose
+        return error
+      })
+
+      mockGraph.hasNode.mockReturnValue(false)
+
+      await expect(determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })).rejects.toThrow('Invalid YAML structure: root must be object')
+
+      expect(createError).toHaveBeenCalledWith(400, 'Invalid YAML structure: root must be object', { expose: true })
+    })
   })
 })

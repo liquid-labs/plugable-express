@@ -21,7 +21,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
 
   /**
    * Reads dependencies from a package's plugable-express.yaml file
-   * @param {string} packageName - Package name
+   * Security: Uses safe YAML parsing to prevent deserialization attacks
+   * @param {string} packageName - Package name (must be valid npm package name)
    * @returns {Promise<Array>} Array of dependency package names (with optional version specs)
    */
   const readPackageDependencies = async(packageName) => {
@@ -47,9 +48,24 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
       }
     }
 
-    // Parse YAML content
+    // Parse YAML content with security restrictions
     try {
-      const config = yaml.parse(yamlContent)
+      // Validate YAML content size before parsing (10KB limit)
+      if (yamlContent.length > 10000) {
+        throw createError(400, 'YAML file too large', { expose: true })
+      }
+
+      const config = yaml.parse(yamlContent, {
+        schema: 'core',        // Restricts to core YAML types only (no custom types)
+        maxAliasCount: 100,    // Prevents billion laughs attack
+        prettyErrors: false    // Prevents potential info leakage in error messages
+      })
+
+      // Validate parsed structure
+      if (config && typeof config !== 'object') {
+        throw createError(400, 'Invalid YAML structure: root must be object', { expose: true })
+      }
+
       const rawDependencies = config.dependencies || []
 
       // Normalize dependencies to string format (supports both string and object format)
@@ -66,6 +82,7 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
       })
     }
     catch (error) {
+      if (error.status) throw error // Re-throw our own errors
       throw createError(500, error, {
         message : `Error parsing 'plugable-express.yaml'; possibly invalid yaml. ERR: ${error.message}`,
         expose  : true
