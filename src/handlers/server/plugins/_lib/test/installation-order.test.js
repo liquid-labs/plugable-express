@@ -13,7 +13,6 @@ jest.mock('dependency-graph')
 jest.mock('@liquid-labs/npm-toolkit', () => ({
   getPackageOrgBasenameAndVersion: jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
-jest.mock('http-errors')
 jest.mock('fs/promises')
 jest.mock('yaml')
 jest.mock('path')
@@ -32,6 +31,7 @@ describe('installation-order', () => {
       removeNode    : jest.fn()
     }
     DepGraph.mockImplementation(() => mockGraph)
+
 
     // Mock path.resolve to return predictable paths
     path.resolve.mockImplementation((...paths) => paths.join('/'))
@@ -239,27 +239,13 @@ describe('installation-order', () => {
         throw new Error('Invalid YAML syntax')
       })
 
-      // Mock createError to return a mock error
-      createError.mockImplementation((status, originalError, options) => {
-        const error = new Error(options.message)
-        error.status = status
-        error.originalError = originalError
-        error.expose = options.expose
-        return error
-      })
-
       mockGraph.hasNode.mockReturnValue(false)
 
       await expect(determineInstallationOrder({
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow("Error parsing 'plugable-express.yaml'; possibly invalid yaml. ERR: Invalid YAML syntax")
-
-      expect(createError).toHaveBeenCalledWith(500, expect.any(Error), {
-        message : "Error parsing 'plugable-express.yaml'; possibly invalid yaml. ERR: Invalid YAML syntax",
-        expose  : true
-      })
+      })).rejects.toThrow("Error parsing file 'plugable-express.yaml (package: package-a)': Invalid YAML syntax")
     })
 
     test('throws on file access errors', async() => {
@@ -273,25 +259,13 @@ describe('installation-order', () => {
       eaccesError.code = 'EACCES'
       fs.readFile.mockRejectedValue(eaccesError)
 
-      // Mock createError to return a mock error
-      createError.mockImplementation((status, originalError, options) => {
-        const error = new Error(options.message)
-        error.status = status
-        error.originalError = originalError
-        return error
-      })
-
       mockGraph.hasNode.mockReturnValue(false)
 
       await expect(determineInstallationOrder({
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow("Cannot access 'plugable-express.yaml'. ERR: Permission denied")
-
-      expect(createError).toHaveBeenCalledWith(403, eaccesError, {
-        message : "Cannot access 'plugable-express.yaml'. ERR: Permission denied"
-      })
+      })).rejects.toThrow("Cannot access 'plugable-express.yaml' for package 'package-a'; permission denied")
     })
 
     test('re-throws unexpected file system errors', async() => {
@@ -311,7 +285,7 @@ describe('installation-order', () => {
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow('Disk full')
+      })).rejects.toThrow('Unexpected error reading plugable-express.yaml') // underlying 500 errors are hidden
     })
 
     test('handles complex dependency chains', async() => {
@@ -445,7 +419,7 @@ describe('installation-order', () => {
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow('Error parsing \'plugable-express.yaml\'; possibly invalid yaml. ERR: Invalid dependency format: {"invalidObject":true}')
+      })).rejects.toThrow('Invalid dependency format')
     })
 
     test('skips dependency processing when noImplicitInstallation is true', async() => {
@@ -558,15 +532,6 @@ dependencies: *c
         throw new Error('too many aliases')
       })
 
-      // Mock createError to return a mock error
-      createError.mockImplementation((status, originalError, options) => {
-        const error = new Error(options.message)
-        error.status = status
-        error.originalError = originalError
-        error.expose = options.expose
-        return error
-      })
-
       mockGraph.hasNode.mockReturnValue(false)
 
       await expect(determineInstallationOrder({
@@ -584,23 +549,13 @@ dependencies: *c
       const hugeDependencies = 'dependencies:\n' + '  - package\n'.repeat(5000)
       fs.readFile.mockResolvedValueOnce(hugeDependencies)
 
-      // Mock createError to return a mock error
-      createError.mockImplementation((status, message, options) => {
-        const error = new Error(message)
-        error.status = status
-        error.expose = options.expose
-        return error
-      })
-
       mockGraph.hasNode.mockReturnValue(false)
 
       await expect(determineInstallationOrder({
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow('YAML file too large')
-
-      expect(createError).toHaveBeenCalledWith(400, 'YAML file too large', { expose: true })
+      })).rejects.toThrow('YAML file size limit exceeded')
     })
 
     test('rejects YAML with invalid root structure', async() => {
@@ -613,23 +568,108 @@ dependencies: *c
       // Mock yaml.parse to return a non-object (string)
       yaml.parse.mockReturnValue('just a string')
 
-      // Mock createError to return a mock error
-      createError.mockImplementation((status, message, options) => {
-        const error = new Error(message)
-        error.status = status
-        error.expose = options.expose
-        return error
-      })
-
       mockGraph.hasNode.mockReturnValue(false)
 
       await expect(determineInstallationOrder({
         installedPlugins,
         packageDir,
         toInstall
-      })).rejects.toThrow('Invalid YAML structure: root must be object')
+      })).rejects.toMatchObject({
+        status: 400,
+        expose: true,
+        type: 'VALIDATION_ERROR'
+      })
+    })
 
-      expect(createError).toHaveBeenCalledWith(400, 'Invalid YAML structure: root must be object', { expose: true })
+    describe('error handling standardization', () => {
+      test('throws consistent validation errors for invalid dependency format', async() => {
+        const toInstall = ['test-package']
+        fs.readFile.mockResolvedValueOnce('dependencies:\n  - invalidObject: true')
+        mockGraph.hasNode.mockReturnValue(false)
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toMatchObject({
+          status: 400,
+          expose: true,
+          type: 'VALIDATION_ERROR',
+          field: 'dependency format'
+        })
+      })
+
+      test('throws consistent access errors for file permission issues', async() => {
+        const toInstall = ['test-package']
+        const accessError = new Error('Permission denied')
+        accessError.code = 'EACCES'
+        fs.readFile.mockRejectedValueOnce(accessError)
+        mockGraph.hasNode.mockReturnValue(false)
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toMatchObject({
+          status: 403,
+          expose: false,
+          type: 'ACCESS_ERROR'
+        })
+      })
+
+      test('throws consistent dependency errors for circular dependencies', async() => {
+        const toInstall = ['package-a']
+        fs.readFile
+          .mockResolvedValueOnce('dependencies:\n  - package-b')
+          .mockResolvedValueOnce('dependencies:\n  - package-a')
+        mockGraph.hasNode.mockReturnValue(false)
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toMatchObject({
+          status: 400,
+          expose: true,
+          type: 'DEPENDENCY_ERROR'
+        })
+      })
+
+      test('throws consistent resource limit errors', async() => {
+        const toInstall = ['test-package']
+        const hugeDependencies = 'dependencies:\n' + '  - package\n'.repeat(101)
+        fs.readFile.mockResolvedValueOnce(hugeDependencies)
+        mockGraph.hasNode.mockReturnValue(false)
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toMatchObject({
+          status: 400,
+          expose: true,
+          type: 'RESOURCE_LIMIT_ERROR'
+        })
+      })
+
+      test('throws consistent parsing errors for invalid YAML', async() => {
+        const toInstall = ['test-package']
+        fs.readFile.mockResolvedValueOnce('invalid: yaml: content:')
+        yaml.parse.mockImplementation(() => {
+          throw new Error('Invalid YAML syntax')
+        })
+        mockGraph.hasNode.mockReturnValue(false)
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toMatchObject({
+          status: 400,
+          expose: true,
+          type: 'PARSING_ERROR'
+        })
+      })
     })
 
     describe('circular dependency detection', () => {
@@ -642,20 +682,14 @@ dependencies: *c
 
         mockGraph.hasNode.mockReturnValue(false)
 
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          error.cycle = options.cycle
-          return error
-        })
-
         await expect(determineInstallationOrder({
           installedPlugins: [],
           packageDir: '/test',
           toInstall
-        })).rejects.toThrow(/Circular dependency detected.*package-a.*package-b.*package-a/)
+        })).rejects.toMatchObject({
+          status: 400,
+          type: 'DEPENDENCY_ERROR'
+        })
       })
 
       test('detects complex circular dependency (A → B → C → A)', async() => {
@@ -667,15 +701,6 @@ dependencies: *c
           .mockResolvedValueOnce('dependencies:\n  - package-a') // package-c → package-a
 
         mockGraph.hasNode.mockReturnValue(false)
-
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          error.cycle = options.cycle
-          return error
-        })
 
         await expect(determineInstallationOrder({
           installedPlugins: [],
@@ -689,15 +714,6 @@ dependencies: *c
 
         fs.readFile.mockResolvedValueOnce('dependencies:\n  - self-ref-package')
         mockGraph.hasNode.mockReturnValue(false)
-
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          error.cycle = options.cycle
-          return error
-        })
 
         await expect(determineInstallationOrder({
           installedPlugins: [],
@@ -741,19 +757,11 @@ dependencies: *c
 
         mockGraph.hasNode.mockReturnValue(false)
 
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          return error
-        })
-
         await expect(determineInstallationOrder({
           installedPlugins: [],
           packageDir: '/test',
           toInstall
-        })).rejects.toThrow(/too many dependencies/)
+        })).rejects.toThrow(/dependencies limit exceeded/)
       })
 
       test('has defensive limits in place to prevent DoS attacks', async() => {
@@ -766,19 +774,11 @@ dependencies: *c
 
         mockGraph.hasNode.mockReturnValue(false)
 
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          return error
-        })
-
         await expect(determineInstallationOrder({
           installedPlugins: [],
           packageDir: '/test',
           toInstall
-        })).rejects.toThrow(/too many dependencies/)
+        })).rejects.toThrow(/dependencies limit exceeded/)
       })
 
       test('handles DepGraph cyclic dependency errors gracefully', async() => {
@@ -795,15 +795,6 @@ dependencies: *c
           throw new Error('Cyclic dependency found: package-a -> package-b')
         })
 
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          error.cycle = options.cycle
-          return error
-        })
-
         await expect(determineInstallationOrder({
           installedPlugins: [],
           packageDir: '/test',
@@ -816,19 +807,11 @@ dependencies: *c
 
         fs.readFile.mockResolvedValueOnce('dependencies: []')
         mockGraph.hasNode.mockReturnValue(false)
-        mockGraph.size.mockReturnValueOnce(1)
+        mockGraph.size.mockReturnValue(1) // Should always return 1 to keep loop running
 
         // Mock overallOrder to throw cyclic dependency error
         mockGraph.overallOrder.mockImplementation(() => {
           throw new Error('Cyclic dependency found in overall order')
-        })
-
-        // Mock createError to return a mock error
-        createError.mockImplementation((status, message, options) => {
-          const error = new Error(message)
-          error.status = status
-          error.expose = options.expose
-          return error
         })
 
         await expect(determineInstallationOrder({

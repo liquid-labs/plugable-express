@@ -4,6 +4,7 @@ import createError from 'http-errors'
 import fs from 'fs/promises'
 import yaml from 'yaml'
 import path from 'path'
+import { PluginError } from './error-utils'
 
 // Resource limits to prevent DoS attacks
 const MAX_DEPENDENCY_DEPTH = 50
@@ -24,9 +25,10 @@ const validateNoCycles = (dependencyMap) => {
     if (visiting.has(packageName)) {
       const cycleStart = path.indexOf(packageName)
       const cycle = path.slice(cycleStart).concat([packageName])
-      throw createError(400,
+      throw PluginError.dependency(
         `Circular dependency detected: ${cycle.join(' → ')}`,
-        { expose: true, cycle }
+        cycle,
+        packageName
       )
     }
 
@@ -60,17 +62,20 @@ const validateNoCycles = (dependencyMap) => {
  */
 const validateResourceLimits = (dependencyMap) => {
   if (dependencyMap.size > MAX_TOTAL_PACKAGES) {
-    throw createError(400,
-      `Total package count exceeds maximum allowed (${MAX_TOTAL_PACKAGES})`,
-      { expose: true }
+    throw PluginError.resourceLimit(
+      'Total package count',
+      dependencyMap.size,
+      MAX_TOTAL_PACKAGES
     )
   }
 
   for (const [packageName, dependencies] of dependencyMap) {
     if (dependencies.length > MAX_DEPENDENCIES_PER_PACKAGE) {
-      throw createError(400,
-        `Package ${packageName} has too many dependencies (${dependencies.length} > ${MAX_DEPENDENCIES_PER_PACKAGE})`,
-        { expose: true }
+      throw PluginError.resourceLimit(
+        `Package ${packageName} dependencies`,
+        dependencies.length,
+        MAX_DEPENDENCIES_PER_PACKAGE,
+        { packageName }
       )
     }
   }
@@ -108,17 +113,22 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
     }
     catch (error) {
       if (error.code === 'ENOENT') {
-        // File doesn't exist, no dependencies
+        // File doesn't exist, no dependencies - this is OK
         return []
       }
       else if (error.code === 'EACCES') {
-        throw createError(403, error, {
-          message : `Cannot access 'plugable-express.yaml'. ERR: ${error.message}`
-        })
+        throw PluginError.access(
+          `Cannot access 'plugable-express.yaml' for package '${packageName}'; permission denied`,
+          error
+        )
       }
       else {
-        // Re-throw other unexpected file system errors
-        throw error
+        // Re-throw other unexpected file system errors as server errors
+        throw PluginError.internal(
+          `Unexpected error reading plugable-express.yaml for package '${packageName}'`,
+          error,
+          false // Don't expose internal details
+        )
       }
     }
 
@@ -126,7 +136,12 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
     try {
       // Validate YAML content size before parsing (10KB limit)
       if (yamlContent.length > 10000) {
-        throw createError(400, 'YAML file too large', { expose: true })
+        throw PluginError.resourceLimit(
+          'YAML file size',
+          yamlContent.length,
+          10000,
+          { packageName, filePath: 'plugable-express.yaml' }
+        )
       }
 
       const config = yaml.parse(yamlContent, {
@@ -137,7 +152,12 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
 
       // Validate parsed structure
       if (config && typeof config !== 'object') {
-        throw createError(400, 'Invalid YAML structure: root must be object', { expose: true })
+        throw PluginError.validation(
+          'YAML structure',
+          typeof config,
+          'object (root element must be an object)',
+          { packageName, filePath: 'plugable-express.yaml' }
+        )
       }
 
       const rawDependencies = config.dependencies || []
@@ -151,16 +171,30 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
           return dep.version ? `${dep.npmPackage}@${dep.version}` : dep.npmPackage
         }
         else {
-          throw new Error(`Invalid dependency format: ${JSON.stringify(dep)}`)
+          throw PluginError.validation(
+            'dependency format',
+            JSON.stringify(dep),
+            'string or {npmPackage: string, version?: string}',
+            {
+              packageName,
+              invalidDependency: dep,
+              validExamples: [
+                'package-name',
+                '{"npmPackage": "package-name", "version": "^1.0.0"}'
+              ]
+            }
+          )
         }
       })
     }
     catch (error) {
-      if (error.status) throw error // Re-throw our own errors
-      throw createError(500, error, {
-        message : `Error parsing 'plugable-express.yaml'; possibly invalid yaml. ERR: ${error.message}`,
-        expose  : true
-      })
+      if (error && error.status) throw error // Re-throw our own errors
+      // YAML parsing errors
+      throw PluginError.parsing(
+        `plugable-express.yaml (package: ${packageName})`,
+        error,
+        true // Expose parsing errors to help users fix their YAML
+      )
     }
   }
 
@@ -168,9 +202,11 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
   while (toProcess.length > 0) {
     iterations++
     if (iterations > MAX_ITERATIONS) {
-      throw createError(400,
-        `Dependency resolution exceeded maximum iterations (${MAX_ITERATIONS}). Possible circular dependency.`,
-        { expose: true }
+      throw PluginError.resourceLimit(
+        'Dependency resolution iterations',
+        iterations,
+        MAX_ITERATIONS,
+        { hint: 'Possible circular dependency or excessive dependency chain' }
       )
     }
 
@@ -218,9 +254,10 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
         graph.addDependency(packageToInstall, dependency)
       } catch (error) {
         if (error.message.includes('Cyclic dependency')) {
-          throw createError(400,
+          throw PluginError.dependency(
             `Circular dependency detected between ${packageToInstall} and ${dependency}`,
-            { expose: true, cycle: [packageToInstall, dependency, packageToInstall] }
+            [packageToInstall, dependency, packageToInstall],
+            packageToInstall
           )
         }
         throw error
@@ -242,9 +279,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
       }
     } catch (error) {
       if (error.message.includes('Cyclic dependency')) {
-        throw createError(400,
-          'Circular dependency detected in installation order',
-          { expose: true }
+        throw PluginError.dependency(
+          'Circular dependency detected in installation order'
         )
       }
       throw error
