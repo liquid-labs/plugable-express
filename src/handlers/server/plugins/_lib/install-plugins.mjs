@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises'
 
-import { install } from '@liquid-labs/npm-toolkit'
+import { install, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
 
 import { determineInstallationOrder } from './installation-order'
 
@@ -9,7 +9,7 @@ import { determineInstallationOrder } from './installation-order'
  * @param {Object} options - Installation options
  * @param {Object} options.app - Express app object
  * @param {Array} options.installedPlugins - Currently installed plugins
- * @param {Array<string>} options.npmNames - NPM package names to install
+ * @param {Array<string>} options.npmNames - NPM package names to install (with optional version specs)
  * @param {string} options.pluginPkgDir - Directory where plugins should be installed
  * @param {Function} options.reloadFunc - Function to call after installation to reload the app
  * @param {Object} options.reporter - Reporter for logging
@@ -27,7 +27,7 @@ const installPlugins = async({
   const toInstall = []
 
   for (const testPackage of npmNames) {
-    const testName = testPackage.replace(/(.)@.*/, '$1')
+    const { name: testName } = await getPackageOrgBasenameAndVersion(testPackage)
     const matched = installedPlugins.some(({ npmName }) => npmName === testName)
 
     if (matched === true) {

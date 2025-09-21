@@ -21,7 +21,7 @@ const determineInstallationOrder = async({ installedPlugins, packageDir, toInsta
   /**
    * Reads dependencies from a package's plugable-express.yaml file
    * @param {string} packageName - Package name
-   * @returns {Promise<Array>} Array of dependency package names
+   * @returns {Promise<Array>} Array of dependency package names (with optional version specs)
    */
   const readPackageDependencies = async(packageName) => {
     const yamlPath = path.resolve(packageDir, packageName, 'plugable-express.yaml')
@@ -49,7 +49,20 @@ const determineInstallationOrder = async({ installedPlugins, packageDir, toInsta
     // Parse YAML content
     try {
       const config = yaml.parse(yamlContent)
-      return config.dependencies || []
+      const rawDependencies = config.dependencies || []
+
+      // Normalize dependencies to string format (supports both string and object format)
+      return rawDependencies.map(dep => {
+        if (typeof dep === 'string') {
+          return dep
+        }
+        else if (typeof dep === 'object' && dep.npmPackage) {
+          return dep.version ? `${dep.npmPackage}@${dep.version}` : dep.npmPackage
+        }
+        else {
+          throw new Error(`Invalid dependency format: ${JSON.stringify(dep)}`)
+        }
+      })
     }
     catch (error) {
       throw createError(500, error, {
@@ -76,7 +89,10 @@ const determineInstallationOrder = async({ installedPlugins, packageDir, toInsta
     const dependencies = await readPackageDependencies(name)
 
     for (const dependency of dependencies) {
-      if (installedPlugins.includes(dependency) || processed.has(dependency)) {
+      // Extract base package name for comparison with installed plugins
+      const { name: depBaseName } = await getPackageOrgBasenameAndVersion(dependency)
+
+      if (installedPlugins.some(({ npmName }) => npmName === depBaseName) || processed.has(dependency)) {
         continue
       }
 

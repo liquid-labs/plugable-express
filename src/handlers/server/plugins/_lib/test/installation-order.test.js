@@ -3,7 +3,6 @@
 import { determineInstallationOrder } from '../installation-order'
 
 import { DepGraph } from 'dependency-graph'
-import { getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
 import createError from 'http-errors'
 import fs from 'fs/promises'
 import yaml from 'yaml'
@@ -11,7 +10,9 @@ import path from 'path'
 
 // Mock dependencies
 jest.mock('dependency-graph')
-jest.mock('@liquid-labs/npm-toolkit')
+jest.mock('@liquid-labs/npm-toolkit', () => ({
+  getPackageOrgBasenameAndVersion: jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
+}))
 jest.mock('http-errors')
 jest.mock('fs/promises')
 jest.mock('yaml')
@@ -38,7 +39,47 @@ describe('installation-order', () => {
     // Mock YAML parsing
     yaml.parse.mockImplementation((content) => {
       if (content.includes('dependencies:')) {
-        return { dependencies : content.match(/- (.+)/g)?.map(match => match.substring(2)) || [] }
+        const dependencies = []
+
+        // Split by lines and process dependencies
+        const lines = content.split('\n')
+        let i = 0
+
+        while (i < lines.length) {
+          const line = lines[i].trim()
+
+          if (line.startsWith('- ')) {
+            const depStr = line.substring(2).trim()
+
+            // Check if this is an object dependency (multi-line)
+            if (depStr.includes('npmPackage:')) {
+              const npmPackage = depStr.split('npmPackage:')[1].trim()
+              let version
+
+              // Check next line for version
+              if (i + 1 < lines.length && lines[i + 1].trim().includes('version:')) {
+                version = lines[i + 1].split('version:')[1].trim().replace(/"/g, '')
+                i++ // Skip the version line
+              }
+
+              dependencies.push({
+                npmPackage,
+                version
+              })
+            }
+            else if (depStr && !depStr.includes(':')) {
+              // Simple string dependency
+              dependencies.push(depStr)
+            }
+            else if (depStr.includes('invalidObject:')) {
+              // Test case for invalid format
+              dependencies.push({ invalidObject : true })
+            }
+          }
+          i++
+        }
+
+        return { dependencies }
       }
       return {}
     })
@@ -50,9 +91,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion
-        .mockResolvedValueOnce({ name : 'package-a' })
-        .mockResolvedValueOnce({ name : 'package-b' })
 
       // Mock fs.readFile to return empty YAML (no dependencies)
       fs.readFile.mockResolvedValue('# No dependencies')
@@ -79,9 +117,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion
-        .mockResolvedValueOnce({ name : 'package-a' })
-        .mockResolvedValueOnce({ name : 'dep1' })
 
       // Mock fs.readFile to return YAML with dependencies for package-a
       fs.readFile
@@ -113,10 +148,9 @@ describe('installation-order', () => {
 
     test('skips dependencies that are already installed', async() => {
       const toInstall = ['package-a']
-      const installedPlugins = ['installed-dep']
+      const installedPlugins = [{ npmName : 'installed-dep' }]
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'package-a' })
 
       // Mock fs.readFile to return YAML with dependencies
       fs.readFile.mockResolvedValue('dependencies:\n  - installed-dep')
@@ -145,7 +179,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'package-a' })
       fs.readFile.mockResolvedValue('# No dependencies')
 
       mockGraph.hasNode.mockReturnValue(false)
@@ -171,7 +204,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'unknown-package' })
 
       // Mock fs.readFile to throw ENOENT error (file not found)
       const enoentError = new Error('ENOENT: no such file or directory')
@@ -200,7 +232,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'package-a' })
 
       // Mock fs.readFile to return invalid YAML
       fs.readFile.mockResolvedValue('invalid: yaml: content:')
@@ -236,7 +267,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'package-a' })
 
       // Mock fs.readFile to throw EACCES error
       const eaccesError = new Error('Permission denied')
@@ -269,7 +299,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-      getPackageOrgBasenameAndVersion.mockResolvedValue({ name : 'package-a' })
 
       // Mock fs.readFile to throw unexpected error
       const unexpectedError = new Error('Disk full')
@@ -289,11 +318,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
-
-      getPackageOrgBasenameAndVersion
-        .mockResolvedValueOnce({ name : 'package-a' })
-        .mockResolvedValueOnce({ name : 'dep1' })
-        .mockResolvedValueOnce({ name : 'dep2' })
 
       // Mock fs.readFile to return complex dependency chain
       fs.readFile
@@ -317,6 +341,111 @@ describe('installation-order', () => {
       expect(result).toEqual([['dep2', 'dep1', 'package-a']])
       expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
       expect(mockGraph.addDependency).toHaveBeenCalledWith('dep1', 'dep2')
+    })
+
+    test('handles object format dependencies with version specs', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+
+      // Mock fs.readFile to return object format dependencies
+      fs.readFile
+        .mockResolvedValueOnce('dependencies:\n  - npmPackage: dep1\n    version: "^1.0.0"')
+        .mockResolvedValueOnce('# No dependencies') // dep1 has no dependencies
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(2) // package-a and dep1@^1.0.0
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['dep1@^1.0.0', 'package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['dep1@^1.0.0', 'package-a']])
+      expect(mockGraph.addNode).toHaveBeenCalledWith('package-a')
+      expect(mockGraph.addNode).toHaveBeenCalledWith('dep1@^1.0.0')
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1@^1.0.0')
+    })
+
+    test('handles mixed string and object format dependencies', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+      // Mock fs.readFile with mixed dependency formats
+      fs.readFile
+        .mockResolvedValueOnce('dependencies:\n  - dep1\n  - npmPackage: dep2\n    version: "~2.0.0"')
+        .mockResolvedValueOnce('# No dependencies') // dep1 has no dependencies
+        .mockResolvedValueOnce('# No dependencies') // dep2 has no dependencies
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(3) // package-a, dep1, dep2@~2.0.0
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['dep1', 'dep2@~2.0.0', 'package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['dep1', 'dep2@~2.0.0', 'package-a']])
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep2@~2.0.0')
+    })
+
+    test('handles object format dependencies without version specs', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+
+      // Mock fs.readFile to return object format without version
+      fs.readFile
+        .mockResolvedValueOnce('dependencies:\n  - npmPackage: dep1')
+        .mockResolvedValueOnce('# No dependencies') // dep1 has no dependencies
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(2) // package-a and dep1
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['dep1', 'package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['dep1', 'package-a']])
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
+    })
+
+    test('throws error for invalid dependency format', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+
+
+      // Mock fs.readFile to return invalid dependency format
+      fs.readFile.mockResolvedValueOnce('dependencies:\n  - invalidObject: true')
+
+      mockGraph.hasNode.mockReturnValue(false)
+
+      await expect(determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })).rejects.toThrow('Error parsing \'plugable-express.yaml\'; possibly invalid yaml. ERR: Invalid dependency format: {"invalidObject":true}')
     })
   })
 })
