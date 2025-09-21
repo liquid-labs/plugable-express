@@ -9,11 +9,12 @@ import path from 'path'
  * Determines the installation order for packages based on dependencies from plugable-express.yaml files
  * @param {Object} options - Installation order options
  * @param {Array} options.installedPlugins - Currently installed plugins
+ * @param {boolean} options.noImplicitInstallation - Skip installation of implicit dependencies
  * @param {string} options.packageDir - Directory containing package installations
  * @param {Array} options.toInstall - Package names to install
  * @returns {Promise<Array>} Array of installation series (arrays of packages to install in each batch)
  */
-const determineInstallationOrder = async({ installedPlugins, packageDir, toInstall }) => {
+const determineInstallationOrder = async({ installedPlugins, noImplicitInstallation, packageDir, toInstall }) => {
   const graph = new DepGraph()
   const processed = new Set()
   const toProcess = [...toInstall]
@@ -86,6 +87,12 @@ const determineInstallationOrder = async({ installedPlugins, packageDir, toInsta
     }
 
     const { name } = await getPackageOrgBasenameAndVersion(packageToInstall)
+
+    // Skip dependency processing if noImplicitInstallation is true
+    if (noImplicitInstallation) {
+      continue
+    }
+
     const dependencies = await readPackageDependencies(name)
 
     for (const dependency of dependencies) {

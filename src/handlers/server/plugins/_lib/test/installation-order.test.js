@@ -447,5 +447,97 @@ describe('installation-order', () => {
         toInstall
       })).rejects.toThrow('Error parsing \'plugable-express.yaml\'; possibly invalid yaml. ERR: Invalid dependency format: {"invalidObject":true}')
     })
+
+    test('skips dependency processing when noImplicitInstallation is true', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+      const noImplicitInstallation = true
+
+      // Mock fs.readFile to return dependencies (but they should be ignored)
+      fs.readFile.mockResolvedValue('dependencies:\n  - dep1\n  - dep2')
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(1) // Only package-a
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        noImplicitInstallation,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['package-a']])
+      expect(mockGraph.addNode).toHaveBeenCalledWith('package-a')
+      expect(mockGraph.addNode).toHaveBeenCalledTimes(1) // Only the main package, no dependencies
+      expect(mockGraph.addDependency).not.toHaveBeenCalled() // No dependencies added
+      expect(fs.readFile).not.toHaveBeenCalled() // No dependency files read
+    })
+
+    test('processes dependencies normally when noImplicitInstallation is false', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+      const noImplicitInstallation = false
+
+      // Mock fs.readFile to return dependencies
+      fs.readFile
+        .mockResolvedValueOnce('dependencies:\n  - dep1') // package-a has dep1
+        .mockResolvedValueOnce('# No dependencies') // dep1 has no dependencies
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(2) // package-a and dep1
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['dep1', 'package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        noImplicitInstallation,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['dep1', 'package-a']])
+      expect(mockGraph.addNode).toHaveBeenCalledWith('package-a')
+      expect(mockGraph.addNode).toHaveBeenCalledWith('dep1')
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
+      expect(fs.readFile).toHaveBeenCalledWith('/mock/package/dir/package-a/plugable-express.yaml', 'utf8')
+    })
+
+    test('processes dependencies normally when noImplicitInstallation is undefined', async() => {
+      const toInstall = ['package-a']
+      const installedPlugins = []
+      const packageDir = '/mock/package/dir'
+      // noImplicitInstallation is undefined (falsy)
+
+      // Mock fs.readFile to return dependencies
+      fs.readFile
+        .mockResolvedValueOnce('dependencies:\n  - dep1') // package-a has dep1
+        .mockResolvedValueOnce('# No dependencies') // dep1 has no dependencies
+
+      mockGraph.hasNode.mockReturnValue(false)
+      mockGraph.size
+        .mockReturnValueOnce(2) // package-a and dep1
+        .mockReturnValueOnce(0) // Done
+
+      mockGraph.overallOrder.mockReturnValueOnce(['dep1', 'package-a'])
+
+      const result = await determineInstallationOrder({
+        installedPlugins,
+        packageDir,
+        toInstall
+      })
+
+      expect(result).toEqual([['dep1', 'package-a']])
+      expect(mockGraph.addNode).toHaveBeenCalledWith('package-a')
+      expect(mockGraph.addNode).toHaveBeenCalledWith('dep1')
+      expect(mockGraph.addDependency).toHaveBeenCalledWith('package-a', 'dep1')
+    })
   })
 })

@@ -9,6 +9,7 @@ import { determineInstallationOrder } from './installation-order'
  * @param {Object} options - Installation options
  * @param {Object} options.app - Express app object
  * @param {Array} options.installedPlugins - Currently installed plugins
+ * @param {boolean} options.noImplicitInstallation - Skip installation of implicit dependencies
  * @param {Array<string>} options.npmNames - NPM package names to install (with optional version specs)
  * @param {string} options.pluginPkgDir - Directory where plugins should be installed
  * @param {Function} options.reloadFunc - Function to call after installation to reload the app
@@ -18,6 +19,7 @@ import { determineInstallationOrder } from './installation-order'
 const installPlugins = async({
   app,
   installedPlugins,
+  noImplicitInstallation,
   npmNames,
   pluginPkgDir,
   reloadFunc,
@@ -42,6 +44,7 @@ const installPlugins = async({
   if (toInstall.length > 0) {
     const installSeries = await determineInstallationOrder({
       installedPlugins,
+      noImplicitInstallation,
       packageDir : pluginPkgDir,
       toInstall
     })

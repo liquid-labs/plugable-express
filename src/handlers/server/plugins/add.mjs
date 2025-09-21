@@ -18,6 +18,11 @@ const parameters = [
     name         : 'npmNames',
     isMultivalue : true,
     description  : 'The plugins to install, by their NPM package name. Include multiple times to install multiple plugins.'
+  },
+  {
+    name        : 'noImplicitInstallation',
+    isBoolean   : true,
+    description : 'Skips default installation of implicit plugin dependencies optionally defined in a plugins \'plugable-express.yaml\' file.'
   }
 ]
 
@@ -25,12 +30,13 @@ const path = ['server', 'plugins', 'add']
 
 const func = ({ app, reporter }) => async(req, res) => {
   const installedPlugins = app.ext.handlerPlugins || []
-  const { npmNames } = req.vars
+  const { npmNames, noImplicitInstallation } = req.vars
   const pluginPkgDir = app.ext.pluginsPath
 
   const msg = await installPlugins({
     app,
     installedPlugins,
+    noImplicitInstallation,
     npmNames,
     pluginPkgDir,
     reloadFunc : ({ app }) => app.reload(),

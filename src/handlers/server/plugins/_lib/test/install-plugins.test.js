@@ -277,5 +277,62 @@ describe('install-plugins', () => {
       })
       expect(result).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
     })
+
+    test('passes noImplicitInstallation to determineInstallationOrder', async() => {
+      const installedPlugins = []
+      const npmNames = ['test-plugin']
+      const noImplicitInstallation = true
+
+      determineInstallationOrder.mockResolvedValue([['test-plugin']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['test-plugin']
+      })
+
+      await installPlugins({
+        app : mockApp,
+        installedPlugins,
+        noImplicitInstallation,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(determineInstallationOrder).toHaveBeenCalledWith({
+        installedPlugins,
+        noImplicitInstallation : true,
+        packageDir           : '/plugins',
+        toInstall            : ['test-plugin']
+      })
+    })
+
+    test('passes undefined noImplicitInstallation to determineInstallationOrder when not provided', async() => {
+      const installedPlugins = []
+      const npmNames = ['test-plugin']
+      // noImplicitInstallation not provided
+
+      determineInstallationOrder.mockResolvedValue([['test-plugin']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['test-plugin']
+      })
+
+      await installPlugins({
+        app : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(determineInstallationOrder).toHaveBeenCalledWith({
+        installedPlugins,
+        noImplicitInstallation : undefined,
+        packageDir           : '/plugins',
+        toInstall            : ['test-plugin']
+      })
+    })
   })
 })
