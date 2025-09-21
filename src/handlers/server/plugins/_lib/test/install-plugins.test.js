@@ -4,20 +4,18 @@ import { installPlugins } from '../install-plugins'
 
 import * as fs from 'node:fs/promises'
 import { install } from '@liquid-labs/npm-toolkit'
-import { determineRegistryData } from '../registry-utils'
-import { selectMatchingSeries } from '../plugin-selection'
 import { determineInstallationOrder } from '../installation-order'
 
 // Mock dependencies
 jest.mock('node:fs/promises')
-jest.mock('@liquid-labs/npm-toolkit')
-jest.mock('../registry-utils')
-jest.mock('../plugin-selection')
+jest.mock('@liquid-labs/npm-toolkit', () => ({
+  install                         : jest.fn(),
+  getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
+}))
 jest.mock('../installation-order')
 
 describe('install-plugins', () => {
   let mockApp
-  let mockCache
   let mockReporter
   let mockReloadFunc
 
@@ -26,12 +24,10 @@ describe('install-plugins', () => {
 
     mockApp = {
       ext : {
-        devPaths       : ['/dev/path'],
-        serverSettings : { registries : ['http://registry.com'] }
+        devPaths : ['/dev/path']
       }
     }
 
-    mockCache = { get : jest.fn(), put : jest.fn() }
     mockReporter = { log : jest.fn() }
     mockReloadFunc = jest.fn().mockReturnValue(Promise.resolve())
 
@@ -45,26 +41,20 @@ describe('install-plugins', () => {
 
       const result = await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
 
       expect(result).toBe('<code>existing-plugin<rst> <em>already installed<rst>.')
-      expect(determineRegistryData).not.toHaveBeenCalled()
     })
 
     test('installs new packages successfully', async() => {
       const installedPlugins = []
       const npmNames = ['new-plugin@1.0.0']
 
-      determineRegistryData.mockResolvedValue({ registry : { id : 'test' } })
-      selectMatchingSeries.mockReturnValue([{ plugins : { server : [] } }])
       determineInstallationOrder.mockResolvedValue([['new-plugin@1.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
@@ -73,12 +63,9 @@ describe('install-plugins', () => {
 
       const result = await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
@@ -96,8 +83,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['local-plugin', 'prod-plugin']
 
-      determineRegistryData.mockResolvedValue({ registry : { id : 'test' } })
-      selectMatchingSeries.mockReturnValue([{ plugins : { server : [] } }])
       determineInstallationOrder.mockResolvedValue([['local-plugin', 'prod-plugin']])
       install.mockResolvedValue({
         localPackages      : ['local-plugin'],
@@ -106,12 +91,9 @@ describe('install-plugins', () => {
 
       const result = await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
@@ -123,8 +105,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['plugin1', 'plugin2']
 
-      determineRegistryData.mockResolvedValue({ registry : { id : 'test' } })
-      selectMatchingSeries.mockReturnValue([{ plugins : { server : [] } }])
       determineInstallationOrder.mockResolvedValue([['plugin1'], ['plugin2']])
       install.mockResolvedValue({
         localPackages      : [],
@@ -135,12 +115,9 @@ describe('install-plugins', () => {
 
       await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
@@ -153,8 +130,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['plugin1']
 
-      determineRegistryData.mockResolvedValue({ registry : { id : 'test' } })
-      selectMatchingSeries.mockReturnValue([{ plugins : { server : [] } }])
       determineInstallationOrder.mockResolvedValue([['plugin1']])
       install.mockResolvedValue({
         localPackages      : [],
@@ -165,12 +140,9 @@ describe('install-plugins', () => {
 
       await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : syncReloadFunc,
         reporter     : mockReporter
       })
@@ -182,8 +154,6 @@ describe('install-plugins', () => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin', 'new-plugin']
 
-      determineRegistryData.mockResolvedValue({ registry : { id : 'test' } })
-      selectMatchingSeries.mockReturnValue([{ plugins : { server : [] } }])
       determineInstallationOrder.mockResolvedValue([['new-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
@@ -192,12 +162,9 @@ describe('install-plugins', () => {
 
       const result = await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
@@ -211,12 +178,9 @@ describe('install-plugins', () => {
 
       const result = await installPlugins({
         app          : mockApp,
-        cache        : mockCache,
-        hostVersion  : '1.0.0',
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
-        pluginType   : 'server',
         reloadFunc   : mockReloadFunc,
         reporter     : mockReporter
       })
@@ -227,17 +191,148 @@ describe('install-plugins', () => {
     test('returns "Nothing to install" when no packages provided and none installed', async() => {
       const result = await installPlugins({
         app              : mockApp,
-        cache            : mockCache,
-        hostVersion      : '1.0.0',
         installedPlugins : [],
         npmNames         : [],
         pluginPkgDir     : '/plugins',
-        pluginType       : 'server',
         reloadFunc       : mockReloadFunc,
         reporter         : mockReporter
       })
 
       expect(result).toBe('Nothing to install.')
+    })
+
+    test('handles package names with version specs in npmNames', async() => {
+      const installedPlugins = []
+      const npmNames = ['new-plugin@^1.2.0']
+
+      determineInstallationOrder.mockResolvedValue([['new-plugin@^1.2.0']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['new-plugin']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(fs.mkdir).toHaveBeenCalledWith('/plugins', { recursive : true })
+      expect(install).toHaveBeenCalledWith({
+        devPaths    : ['/dev/path'],
+        packages    : ['new-plugin@^1.2.0'],
+        projectPath : '/plugins'
+      })
+      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n')
+    })
+
+    test('correctly identifies already installed packages with version specs', async() => {
+      const installedPlugins = [{ npmName : 'existing-plugin' }]
+      const npmNames = ['existing-plugin@1.0.0', 'new-plugin@^2.0.0']
+
+      determineInstallationOrder.mockResolvedValue([['new-plugin@^2.0.0']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['new-plugin']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
+    })
+
+    test('handles scoped packages with version specs', async() => {
+      const installedPlugins = []
+      const npmNames = ['@org/scoped-plugin@~3.1.0']
+
+      determineInstallationOrder.mockResolvedValue([['@org/scoped-plugin@~3.1.0']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['@org/scoped-plugin']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(install).toHaveBeenCalledWith({
+        devPaths    : ['/dev/path'],
+        packages    : ['@org/scoped-plugin@~3.1.0'],
+        projectPath : '/plugins'
+      })
+      expect(result).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
+    })
+
+    test('passes noImplicitInstallation to determineInstallationOrder', async() => {
+      const installedPlugins = []
+      const npmNames = ['test-plugin']
+      const noImplicitInstallation = true
+
+      determineInstallationOrder.mockResolvedValue([['test-plugin']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['test-plugin']
+      })
+
+      await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        noImplicitInstallation,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(determineInstallationOrder).toHaveBeenCalledWith({
+        installedPlugins,
+        noImplicitInstallation : true,
+        packageDir             : '/plugins',
+        toInstall              : ['test-plugin']
+      })
+    })
+
+    test('passes undefined noImplicitInstallation to determineInstallationOrder when not provided', async() => {
+      const installedPlugins = []
+      const npmNames = ['test-plugin']
+      // noImplicitInstallation not provided
+
+      determineInstallationOrder.mockResolvedValue([['test-plugin']])
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['test-plugin']
+      })
+
+      await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      expect(determineInstallationOrder).toHaveBeenCalledWith({
+        installedPlugins,
+        noImplicitInstallation : undefined,
+        packageDir             : '/plugins',
+        toInstall              : ['test-plugin']
+      })
     })
   })
 })

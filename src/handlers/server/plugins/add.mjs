@@ -1,11 +1,8 @@
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
-import { determineRegistryData } from './_lib/registry-utils'
-import { selectMatchingPlugins } from './_lib/plugin-selection'
 import { installPlugins } from './_lib/install-plugins'
 
 // Handler setup and implementation
-const hostVersionRetriever = ({ app }) => app.ext.serverVersion
 const pluginType = 'server'
 
 const help = {
@@ -20,39 +17,28 @@ const parameters = [
   {
     name         : 'npmNames',
     isMultivalue : true,
-    description  : 'The plugins to install, by their NPM package name. Include multiple times to install multiple plugins.',
-    optionsFunc  : async({ app, cache, reporter }) => {
-      if (app.ext.noRegistries === true) {
-        return []
-      }
-      const hostVersion = hostVersionRetriever({ app })
-      const registryData = await determineRegistryData({
-        cache,
-        registries : app.ext.serverSettings.registries,
-        reporter
-      })
-      const plugins = selectMatchingPlugins({ hostVersion, pluginType, registryData })
-      return plugins.map(({ npmName }) => npmName)
-    }
+    description  : 'The plugins to install, by their NPM package name. Include multiple times to install multiple plugins.'
+  },
+  {
+    name        : 'noImplicitInstallation',
+    isBoolean   : true,
+    description : 'Skips default installation of implicit plugin dependencies optionally defined in a plugins \'plugable-express.yaml\' file.'
   }
 ]
 
 const path = ['server', 'plugins', 'add']
 
-const func = ({ app, cache, reporter }) => async(req, res) => {
+const func = ({ app, reporter }) => async(req, res) => {
   const installedPlugins = app.ext.handlerPlugins || []
-  const { npmNames } = req.vars
-  const hostVersion = app.ext.serverVersion
+  const { npmNames, noImplicitInstallation } = req.vars
   const pluginPkgDir = app.ext.pluginsPath
 
   const msg = await installPlugins({
     app,
-    cache,
-    hostVersion,
     installedPlugins,
+    noImplicitInstallation,
     npmNames,
     pluginPkgDir,
-    pluginType,
     reloadFunc : ({ app }) => app.reload(),
     reporter
   })

@@ -1,33 +1,27 @@
 import * as fs from 'node:fs/promises'
 
-import { install } from '@liquid-labs/npm-toolkit'
+import { install, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
 
-import { determineRegistryData } from './registry-utils'
-import { selectMatchingSeries } from './plugin-selection'
 import { determineInstallationOrder } from './installation-order'
 
 /**
  * Installs plugins based on NPM package names
  * @param {Object} options - Installation options
  * @param {Object} options.app - Express app object
- * @param {Object} options.cache - Cache object
- * @param {string} options.hostVersion - Version of the host application
  * @param {Array} options.installedPlugins - Currently installed plugins
- * @param {Array<string>} options.npmNames - NPM package names to install
+ * @param {boolean} options.noImplicitInstallation - Skip installation of implicit dependencies
+ * @param {Array<string>} options.npmNames - NPM package names to install (with optional version specs)
  * @param {string} options.pluginPkgDir - Directory where plugins should be installed
- * @param {string} options.pluginType - Type of plugin (e.g., 'server')
  * @param {Function} options.reloadFunc - Function to call after installation to reload the app
  * @param {Object} options.reporter - Reporter for logging
  * @returns {Promise<string>} Installation result message
  */
 const installPlugins = async({
   app,
-  cache,
-  hostVersion,
   installedPlugins,
+  noImplicitInstallation,
   npmNames,
   pluginPkgDir,
-  pluginType,
   reloadFunc,
   reporter
 }) => {
@@ -35,7 +29,7 @@ const installPlugins = async({
   const toInstall = []
 
   for (const testPackage of npmNames) {
-    const testName = testPackage.replace(/(.)@.*/, '$1')
+    const { name: testName } = await getPackageOrgBasenameAndVersion(testPackage)
     const matched = installedPlugins.some(({ npmName }) => npmName === testName)
 
     if (matched === true) {
@@ -48,13 +42,12 @@ const installPlugins = async({
 
   let msg = ''
   if (toInstall.length > 0) {
-    const registryData = await determineRegistryData({
-      cache,
-      registries : app.ext.serverSettings.registries,
-      reporter
+    const installSeries = await determineInstallationOrder({
+      installedPlugins,
+      noImplicitInstallation,
+      packageDir : pluginPkgDir,
+      toInstall
     })
-    const pluginSeries = selectMatchingSeries({ hostVersion, registryData })
-    const installSeries = await determineInstallationOrder({ installedPlugins, pluginSeries, toInstall })
 
     await fs.mkdir(pluginPkgDir, { recursive : true })
 

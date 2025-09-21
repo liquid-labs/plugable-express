@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`@liquid-labs/plugable-express` is an Express-based HTTP server with pluggable endpoints and built-in plugin management. The server dynamically loads handler plugins from NPM packages and provides a modular architecture for extending functionality.
+`@liquid-labs/plugable-express` is an Express-based HTTP server framework with pluggable endpoints and built-in plugin management. The server dynamically loads handler plugins from NPM packages and provides a modular architecture for extending functionality.
+
+This package is designed to be used by consumer packages which determine the plugins to install and may implement some handlers directly to provide a complete feature set. Plugin dependencies are self-contained with transitive installation handled automatically through YAML-based dependency specifications.
 
 ## Build and Development Commands
 
@@ -40,7 +42,7 @@ npm run qa
 
 `@liquid-labs/plugable-express` serves as a framework for building modular HTTP servers. In the ecosystem:
 - **This framework** provides the core plugin loading and management infrastructure
-- **Tools built on top** can define standard plugin sets via the `standardPackages` parameter
+- **Consumer packages** define standard plugin sets via the `standardPackages` parameter
 - **Final server packages** can be relatively thin wrappers that primarily specify a plugin install list
 - **Server packages** may also define special handlers, configuration, middleware, etc. for more robust implementations
 
@@ -62,15 +64,22 @@ npm run qa
    - Each plugin must export either `handlers` or `setup` (or both)
    - Plugins can register HTTP route handlers and run setup code
    - Plugin discovery uses the `find-plugins` package to scan node_modules
-   - **Auto-installation**: Standard packages are installed automatically via `@liquid-labs/liq-plugins-lib` if not already present (src/app.js:151-161)
+   - **Plugin Dependencies**: Dependencies are specified in `plugable-express.yaml` files within each plugin package
+   - **Transitive Installation**: Plugin dependencies are automatically resolved and installed in the correct order
 
-3. **Handler Registration (`src/lib/register-handlers.js`)**
+3. **Plugin Management (`src/handlers/server/plugins/`)**
+   - Built-in handlers for plugin installation, removal, listing, and details
+   - Dependency resolution using `installation-order.mjs` with dependency graph analysis
+   - Support for both string dependencies (`package-name`) and object format with version specs (`{npmPackage: 'name', version: '^1.0.0'}`)
+   - Automatic installation of transitive dependencies
+
+4. **Handler Registration (`src/lib/register-handlers.js`)**
    - Handles registration of HTTP endpoints from plugins
    - Supports parameterized paths and regular expressions
    - Manages handler lifecycle and error handling
    - Provides automatic API documentation generation
 
-4. **Server Settings Management**
+5. **Server Settings Management**
    - `initServerSettings()` - initializes server configuration
    - `getServerSettings()` - retrieves current settings
    - Settings stored in YAML files in the server home directory
@@ -121,12 +130,32 @@ export const setup = async ({ app, cache, reporter }) => {
 }
 ```
 
+#### Plugin Dependencies
+
+Plugin dependencies are specified in a `plugable-express.yaml` file in the root of the plugin package:
+
+```yaml
+dependencies:
+  - package-name              # Simple package name (latest version)
+  - npmPackage: other-package # Object format with optional version
+    version: "^1.2.0"         # Semver range specification
+```
+
+Dependencies support:
+- **String format**: Simple package names install the latest version
+- **Object format**: Explicit version control with semver ranges (^, ~, exact versions)
+- **Transitive resolution**: Dependencies of dependencies are automatically discovered and installed
+- **Installation order**: Dependency graph ensures correct installation sequence
+
 ### Key Dependencies
 
 - `express` - Web framework (v5.0.0-beta)
+- `@liquid-labs/npm-toolkit` - NPM package management and version parsing
 - `@liquid-labs/dependency-runner` - Dependency management
 - `@liquid-labs/plugable-defaults` - Default configurations
+- `dependency-graph` - Plugin dependency resolution
 - `find-plugins` - Plugin discovery
+- `yaml` - YAML configuration parsing
 - Testing uses `supertest` for HTTP testing
 
 ## Code Style

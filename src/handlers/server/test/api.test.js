@@ -2,7 +2,7 @@
 import request from 'supertest'
 
 import { appInit } from '../../../app'
-import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib/test-utils'
+import { defaultTestOptions } from '../../../test/lib/test-utils'
 
 describe('GET:/server/api', () => {
   let app, cache
@@ -22,6 +22,6 @@ describe('GET:/server/api', () => {
       .set('Accept', 'application/json')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/json/)
-    expect(body.length).toBe(COMMAND_COUNT + HELP_COUNT)
+    expect(body.length).toBe(25) // 10 commands + 15 help (reduced due to noAPIUpdate/noRegistries)
   })
 })
