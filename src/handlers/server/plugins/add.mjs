@@ -33,7 +33,7 @@ const func = ({ app, reporter }) => async(req, res) => {
   const { npmNames, noImplicitInstallation } = req.vars
   const pluginPkgDir = app.ext.pluginsPath
 
-  const msg = await installPlugins({
+  const { msg, data } = await installPlugins({
     app,
     installedPlugins,
     noImplicitInstallation,
@@ -43,7 +43,7 @@ const func = ({ app, reporter }) => async(req, res) => {
     reporter
   })
 
-  httpSmartResponse({ msg, req, res })
+  httpSmartResponse({ data, msg, req, res })
 }
 
 export { func, help, method, parameters, path, installPlugins }

@@ -38,7 +38,16 @@ describe('add plugin handler', () => {
 
     mockRes = {}
 
-    installPlugins.mockResolvedValue('Installation complete')
+    installPlugins.mockResolvedValue({
+      msg  : 'Installation complete',
+      data : {
+        installedPlugins : [],
+        total            : 0,
+        implied          : 0,
+        local            : 0,
+        production       : 0
+      }
+    })
     httpSmartResponse.mockImplementation(() => {})
   })
 
@@ -121,6 +130,13 @@ describe('add plugin handler', () => {
       await handler(mockReq, mockRes)
 
       expect(httpSmartResponse).toHaveBeenCalledWith({
+        data : {
+          installedPlugins : [],
+          total            : 0,
+          implied          : 0,
+          local            : 0,
+          production       : 0
+        },
         msg : 'Installation complete',
         req : mockReq,
         res : mockRes
