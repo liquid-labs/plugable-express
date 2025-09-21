@@ -2,7 +2,7 @@
 import request from 'supertest'
 
 import { appInit } from '../../../app'
-import { COMMAND_COUNT, defaultTestOptions, HELP_COUNT } from '../../../test/lib/test-utils'
+import { defaultTestOptions } from '../../../test/lib/test-utils'
 
 describe('GET:/server/api', () => {
   let app, cache

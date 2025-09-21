@@ -1,13 +1,11 @@
 import { DepGraph } from 'dependency-graph'
 import { getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
-import createError from 'http-errors'
 import fs from 'fs/promises'
 import yaml from 'yaml'
 import path from 'path'
 import { PluginError } from './error-utils'
 
 // Resource limits to prevent DoS attacks
-const MAX_DEPENDENCY_DEPTH = 50
 const MAX_TOTAL_PACKAGES = 500
 const MAX_DEPENDENCIES_PER_PACKAGE = 100
 const MAX_ITERATIONS = 1000
@@ -81,7 +79,6 @@ const validateResourceLimits = (dependencyMap) => {
   }
 }
 
-
 /**
  * Determines the installation order for packages based on dependencies from plugable-express.yaml files
  * @param {Object} options - Installation order options
@@ -140,14 +137,14 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
           'YAML file size',
           yamlContent.length,
           10000,
-          { packageName, filePath: 'plugable-express.yaml' }
+          { packageName, filePath : 'plugable-express.yaml' }
         )
       }
 
       const config = yaml.parse(yamlContent, {
-        schema: 'core',        // Restricts to core YAML types only (no custom types)
-        maxAliasCount: 100,    // Prevents billion laughs attack
-        prettyErrors: false    // Prevents potential info leakage in error messages
+        schema        : 'core', // Restricts to core YAML types only (no custom types)
+        maxAliasCount : 100, // Prevents billion laughs attack
+        prettyErrors  : false // Prevents potential info leakage in error messages
       })
 
       // Validate parsed structure
@@ -156,7 +153,7 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
           'YAML structure',
           typeof config,
           'object (root element must be an object)',
-          { packageName, filePath: 'plugable-express.yaml' }
+          { packageName, filePath : 'plugable-express.yaml' }
         )
       }
 
@@ -177,8 +174,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
             'string or {npmPackage: string, version?: string}',
             {
               packageName,
-              invalidDependency: dep,
-              validExamples: [
+              invalidDependency : dep,
+              validExamples     : [
                 'package-name',
                 '{"npmPackage": "package-name", "version": "^1.0.0"}'
               ]
@@ -206,7 +203,7 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
         'Dependency resolution iterations',
         iterations,
         MAX_ITERATIONS,
-        { hint: 'Possible circular dependency or excessive dependency chain' }
+        { hint : 'Possible circular dependency or excessive dependency chain' }
       )
     }
 
@@ -252,7 +249,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
       // Check for immediate circular dependency before adding to graph
       try {
         graph.addDependency(packageToInstall, dependency)
-      } catch (error) {
+      }
+      catch (error) {
         if (error.message.includes('Cyclic dependency')) {
           throw PluginError.dependency(
             `Circular dependency detected between ${packageToInstall} and ${dependency}`,
@@ -277,7 +275,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
       for (const pkg of series) {
         graph.removeNode(pkg)
       }
-    } catch (error) {
+    }
+    catch (error) {
       if (error.message.includes('Cyclic dependency')) {
         throw PluginError.dependency(
           'Circular dependency detected in installation order'

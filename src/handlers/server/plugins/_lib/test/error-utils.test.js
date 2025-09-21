@@ -5,7 +5,7 @@ import { PluginError } from '../error-utils'
 describe('PluginError utility', () => {
   describe('invalidInput', () => {
     test('creates a 400 error with proper structure', () => {
-      const error = PluginError.invalidInput('Test invalid input message', { extra: 'data' })
+      const error = PluginError.invalidInput('Test invalid input message', { extra : 'data' })
 
       expect(error.status).toBe(400)
       expect(error.expose).toBe(true)
@@ -26,7 +26,7 @@ describe('PluginError utility', () => {
 
   describe('validation', () => {
     test('creates a validation error with proper structure', () => {
-      const error = PluginError.validation('field name', 'invalid value', 'expected format', { packageName: 'test' })
+      const error = PluginError.validation('field name', 'invalid value', 'expected format', { packageName : 'test' })
 
       expect(error.status).toBe(400)
       expect(error.expose).toBe(true)
@@ -115,7 +115,7 @@ describe('PluginError utility', () => {
 
   describe('resourceLimit', () => {
     test('creates a resource limit error with proper structure', () => {
-      const error = PluginError.resourceLimit('Package count', 600, 500, { hint: 'Too many packages' })
+      const error = PluginError.resourceLimit('Package count', 600, 500, { hint : 'Too many packages' })
 
       expect(error.status).toBe(400)
       expect(error.expose).toBe(true)

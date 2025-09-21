@@ -3,7 +3,6 @@
 import { determineInstallationOrder } from '../installation-order'
 
 import { DepGraph } from 'dependency-graph'
-import createError from 'http-errors'
 import fs from 'fs/promises'
 import yaml from 'yaml'
 import path from 'path'
@@ -11,7 +10,7 @@ import path from 'path'
 // Mock dependencies
 jest.mock('dependency-graph')
 jest.mock('@liquid-labs/npm-toolkit', () => ({
-  getPackageOrgBasenameAndVersion: jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
+  getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
 jest.mock('fs/promises')
 jest.mock('yaml')
@@ -31,7 +30,6 @@ describe('installation-order', () => {
       removeNode    : jest.fn()
     }
     DepGraph.mockImplementation(() => mockGraph)
-
 
     // Mock path.resolve to return predictable paths
     path.resolve.mockImplementation((...paths) => paths.join('/'))
@@ -91,7 +89,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-
       // Mock fs.readFile to return empty YAML (no dependencies)
       fs.readFile.mockResolvedValue('# No dependencies')
 
@@ -116,7 +113,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
-
 
       // Mock fs.readFile to return YAML with dependencies for package-a
       fs.readFile
@@ -150,7 +146,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = [{ npmName : 'installed-dep' }]
       const packageDir = '/mock/package/dir'
-
 
       // Mock fs.readFile to return YAML with dependencies
       fs.readFile.mockResolvedValue('dependencies:\n  - installed-dep')
@@ -204,7 +199,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-
       // Mock fs.readFile to throw ENOENT error (file not found)
       const enoentError = new Error('ENOENT: no such file or directory')
       enoentError.code = 'ENOENT'
@@ -232,7 +226,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-
       // Mock fs.readFile to return invalid YAML
       fs.readFile.mockResolvedValue('invalid: yaml: content:')
       yaml.parse.mockImplementation(() => {
@@ -253,7 +246,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-
       // Mock fs.readFile to throw EACCES error
       const eaccesError = new Error('Permission denied')
       eaccesError.code = 'EACCES'
@@ -272,7 +264,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
-
 
       // Mock fs.readFile to throw unexpected error
       const unexpectedError = new Error('Disk full')
@@ -321,7 +312,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
-
 
       // Mock fs.readFile to return object format dependencies
       fs.readFile
@@ -381,7 +371,6 @@ describe('installation-order', () => {
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
 
-
       // Mock fs.readFile to return object format without version
       fs.readFile
         .mockResolvedValueOnce('dependencies:\n  - npmPackage: dep1')
@@ -408,7 +397,6 @@ describe('installation-order', () => {
       const toInstall = ['package-a']
       const installedPlugins = []
       const packageDir = '/mock/package/dir'
-
 
       // Mock fs.readFile to return invalid dependency format
       fs.readFile.mockResolvedValueOnce('dependencies:\n  - invalidObject: true')
@@ -575,9 +563,9 @@ dependencies: *c
         packageDir,
         toInstall
       })).rejects.toMatchObject({
-        status: 400,
-        expose: true,
-        type: 'VALIDATION_ERROR'
+        status : 400,
+        expose : true,
+        type   : 'VALIDATION_ERROR'
       })
     })
 
@@ -588,14 +576,14 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 400,
-          expose: true,
-          type: 'VALIDATION_ERROR',
-          field: 'dependency format'
+          status : 400,
+          expose : true,
+          type   : 'VALIDATION_ERROR',
+          field  : 'dependency format'
         })
       })
 
@@ -607,13 +595,13 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 403,
-          expose: false,
-          type: 'ACCESS_ERROR'
+          status : 403,
+          expose : false,
+          type   : 'ACCESS_ERROR'
         })
       })
 
@@ -625,13 +613,13 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 400,
-          expose: true,
-          type: 'DEPENDENCY_ERROR'
+          status : 400,
+          expose : true,
+          type   : 'DEPENDENCY_ERROR'
         })
       })
 
@@ -642,13 +630,13 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 400,
-          expose: true,
-          type: 'RESOURCE_LIMIT_ERROR'
+          status : 400,
+          expose : true,
+          type   : 'RESOURCE_LIMIT_ERROR'
         })
       })
 
@@ -661,13 +649,13 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 400,
-          expose: true,
-          type: 'PARSING_ERROR'
+          status : 400,
+          expose : true,
+          type   : 'PARSING_ERROR'
         })
       })
     })
@@ -683,12 +671,12 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toMatchObject({
-          status: 400,
-          type: 'DEPENDENCY_ERROR'
+          status : 400,
+          type   : 'DEPENDENCY_ERROR'
         })
       })
 
@@ -703,8 +691,8 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/Circular dependency detected.*package-a.*package-b.*package-c.*package-a/)
       })
@@ -716,8 +704,8 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/Circular dependency detected.*self-ref-package.*self-ref-package/)
       })
@@ -740,8 +728,8 @@ dependencies: *c
         mockGraph.overallOrder.mockReturnValueOnce(['package-e', 'package-d', 'package-c', 'package-b', 'package-a'])
 
         const result = await determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })
 
@@ -752,14 +740,14 @@ dependencies: *c
         const toInstall = ['package-with-many-deps']
 
         // Create a package with too many dependencies (> 100)
-        const manyDeps = Array.from({length: 101}, (_, i) => `  - dep-${i}`).join('\n')
+        const manyDeps = Array.from({ length : 101 }, (_, i) => `  - dep-${i}`).join('\n')
         fs.readFile.mockResolvedValueOnce(`dependencies:\n${manyDeps}`)
 
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/dependencies limit exceeded/)
       })
@@ -775,8 +763,8 @@ dependencies: *c
         mockGraph.hasNode.mockReturnValue(false)
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/dependencies limit exceeded/)
       })
@@ -796,8 +784,8 @@ dependencies: *c
         })
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/Circular dependency detected between/)
       })
@@ -815,8 +803,8 @@ dependencies: *c
         })
 
         await expect(determineInstallationOrder({
-          installedPlugins: [],
-          packageDir: '/test',
+          installedPlugins : [],
+          packageDir       : '/test',
           toInstall
         })).rejects.toThrow(/Circular dependency detected in installation order/)
       })

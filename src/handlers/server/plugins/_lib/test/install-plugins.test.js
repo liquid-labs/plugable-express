@@ -9,8 +9,8 @@ import { determineInstallationOrder } from '../installation-order'
 // Mock dependencies
 jest.mock('node:fs/promises')
 jest.mock('@liquid-labs/npm-toolkit', () => ({
-  install: jest.fn(),
-  getPackageOrgBasenameAndVersion: jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
+  install                         : jest.fn(),
+  getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
 jest.mock('../installation-order')
 
@@ -40,7 +40,7 @@ describe('install-plugins', () => {
       const npmNames = ['existing-plugin']
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -62,7 +62,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -90,7 +90,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -114,7 +114,7 @@ describe('install-plugins', () => {
       mockReloadFunc.mockReturnValue(Promise.resolve())
 
       await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -139,7 +139,7 @@ describe('install-plugins', () => {
       const syncReloadFunc = jest.fn().mockReturnValue('sync-result')
 
       await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -161,7 +161,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -177,7 +177,7 @@ describe('install-plugins', () => {
       const npmNames = ['existing-plugin@1.0.0']
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -212,7 +212,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -240,7 +240,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -262,7 +262,7 @@ describe('install-plugins', () => {
       })
 
       const result = await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -290,7 +290,7 @@ describe('install-plugins', () => {
       })
 
       await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         noImplicitInstallation,
         npmNames,
@@ -302,8 +302,8 @@ describe('install-plugins', () => {
       expect(determineInstallationOrder).toHaveBeenCalledWith({
         installedPlugins,
         noImplicitInstallation : true,
-        packageDir           : '/plugins',
-        toInstall            : ['test-plugin']
+        packageDir             : '/plugins',
+        toInstall              : ['test-plugin']
       })
     })
 
@@ -319,7 +319,7 @@ describe('install-plugins', () => {
       })
 
       await installPlugins({
-        app : mockApp,
+        app          : mockApp,
         installedPlugins,
         npmNames,
         pluginPkgDir : '/plugins',
@@ -330,8 +330,8 @@ describe('install-plugins', () => {
       expect(determineInstallationOrder).toHaveBeenCalledWith({
         installedPlugins,
         noImplicitInstallation : undefined,
-        packageDir           : '/plugins',
-        toInstall            : ['test-plugin']
+        packageDir             : '/plugins',
+        toInstall              : ['test-plugin']
       })
     })
   })

@@ -23,11 +23,11 @@ export const PluginError = {
   /**
    * Creates a client error (400) for invalid user input
    */
-  invalidInput: (message, details = {}) => {
+  invalidInput : (message, details = {}) => {
     return createError(400, {
       message,
-      expose: true,
-      type: 'INVALID_INPUT',
+      expose : true,
+      type   : 'INVALID_INPUT',
       ...details
     })
   },
@@ -35,11 +35,11 @@ export const PluginError = {
   /**
    * Creates a validation error for specific field validation failures
    */
-  validation: (field, value, expected, details = {}) => {
+  validation : (field, value, expected, details = {}) => {
     return createError(400, {
-      message: `Invalid ${field}: ${value}. Expected: ${expected}`,
-      expose: true,
-      type: 'VALIDATION_ERROR',
+      message : `Invalid ${field}: ${value}. Expected: ${expected}`,
+      expose  : true,
+      type    : 'VALIDATION_ERROR',
       field,
       value,
       expected,
@@ -50,22 +50,22 @@ export const PluginError = {
   /**
    * Creates an access error (403) for permission issues
    */
-  access: (message, originalError = null) => {
+  access : (message, originalError = null) => {
     return createError(403, originalError, {
       message,
-      expose: false,
-      type: 'ACCESS_ERROR'
+      expose : false,
+      type   : 'ACCESS_ERROR'
     })
   },
 
   /**
    * Creates a parsing error (400) for YAML/JSON parsing issues
    */
-  parsing: (filePath, originalError, exposeDetails = true) => {
+  parsing : (filePath, originalError, exposeDetails = true) => {
     return createError(400, originalError, {
-      message: `Error parsing file '${filePath}': ${exposeDetails ? originalError.message : 'parsing failed'}`,
-      expose: exposeDetails,
-      type: 'PARSING_ERROR',
+      message : `Error parsing file '${filePath}': ${exposeDetails ? originalError.message : 'parsing failed'}`,
+      expose  : exposeDetails,
+      type    : 'PARSING_ERROR',
       filePath
     })
   },
@@ -73,11 +73,11 @@ export const PluginError = {
   /**
    * Creates a dependency error (400) for circular/invalid dependencies
    */
-  dependency: (message, cycle = null, packageName = null) => {
+  dependency : (message, cycle = null, packageName = null) => {
     return createError(400, {
       message,
-      expose: true,
-      type: 'DEPENDENCY_ERROR',
+      expose : true,
+      type   : 'DEPENDENCY_ERROR',
       cycle,
       packageName
     })
@@ -86,11 +86,11 @@ export const PluginError = {
   /**
    * Creates a resource limit error (400) for DoS prevention
    */
-  resourceLimit: (limitType, current, maximum, details = {}) => {
+  resourceLimit : (limitType, current, maximum, details = {}) => {
     return createError(400, {
-      message: `${limitType} limit exceeded: ${current} > ${maximum}`,
-      expose: true,
-      type: 'RESOURCE_LIMIT_ERROR',
+      message : `${limitType} limit exceeded: ${current} > ${maximum}`,
+      expose  : true,
+      type    : 'RESOURCE_LIMIT_ERROR',
       limitType,
       current,
       maximum,
@@ -101,11 +101,11 @@ export const PluginError = {
   /**
    * Creates a server error (500) for unexpected internal issues
    */
-  internal: (message, originalError = null, exposeMessage = false) => {
+  internal : (message, originalError = null, exposeMessage = false) => {
     return createError(500, originalError, {
       message,
-      expose: exposeMessage,
-      type: 'INTERNAL_ERROR'
+      expose : exposeMessage,
+      type   : 'INTERNAL_ERROR'
     })
   }
 }
