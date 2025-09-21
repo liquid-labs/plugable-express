@@ -14,7 +14,7 @@ import { determineInstallationOrder } from './installation-order'
  * @param {string} options.pluginPkgDir - Directory where plugins should be installed
  * @param {Function} options.reloadFunc - Function to call after installation to reload the app
  * @param {Object} options.reporter - Reporter for logging
- * @returns {Promise<string>} Installation result message
+ * @returns {Promise<{msg: string, data: Object}>} Installation result message and data
  */
 const installPlugins = async({
   app,
@@ -27,6 +27,7 @@ const installPlugins = async({
 }) => {
   const alreadyInstalled = []
   const toInstall = []
+  const originalToInstallSet = new Set() // Track originally requested packages
 
   for (const testPackage of npmNames) {
     const { name: testName } = await getPackageOrgBasenameAndVersion(testPackage)
@@ -37,10 +38,19 @@ const installPlugins = async({
     }
     else {
       toInstall.push(testPackage)
+      originalToInstallSet.add(testName)
     }
   }
 
   let msg = ''
+  const data = {
+    installedPlugins : [],
+    total            : 0,
+    implied          : 0,
+    local            : 0,
+    production       : 0
+  }
+
   if (toInstall.length > 0) {
     const installSeries = await determineInstallationOrder({
       installedPlugins,
@@ -53,6 +63,7 @@ const installPlugins = async({
 
     const allLocalPackages = []
     const allProductionPackages = []
+    const processedPackages = new Map() // Track package details
 
     for (const series of installSeries) {
       const { localPackages, productionPackages } = await install({
@@ -60,6 +71,29 @@ const installPlugins = async({
         packages    : series,
         projectPath : pluginPkgDir
       })
+
+      // Process each installed package
+      for (const pkgSpec of series) {
+        const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
+        const isLocal = localPackages.includes(pkgSpec)
+        const isProduction = productionPackages.includes(pkgSpec)
+        const isImplied = !originalToInstallSet.has(name)
+
+        const packageInfo = {
+          name,
+          version      : version || 'latest',
+          fromLocal    : isLocal,
+          fromRegistry : isProduction,
+          isImplied
+        }
+
+        processedPackages.set(name, packageInfo)
+
+        // Update counters
+        if (isImplied) data.implied++
+        if (isLocal) data.local++
+        if (isProduction) data.production++
+      }
 
       allLocalPackages.push(...localPackages)
       allProductionPackages.push(...productionPackages)
@@ -72,6 +106,10 @@ const installPlugins = async({
       }
     }
 
+    // Convert Map to array for data.installedPlugins
+    data.installedPlugins = Array.from(processedPackages.values())
+    data.total = data.installedPlugins.length
+
     if (allLocalPackages.length > 0) {
       msg += '<em>Installed<rst> <code>' + allLocalPackages.join('<rst>, <code>') + '<rst> local packages\n'
     }
@@ -82,7 +120,7 @@ const installPlugins = async({
       msg += '<code>' + alreadyInstalled.join('<rst>, <code>') + '<rst> <em>already installed<rst>.'
     }
 
-    return msg
+    return { msg, data }
   }
   else {
     if (alreadyInstalled.length > 0) {
@@ -92,7 +130,7 @@ const installPlugins = async({
       msg = 'Nothing to install.'
     }
 
-    return msg
+    return { msg, data }
   }
 }
 

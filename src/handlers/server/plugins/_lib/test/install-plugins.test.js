@@ -48,7 +48,14 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(result).toBe('<code>existing-plugin<rst> <em>already installed<rst>.')
+      expect(result.msg).toBe('<code>existing-plugin<rst> <em>already installed<rst>.')
+      expect(result.data).toEqual({
+        installedPlugins : [],
+        total            : 0,
+        implied          : 0,
+        local            : 0,
+        production       : 0
+      })
     })
 
     test('installs new packages successfully', async() => {
@@ -58,7 +65,7 @@ describe('install-plugins', () => {
       determineInstallationOrder.mockResolvedValue([['new-plugin@1.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
-        productionPackages : ['new-plugin']
+        productionPackages : ['new-plugin@1.0.0']
       })
 
       const result = await installPlugins({
@@ -76,7 +83,11 @@ describe('install-plugins', () => {
         packages    : ['new-plugin@1.0.0'],
         projectPath : '/plugins'
       })
-      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n')
+      expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin@1.0.0<rst> production packages\n')
+      expect(result.data.total).toBe(1)
+      expect(result.data.production).toBe(1)
+      expect(result.data.local).toBe(0)
+      expect(result.data.implied).toBe(0)
     })
 
     test('installs both local and production packages', async() => {
@@ -98,7 +109,10 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(result).toBe('<em>Installed<rst> <code>local-plugin<rst> local packages\n<em>Installed<rst> <code>prod-plugin<rst> production packages\n')
+      expect(result.msg).toBe('<em>Installed<rst> <code>local-plugin<rst> local packages\n<em>Installed<rst> <code>prod-plugin<rst> production packages\n')
+      expect(result.data.total).toBe(2)
+      expect(result.data.local).toBe(1)
+      expect(result.data.production).toBe(1)
     })
 
     test('calls reload function after each installation series', async() => {
@@ -169,7 +183,7 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
+      expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
     })
 
     test('handles package names with version specifiers', async() => {
@@ -185,7 +199,7 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(result).toBe('<code>existing-plugin<rst> <em>already installed<rst>.')
+      expect(result.msg).toBe('<code>existing-plugin<rst> <em>already installed<rst>.')
     })
 
     test('returns "Nothing to install" when no packages provided and none installed', async() => {
@@ -198,7 +212,7 @@ describe('install-plugins', () => {
         reporter         : mockReporter
       })
 
-      expect(result).toBe('Nothing to install.')
+      expect(result.msg).toBe('Nothing to install.')
     })
 
     test('handles package names with version specs in npmNames', async() => {
@@ -226,7 +240,7 @@ describe('install-plugins', () => {
         packages    : ['new-plugin@^1.2.0'],
         projectPath : '/plugins'
       })
-      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n')
+      expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n')
     })
 
     test('correctly identifies already installed packages with version specs', async() => {
@@ -248,7 +262,7 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(result).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
+      expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
     })
 
     test('handles scoped packages with version specs', async() => {
@@ -275,7 +289,7 @@ describe('install-plugins', () => {
         packages    : ['@org/scoped-plugin@~3.1.0'],
         projectPath : '/plugins'
       })
-      expect(result).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
+      expect(result.msg).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
     })
 
     test('passes noImplicitInstallation to determineInstallationOrder', async() => {
@@ -332,6 +346,133 @@ describe('install-plugins', () => {
         noImplicitInstallation : undefined,
         packageDir             : '/plugins',
         toInstall              : ['test-plugin']
+      })
+    })
+
+    test('returns full data structure with implied dependencies', async() => {
+      const installedPlugins = []
+      const npmNames = ['main-plugin', 'explicit-plugin']
+
+      // Simulating that determineInstallationOrder added implied-dep-1 and implied-dep-2
+      determineInstallationOrder.mockResolvedValue([
+        ['main-plugin', 'implied-dep-1'],
+        ['explicit-plugin', 'implied-dep-2']
+      ])
+
+      // First series: main-plugin (production), implied-dep-1 (local)
+      install.mockResolvedValueOnce({
+        localPackages      : ['implied-dep-1'],
+        productionPackages : ['main-plugin']
+      })
+
+      // Second series: explicit-plugin (production), implied-dep-2 (production)
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['explicit-plugin', 'implied-dep-2']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Check the data structure
+      expect(result.data.total).toBe(4)
+      expect(result.data.implied).toBe(2) // implied-dep-1 and implied-dep-2
+      expect(result.data.local).toBe(1) // implied-dep-1
+      expect(result.data.production).toBe(3) // main-plugin, explicit-plugin, implied-dep-2
+
+      // Verify each plugin's data
+      const pluginMap = new Map(result.data.installedPlugins.map(p => [p.name, p]))
+
+      // Main plugin (explicitly requested)
+      expect(pluginMap.get('main-plugin')).toMatchObject({
+        name         : 'main-plugin',
+        version      : 'latest',
+        fromLocal    : false,
+        fromRegistry : true,
+        isImplied    : false
+      })
+
+      // Explicit plugin (explicitly requested)
+      expect(pluginMap.get('explicit-plugin')).toMatchObject({
+        name         : 'explicit-plugin',
+        version      : 'latest',
+        fromLocal    : false,
+        fromRegistry : true,
+        isImplied    : false
+      })
+
+      // Implied dependency 1 (not requested, added by determineInstallationOrder)
+      expect(pluginMap.get('implied-dep-1')).toMatchObject({
+        name         : 'implied-dep-1',
+        version      : 'latest',
+        fromLocal    : true,
+        fromRegistry : false,
+        isImplied    : true
+      })
+
+      // Implied dependency 2 (not requested, added by determineInstallationOrder)
+      expect(pluginMap.get('implied-dep-2')).toMatchObject({
+        name         : 'implied-dep-2',
+        version      : 'latest',
+        fromLocal    : false,
+        fromRegistry : true,
+        isImplied    : true
+      })
+
+      expect(result.msg).toContain('local packages')
+      expect(result.msg).toContain('production packages')
+    })
+
+    test('handles versioned packages in data structure', async() => {
+      const installedPlugins = []
+      const npmNames = ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
+
+      determineInstallationOrder.mockResolvedValue([
+        ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
+      ])
+
+      install.mockResolvedValue({
+        localPackages      : ['@scope/plugin@1.2.3'],
+        productionPackages : ['regular-plugin@^2.0.0']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Check the data structure handles versions properly
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(0)
+      expect(result.data.local).toBe(1)
+      expect(result.data.production).toBe(1)
+
+      const pluginMap = new Map(result.data.installedPlugins.map(p => [p.name, p]))
+
+      expect(pluginMap.get('@scope/plugin')).toMatchObject({
+        name         : '@scope/plugin',
+        version      : '1.2.3',
+        fromLocal    : true,
+        fromRegistry : false,
+        isImplied    : false
+      })
+
+      expect(pluginMap.get('regular-plugin')).toMatchObject({
+        name         : 'regular-plugin',
+        version      : '^2.0.0',
+        fromLocal    : false,
+        fromRegistry : true,
+        isImplied    : false
       })
     })
   })

@@ -21,7 +21,7 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
     throw new Error(`Plugin from '${npmName}' does not export 'handlers' or 'setup'; bailing out.`)
   }
 
-  if (setup !== undefined) reporter.log(`Running setup for ${npmName} plugins...`)
+  if (setup !== undefined) reporter.log(`Running setup for ${npmName}@${version} plugin...`)
   let setupData = setup?.({ app, cache, reporter })
   if (setupData?.then !== undefined) {
     setupData = await setupData
