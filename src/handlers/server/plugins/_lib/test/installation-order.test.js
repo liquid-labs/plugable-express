@@ -631,5 +631,212 @@ dependencies: *c
 
       expect(createError).toHaveBeenCalledWith(400, 'Invalid YAML structure: root must be object', { expose: true })
     })
+
+    describe('circular dependency detection', () => {
+      test('detects simple circular dependency (A → B → A)', async() => {
+        const toInstall = ['package-a']
+
+        fs.readFile
+          .mockResolvedValueOnce('dependencies:\n  - package-b') // package-a depends on package-b
+          .mockResolvedValueOnce('dependencies:\n  - package-a') // package-b depends on package-a
+
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          error.cycle = options.cycle
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/Circular dependency detected.*package-a.*package-b.*package-a/)
+      })
+
+      test('detects complex circular dependency (A → B → C → A)', async() => {
+        const toInstall = ['package-a']
+
+        fs.readFile
+          .mockResolvedValueOnce('dependencies:\n  - package-b') // package-a → package-b
+          .mockResolvedValueOnce('dependencies:\n  - package-c') // package-b → package-c
+          .mockResolvedValueOnce('dependencies:\n  - package-a') // package-c → package-a
+
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          error.cycle = options.cycle
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/Circular dependency detected.*package-a.*package-b.*package-c.*package-a/)
+      })
+
+      test('detects self-referencing package', async() => {
+        const toInstall = ['self-ref-package']
+
+        fs.readFile.mockResolvedValueOnce('dependencies:\n  - self-ref-package')
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          error.cycle = options.cycle
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/Circular dependency detected.*self-ref-package.*self-ref-package/)
+      })
+
+      test('handles deep dependency chains without false positives', async() => {
+        const toInstall = ['package-a']
+
+        // Create deep chain: A → B → C → D → E (no cycles)
+        fs.readFile
+          .mockResolvedValueOnce('dependencies:\n  - package-b')
+          .mockResolvedValueOnce('dependencies:\n  - package-c')
+          .mockResolvedValueOnce('dependencies:\n  - package-d')
+          .mockResolvedValueOnce('dependencies:\n  - package-e')
+          .mockResolvedValueOnce('dependencies: []')
+
+        mockGraph.hasNode.mockReturnValue(false)
+        mockGraph.size
+          .mockReturnValueOnce(5)
+          .mockReturnValueOnce(0)
+        mockGraph.overallOrder.mockReturnValueOnce(['package-e', 'package-d', 'package-c', 'package-b', 'package-a'])
+
+        const result = await determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })
+
+        expect(result).toEqual([['package-e', 'package-d', 'package-c', 'package-b', 'package-a']])
+      })
+
+      test('respects resource limits - too many dependencies per package', async() => {
+        const toInstall = ['package-with-many-deps']
+
+        // Create a package with too many dependencies (> 100)
+        const manyDeps = Array.from({length: 101}, (_, i) => `  - dep-${i}`).join('\n')
+        fs.readFile.mockResolvedValueOnce(`dependencies:\n${manyDeps}`)
+
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/too many dependencies/)
+      })
+
+      test('has defensive limits in place to prevent DoS attacks', async() => {
+        const toInstall = ['package-a']
+
+        // Test that we have multiple layers of protection
+        // This test verifies resource limits are working (which is better than iteration limits)
+        const hugeDependencies = 'dependencies:\n' + '  - package\n'.repeat(501)
+        fs.readFile.mockResolvedValueOnce(hugeDependencies)
+
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/too many dependencies/)
+      })
+
+      test('handles DepGraph cyclic dependency errors gracefully', async() => {
+        const toInstall = ['package-a']
+
+        fs.readFile
+          .mockResolvedValueOnce('dependencies:\n  - package-b')
+          .mockResolvedValueOnce('dependencies: []')
+
+        mockGraph.hasNode.mockReturnValue(false)
+
+        // Mock addDependency to throw cyclic dependency error
+        mockGraph.addDependency.mockImplementation(() => {
+          throw new Error('Cyclic dependency found: package-a -> package-b')
+        })
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          error.cycle = options.cycle
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/Circular dependency detected between/)
+      })
+
+      test('handles DepGraph overallOrder cyclic dependency errors', async() => {
+        const toInstall = ['package-a']
+
+        fs.readFile.mockResolvedValueOnce('dependencies: []')
+        mockGraph.hasNode.mockReturnValue(false)
+        mockGraph.size.mockReturnValueOnce(1)
+
+        // Mock overallOrder to throw cyclic dependency error
+        mockGraph.overallOrder.mockImplementation(() => {
+          throw new Error('Cyclic dependency found in overall order')
+        })
+
+        // Mock createError to return a mock error
+        createError.mockImplementation((status, message, options) => {
+          const error = new Error(message)
+          error.status = status
+          error.expose = options.expose
+          return error
+        })
+
+        await expect(determineInstallationOrder({
+          installedPlugins: [],
+          packageDir: '/test',
+          toInstall
+        })).rejects.toThrow(/Circular dependency detected in installation order/)
+      })
+    })
   })
 })

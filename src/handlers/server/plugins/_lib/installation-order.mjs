@@ -5,6 +5,78 @@ import fs from 'fs/promises'
 import yaml from 'yaml'
 import path from 'path'
 
+// Resource limits to prevent DoS attacks
+const MAX_DEPENDENCY_DEPTH = 50
+const MAX_TOTAL_PACKAGES = 500
+const MAX_DEPENDENCIES_PER_PACKAGE = 100
+const MAX_ITERATIONS = 1000
+
+/**
+ * Validates the entire dependency graph for circular dependencies
+ * @param {Map} dependencyMap - Complete dependency mapping
+ * @throws {Error} If any circular dependencies are found
+ */
+const validateNoCycles = (dependencyMap) => {
+  const visiting = new Set()
+  const visited = new Set()
+
+  const dfs = (packageName, path = []) => {
+    if (visiting.has(packageName)) {
+      const cycleStart = path.indexOf(packageName)
+      const cycle = path.slice(cycleStart).concat([packageName])
+      throw createError(400,
+        `Circular dependency detected: ${cycle.join(' → ')}`,
+        { expose: true, cycle }
+      )
+    }
+
+    if (visited.has(packageName)) {
+      return // Already processed this branch
+    }
+
+    visiting.add(packageName)
+    const dependencies = dependencyMap.get(packageName) || []
+
+    for (const dep of dependencies) {
+      dfs(dep, [...path, packageName])
+    }
+
+    visiting.delete(packageName)
+    visited.add(packageName)
+  }
+
+  // Check all packages
+  for (const packageName of dependencyMap.keys()) {
+    if (!visited.has(packageName)) {
+      dfs(packageName, [])
+    }
+  }
+}
+
+/**
+ * Validates resource limits to prevent DoS attacks
+ * @param {Map} dependencyMap - Complete dependency mapping
+ * @throws {Error} If resource limits are exceeded
+ */
+const validateResourceLimits = (dependencyMap) => {
+  if (dependencyMap.size > MAX_TOTAL_PACKAGES) {
+    throw createError(400,
+      `Total package count exceeds maximum allowed (${MAX_TOTAL_PACKAGES})`,
+      { expose: true }
+    )
+  }
+
+  for (const [packageName, dependencies] of dependencyMap) {
+    if (dependencies.length > MAX_DEPENDENCIES_PER_PACKAGE) {
+      throw createError(400,
+        `Package ${packageName} has too many dependencies (${dependencies.length} > ${MAX_DEPENDENCIES_PER_PACKAGE})`,
+        { expose: true }
+      )
+    }
+  }
+}
+
+
 /**
  * Determines the installation order for packages based on dependencies from plugable-express.yaml files
  * @param {Object} options - Installation order options
@@ -18,6 +90,8 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
   const graph = new DepGraph()
   const processed = new Set()
   const toProcess = [...toInstall]
+  const dependencyMap = new Map() // Track all dependencies for cycle detection
+  let iterations = 0
 
   /**
    * Reads dependencies from a package's plugable-express.yaml file
@@ -92,6 +166,14 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
 
   // Process dependencies iteratively to avoid infinite loops
   while (toProcess.length > 0) {
+    iterations++
+    if (iterations > MAX_ITERATIONS) {
+      throw createError(400,
+        `Dependency resolution exceeded maximum iterations (${MAX_ITERATIONS}). Possible circular dependency.`,
+        { expose: true }
+      )
+    }
+
     const packageToInstall = toProcess.shift()
 
     if (processed.has(packageToInstall)) {
@@ -112,6 +194,12 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
 
     const dependencies = await readPackageDependencies(name)
 
+    // Store dependencies for cycle detection
+    dependencyMap.set(packageToInstall, dependencies)
+
+    // Validate resource limits
+    validateResourceLimits(dependencyMap)
+
     for (const dependency of dependencies) {
       // Extract base package name for comparison with installed plugins
       const { name: depBaseName } = await getPackageOrgBasenameAndVersion(dependency)
@@ -125,17 +213,41 @@ const determineInstallationOrder = async({ installedPlugins, noImplicitInstallat
         toProcess.push(dependency)
       }
 
-      graph.addDependency(packageToInstall, dependency)
+      // Check for immediate circular dependency before adding to graph
+      try {
+        graph.addDependency(packageToInstall, dependency)
+      } catch (error) {
+        if (error.message.includes('Cyclic dependency')) {
+          throw createError(400,
+            `Circular dependency detected between ${packageToInstall} and ${dependency}`,
+            { expose: true, cycle: [packageToInstall, dependency, packageToInstall] }
+          )
+        }
+        throw error
+      }
     }
   }
 
+  // Final validation: check entire dependency map for complex cycles
+  validateNoCycles(dependencyMap)
+
   const installSeries = []
   while (graph.size() > 0) {
-    const series = graph.overallOrder(true)
-    installSeries.push(series)
+    try {
+      const series = graph.overallOrder(true)
+      installSeries.push(series)
 
-    for (const pkg of series) {
-      graph.removeNode(pkg)
+      for (const pkg of series) {
+        graph.removeNode(pkg)
+      }
+    } catch (error) {
+      if (error.message.includes('Cyclic dependency')) {
+        throw createError(400,
+          'Circular dependency detected in installation order',
+          { expose: true }
+        )
+      }
+      throw error
     }
   }
 
