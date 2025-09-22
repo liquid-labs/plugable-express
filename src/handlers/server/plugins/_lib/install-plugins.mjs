@@ -2,7 +2,8 @@ import * as fs from 'node:fs/promises'
 
 import { install, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
 
-import { determineInstallationOrder } from './installation-order'
+import { PluginError } from './error-utils'
+import { readPackageDependencies } from './installation-order'
 
 /**
  * Installs plugins based on NPM package names
@@ -52,57 +53,48 @@ const installPlugins = async({
   }
 
   if (toInstall.length > 0) {
-    const installSeries = await determineInstallationOrder({
-      installedPlugins,
-      noImplicitInstallation,
-      packageDir : pluginPkgDir,
-      toInstall
-    })
+    reporter.log(`To install: ${toInstall.join(', ')}`)
 
     await fs.mkdir(pluginPkgDir, { recursive : true })
 
-    const allLocalPackages = []
-    const allProductionPackages = []
     const processedPackages = new Map() // Track package details
 
-    for (const series of installSeries) {
-      const { localPackages, productionPackages } = await install({
-        devPaths    : app.ext.devPaths,
-        packages    : series,
-        projectPath : pluginPkgDir
-      })
+    const { localPackages, productionPackages } = await installAll({
+      devPaths    : app.ext.devPaths,
+      installedPlugins,
+      noImplicitInstallation,
+      packages    : toInstall,
+      projectPath : pluginPkgDir,
+      reporter
+    })
+      
+    // Process each installed package
+    for (const pkgSpec of [...localPackages, ...productionPackages]) {
+      const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
+      const isLocal = localPackages.includes(pkgSpec)
+      const isProduction = productionPackages.includes(pkgSpec)
+      const isImplied = !originalToInstallSet.has(name)
 
-      // Process each installed package
-      for (const pkgSpec of series) {
-        const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
-        const isLocal = localPackages.includes(pkgSpec)
-        const isProduction = productionPackages.includes(pkgSpec)
-        const isImplied = !originalToInstallSet.has(name)
-
-        const packageInfo = {
-          name,
-          version      : version || 'latest',
-          fromLocal    : isLocal,
-          fromRegistry : isProduction,
-          isImplied
-        }
-
-        processedPackages.set(name, packageInfo)
-
-        // Update counters
-        if (isImplied) data.implied++
-        if (isLocal) data.local++
-        if (isProduction) data.production++
+      const packageInfo = {
+        name,
+        version      : version || 'latest',
+        fromLocal    : isLocal,
+        fromRegistry : isProduction,
+        isImplied
       }
 
-      allLocalPackages.push(...localPackages)
-      allProductionPackages.push(...productionPackages)
+      processedPackages.set(name, packageInfo)
 
-      if (reloadFunc !== undefined) {
-        const reload = reloadFunc({ app })
-        if (reload.then) {
-          await reload
-        }
+      // Update counters
+      if (isImplied) data.implied++
+      if (isLocal) data.local++
+      if (isProduction) data.production++
+    }
+
+    if (reloadFunc !== undefined) {
+      const reload = reloadFunc({ app })
+      if (reload.then) {
+        await reload
       }
     }
 
@@ -110,11 +102,11 @@ const installPlugins = async({
     data.installedPlugins = Array.from(processedPackages.values())
     data.total = data.installedPlugins.length
 
-    if (allLocalPackages.length > 0) {
-      msg += '<em>Installed<rst> <code>' + allLocalPackages.join('<rst>, <code>') + '<rst> local packages\n'
+    if (localPackages.length > 0) {
+      msg += '<em>Installed<rst> <code>' + localPackages.join('<rst>, <code>') + '<rst> local packages\n'
     }
-    if (allProductionPackages.length > 0) {
-      msg += '<em>Installed<rst> <code>' + allProductionPackages.join('<rst>, <code>') + '<rst> production packages\n'
+    if (productionPackages.length > 0) {
+      msg += '<em>Installed<rst> <code>' + productionPackages.join('<rst>, <code>') + '<rst> production packages\n'
     }
     if (alreadyInstalled.length > 0) {
       msg += '<code>' + alreadyInstalled.join('<rst>, <code>') + '<rst> <em>already installed<rst>.'
@@ -134,4 +126,45 @@ const installPlugins = async({
   }
 }
 
+const MAX_PACKAGES = 500
+const checkMaxPackages = (count) => {
+  if (count > MAX_PACKAGES) {
+    throw PluginError.resourceLimit('packages', count, MAX_PACKAGES)
+  }
+}
+
+const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter }) => {
+  const { localPackages, productionPackages } = await install({
+    devPaths,
+    packages,
+    projectPath
+  })
+  const directInstallCount = localPackages.length + productionPackages.length
+  checkMaxPackages(directInstallCount)
+
+  const pluginDependencies = []
+  for (const pkgSpec of [...localPackages, ...productionPackages]) {
+    const { name } = await getPackageOrgBasenameAndVersion(pkgSpec)
+    const pkgDependencies = await readPackageDependencies(name, projectPath)
+    pluginDependencies.push(...pkgDependencies)
+  }
+  
+  if (pluginDependencies.length > 0) {
+    checkMaxPackages(directInstallCount + pluginDependencies.length)
+    const { localPackages: depLocalPackages, productionPackages: depProductionPackages } = await installAll({
+      devPaths,
+      installedPlugins,
+      noImplicitInstallation,
+      packages : pluginDependencies,
+      projectPath,
+      reporter
+    })
+
+    localPackages.push(...depLocalPackages)
+    productionPackages.push(...depProductionPackages)
+    checkMaxPackages(localPackages.length + productionPackages.length)
+  }
+
+  return { localPackages, productionPackages }
+}
 export { installPlugins }

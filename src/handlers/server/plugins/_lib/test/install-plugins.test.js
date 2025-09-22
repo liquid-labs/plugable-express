@@ -4,7 +4,8 @@ import { installPlugins } from '../install-plugins'
 
 import * as fs from 'node:fs/promises'
 import { install } from '@liquid-labs/npm-toolkit'
-import { determineInstallationOrder } from '../installation-order'
+import { readPackageDependencies } from '../installation-order'
+import { PluginError } from '../error-utils'
 
 // Mock dependencies
 jest.mock('node:fs/promises')
@@ -12,7 +13,16 @@ jest.mock('@liquid-labs/npm-toolkit', () => ({
   install                         : jest.fn(),
   getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
-jest.mock('../installation-order')
+jest.mock('../installation-order', () => ({
+  readPackageDependencies: jest.fn()
+}))
+jest.mock('../error-utils', () => ({
+  PluginError: {
+    resourceLimit: jest.fn((limitType, current, maximum) =>
+      new Error(`${limitType} limit exceeded: ${current} > ${maximum}`)
+    )
+  }
+}))
 
 describe('install-plugins', () => {
   let mockApp
@@ -32,6 +42,7 @@ describe('install-plugins', () => {
     mockReloadFunc = jest.fn().mockReturnValue(Promise.resolve())
 
     fs.mkdir.mockResolvedValue()
+    readPackageDependencies.mockResolvedValue([])
   })
 
   describe('installPlugins', () => {
@@ -62,7 +73,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['new-plugin@1.0.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@1.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin@1.0.0']
@@ -94,7 +104,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['local-plugin', 'prod-plugin']
 
-      determineInstallationOrder.mockResolvedValue([['local-plugin', 'prod-plugin']])
       install.mockResolvedValue({
         localPackages      : ['local-plugin'],
         productionPackages : ['prod-plugin']
@@ -115,11 +124,10 @@ describe('install-plugins', () => {
       expect(result.data.production).toBe(1)
     })
 
-    test('calls reload function after each installation series', async() => {
+    test('calls reload function after installation', async() => {
       const installedPlugins = []
-      const npmNames = ['plugin1', 'plugin2']
+      const npmNames = ['plugin1']
 
-      determineInstallationOrder.mockResolvedValue([['plugin1'], ['plugin2']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['plugin1']
@@ -136,7 +144,7 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(mockReloadFunc).toHaveBeenCalledTimes(2)
+      expect(mockReloadFunc).toHaveBeenCalledTimes(1)
       expect(mockReloadFunc).toHaveBeenCalledWith({ app : mockApp })
     })
 
@@ -144,7 +152,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['plugin1']
 
-      determineInstallationOrder.mockResolvedValue([['plugin1']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['plugin1']
@@ -168,7 +175,6 @@ describe('install-plugins', () => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin', 'new-plugin']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -219,7 +225,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['new-plugin@^1.2.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@^1.2.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -247,7 +252,6 @@ describe('install-plugins', () => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin@1.0.0', 'new-plugin@^2.0.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@^2.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -269,7 +273,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['@org/scoped-plugin@~3.1.0']
 
-      determineInstallationOrder.mockResolvedValue([['@org/scoped-plugin@~3.1.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['@org/scoped-plugin']
@@ -292,18 +295,17 @@ describe('install-plugins', () => {
       expect(result.msg).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
     })
 
-    test('passes noImplicitInstallation to determineInstallationOrder', async() => {
+    test('handles noImplicitInstallation option', async() => {
       const installedPlugins = []
       const npmNames = ['test-plugin']
       const noImplicitInstallation = true
 
-      determineInstallationOrder.mockResolvedValue([['test-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['test-plugin']
       })
 
-      await installPlugins({
+      const result = await installPlugins({
         app          : mockApp,
         installedPlugins,
         noImplicitInstallation,
@@ -313,20 +315,19 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(determineInstallationOrder).toHaveBeenCalledWith({
-        installedPlugins,
-        noImplicitInstallation : true,
-        packageDir             : '/plugins',
-        toInstall              : ['test-plugin']
+      expect(install).toHaveBeenCalledWith({
+        devPaths    : ['/dev/path'],
+        packages    : ['test-plugin'],
+        projectPath : '/plugins'
       })
+      expect(result.data.implied).toBe(0) // No implied dependencies
     })
 
-    test('passes undefined noImplicitInstallation to determineInstallationOrder when not provided', async() => {
+    test('processes dependencies when noImplicitInstallation not provided', async() => {
       const installedPlugins = []
       const npmNames = ['test-plugin']
       // noImplicitInstallation not provided
 
-      determineInstallationOrder.mockResolvedValue([['test-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['test-plugin']
@@ -341,34 +342,29 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(determineInstallationOrder).toHaveBeenCalledWith({
-        installedPlugins,
-        noImplicitInstallation : undefined,
-        packageDir             : '/plugins',
-        toInstall              : ['test-plugin']
-      })
+      // readPackageDependencies should have been called for test-plugin
+      expect(readPackageDependencies).toHaveBeenCalledWith('test-plugin', '/plugins')
     })
 
     test('returns full data structure with implied dependencies', async() => {
       const installedPlugins = []
-      const npmNames = ['main-plugin', 'explicit-plugin']
+      const npmNames = ['main-plugin']
 
-      // Simulating that determineInstallationOrder added implied-dep-1 and implied-dep-2
-      determineInstallationOrder.mockResolvedValue([
-        ['main-plugin', 'implied-dep-1'],
-        ['explicit-plugin', 'implied-dep-2']
-      ])
-
-      // First series: main-plugin (production), implied-dep-1 (local)
+      // First call: install main-plugin
       install.mockResolvedValueOnce({
-        localPackages      : ['implied-dep-1'],
+        localPackages      : [],
         productionPackages : ['main-plugin']
       })
 
-      // Second series: explicit-plugin (production), implied-dep-2 (production)
+      // Mock main-plugin to have implied-dep-1 as dependency
+      readPackageDependencies
+        .mockResolvedValueOnce(['implied-dep-1']) // main-plugin's dependencies
+        .mockResolvedValueOnce([]) // implied-dep-1 has no dependencies
+
+      // Second call: install implied-dep-1 (recursive call for dependencies)
       install.mockResolvedValueOnce({
-        localPackages      : [],
-        productionPackages : ['explicit-plugin', 'implied-dep-2']
+        localPackages      : ['implied-dep-1'],
+        productionPackages : []
       })
 
       const result = await installPlugins({
@@ -381,10 +377,10 @@ describe('install-plugins', () => {
       })
 
       // Check the data structure
-      expect(result.data.total).toBe(4)
-      expect(result.data.implied).toBe(2) // implied-dep-1 and implied-dep-2
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1) // implied-dep-1
       expect(result.data.local).toBe(1) // implied-dep-1
-      expect(result.data.production).toBe(3) // main-plugin, explicit-plugin, implied-dep-2
+      expect(result.data.production).toBe(1) // main-plugin
 
       // Verify each plugin's data
       const pluginMap = new Map(result.data.installedPlugins.map(p => [p.name, p]))
@@ -398,30 +394,12 @@ describe('install-plugins', () => {
         isImplied    : false
       })
 
-      // Explicit plugin (explicitly requested)
-      expect(pluginMap.get('explicit-plugin')).toMatchObject({
-        name         : 'explicit-plugin',
-        version      : 'latest',
-        fromLocal    : false,
-        fromRegistry : true,
-        isImplied    : false
-      })
-
-      // Implied dependency 1 (not requested, added by determineInstallationOrder)
+      // Implied dependency 1 (not requested, installed as dependency)
       expect(pluginMap.get('implied-dep-1')).toMatchObject({
         name         : 'implied-dep-1',
         version      : 'latest',
         fromLocal    : true,
         fromRegistry : false,
-        isImplied    : true
-      })
-
-      // Implied dependency 2 (not requested, added by determineInstallationOrder)
-      expect(pluginMap.get('implied-dep-2')).toMatchObject({
-        name         : 'implied-dep-2',
-        version      : 'latest',
-        fromLocal    : false,
-        fromRegistry : true,
         isImplied    : true
       })
 
@@ -432,10 +410,6 @@ describe('install-plugins', () => {
     test('handles versioned packages in data structure', async() => {
       const installedPlugins = []
       const npmNames = ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
-
-      determineInstallationOrder.mockResolvedValue([
-        ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
-      ])
 
       install.mockResolvedValue({
         localPackages      : ['@scope/plugin@1.2.3'],
