@@ -69,7 +69,6 @@ npm run qa
 
 3. **Plugin Management (`src/handlers/server/plugins/`)**
    - Built-in handlers for plugin installation, removal, listing, and details
-   - Dependency resolution using `installation-order.mjs` with dependency graph analysis
    - Support for both string dependencies (`package-name`) and object format with version specs (`{npmPackage: 'name', version: '^1.0.0'}`)
    - Automatic installation of transitive dependencies
 
@@ -145,7 +144,44 @@ Dependencies support:
 - **String format**: Simple package names install the latest version
 - **Object format**: Explicit version control with semver ranges (^, ~, exact versions)
 - **Transitive resolution**: Dependencies of dependencies are automatically discovered and installed
-- **Installation order**: Dependency graph ensures correct installation sequence
+
+### Plugin Installation Flow
+
+The plugin installation process follows a recursive pattern to handle transitive dependencies:
+
+1. **Initial Installation Request** (`installPlugins` in `src/handlers/server/plugins/_lib/install-plugins.mjs`)
+   - Receives a list of NPM package names to install
+   - Filters out already installed packages
+   - Creates plugin directory if it doesn't exist
+
+2. **Recursive Installation** (`installAll` in `install-plugins.mjs`)
+   - Installs requested packages using `@liquid-labs/npm-toolkit`
+   - For each installed package, reads its `plugable-express.yaml` file
+   - Discovers dependencies using `readPackageDependencies` (`src/handlers/server/plugins/_lib/installation-order.mjs`)
+   - Recursively calls `installAll` for any discovered dependencies
+   - Tracks all installed packages to prevent duplicate installations
+
+3. **Dependency Discovery** (`readPackageDependencies` in `installation-order.mjs`)
+   - Reads `plugable-express.yaml` from package root in node_modules
+   - Parses YAML safely to extract dependency declarations
+   - Returns array of dependency package specifications
+
+4. **Cyclic Dependency Prevention**
+   - During recursive installation, the system tracks the installation chain
+   - Uses `dependency-graph` package to detect cycles before installation
+   - Throws error if circular dependencies are detected
+
+5. **Plugin Setup Phase** (after all packages are installed)
+   - Once all plugin packages are installed, the setup process begins
+   - Uses `@liquid-labs/dependency-runner` to resolve inter-plugin dependencies
+   - Ensures plugins are initialized in the correct order based on their dependencies
+
+**Key Methods:**
+- `installPlugins()` - Main entry point for plugin installation
+- `installAll()` - Recursive function that installs packages and their dependencies
+- `readPackageDependencies()` - Reads and parses plugin dependency declarations
+- `load-plugins.js` - Discovers and loads installed plugins
+- `register-handlers.js` - Registers HTTP handlers from loaded plugins
 
 ### Key Dependencies
 

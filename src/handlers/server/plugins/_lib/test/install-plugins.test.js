@@ -20,6 +20,9 @@ jest.mock('../error-utils', () => ({
   PluginError: {
     resourceLimit: jest.fn((limitType, current, maximum) =>
       new Error(`${limitType} limit exceeded: ${current} > ${maximum}`)
+    ),
+    dependency: jest.fn((message, cycle, packageName) =>
+      new Error(message)
     )
   }
 }))
@@ -192,7 +195,7 @@ describe('install-plugins', () => {
       expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
     })
 
-    test('handles package names with version specifiers', async() => {
+    test('recognizes existing package names with version specifiers', async() => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin@1.0.0']
 
@@ -448,6 +451,84 @@ describe('install-plugins', () => {
         fromRegistry : true,
         isImplied    : false
       })
+    })
+
+    test('detects and throws error for cyclic dependencies', async() => {
+      const installedPlugins = []
+      const npmNames = ['plugin-a']
+
+      // First call: install plugin-a
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['plugin-a']
+      })
+
+      // Mock plugin-a to have plugin-b as dependency
+      readPackageDependencies
+        .mockResolvedValueOnce(['plugin-b']) // plugin-a depends on plugin-b
+
+      // Second call: install plugin-b
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['plugin-b']
+      })
+
+      // Mock plugin-b to have plugin-a as dependency (creates cycle)
+      readPackageDependencies
+        .mockResolvedValueOnce(['plugin-a']) // plugin-b depends on plugin-a - cycle!
+
+      await expect(installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })).rejects.toThrow('Circular dependency detected')
+    })
+
+    test('detects multi-level cyclic dependencies', async() => {
+      const installedPlugins = []
+      const npmNames = ['plugin-x']
+
+      // First call: install plugin-x
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['plugin-x']
+      })
+
+      // Mock plugin-x to have plugin-y as dependency
+      readPackageDependencies
+        .mockResolvedValueOnce(['plugin-y']) // plugin-x depends on plugin-y
+
+      // Second call: install plugin-y
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['plugin-y']
+      })
+
+      // Mock plugin-y to have plugin-z as dependency
+      readPackageDependencies
+        .mockResolvedValueOnce(['plugin-z']) // plugin-y depends on plugin-z
+
+      // Third call: install plugin-z
+      install.mockResolvedValueOnce({
+        localPackages      : [],
+        productionPackages : ['plugin-z']
+      })
+
+      // Mock plugin-z to have plugin-x as dependency (creates cycle)
+      readPackageDependencies
+        .mockResolvedValueOnce(['plugin-x']) // plugin-z depends on plugin-x - cycle!
+
+      await expect(installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })).rejects.toThrow('Circular dependency detected')
     })
   })
 })
