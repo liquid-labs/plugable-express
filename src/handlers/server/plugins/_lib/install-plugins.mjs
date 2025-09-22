@@ -4,7 +4,7 @@ import { DepGraph } from 'dependency-graph'
 import { install, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
 
 import { PluginError } from './error-utils'
-import { readPackageDependencies } from './installation-order'
+import { readPackageDependencies } from './read-package-dependencies'
 
 /**
  * Installs plugins based on NPM package names

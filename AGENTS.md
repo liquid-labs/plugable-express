@@ -157,11 +157,11 @@ The plugin installation process follows a recursive pattern to handle transitive
 2. **Recursive Installation** (`installAll` in `install-plugins.mjs`)
    - Installs requested packages using `@liquid-labs/npm-toolkit`
    - For each installed package, reads its `plugable-express.yaml` file
-   - Discovers dependencies using `readPackageDependencies` (`src/handlers/server/plugins/_lib/installation-order.mjs`)
+   - Discovers dependencies using `readPackageDependencies` (`src/handlers/server/plugins/_lib/read-package-dependencies.mjs`)
    - Recursively calls `installAll` for any discovered dependencies
    - Tracks all installed packages to prevent duplicate installations
 
-3. **Dependency Discovery** (`readPackageDependencies` in `installation-order.mjs`)
+3. **Dependency Discovery** (`readPackageDependencies` in `read-package-dependencies.mjs`)
    - Reads `plugable-express.yaml` from package root in node_modules
    - Parses YAML safely to extract dependency declarations
    - Returns array of dependency package specifications

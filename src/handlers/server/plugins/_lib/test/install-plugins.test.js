@@ -4,7 +4,7 @@ import { installPlugins } from '../install-plugins'
 
 import * as fs from 'node:fs/promises'
 import { install } from '@liquid-labs/npm-toolkit'
-import { readPackageDependencies } from '../installation-order'
+import { readPackageDependencies } from '../read-package-dependencies'
 import { PluginError } from '../error-utils'
 
 // Mock dependencies
@@ -13,7 +13,7 @@ jest.mock('@liquid-labs/npm-toolkit', () => ({
   install                         : jest.fn(),
   getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
-jest.mock('../installation-order', () => ({
+jest.mock('../read-package-dependencies', () => ({
   readPackageDependencies: jest.fn()
 }))
 jest.mock('../error-utils', () => ({
