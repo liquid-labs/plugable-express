@@ -346,7 +346,11 @@ describe('install-plugins', () => {
       })
 
       // readPackageDependencies should have been called for test-plugin
-      expect(readPackageDependencies).toHaveBeenCalledWith('test-plugin', '/plugins')
+      expect(readPackageDependencies).toHaveBeenCalledWith({
+        packageName: 'test-plugin',
+        packageDir: '/plugins',
+        reporter: mockReporter
+      })
     })
 
     test('returns full data structure with implied dependencies', async() => {

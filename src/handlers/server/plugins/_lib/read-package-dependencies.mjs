@@ -6,23 +6,25 @@ import { PluginError } from './error-utils'
 /**
  * Reads dependencies from a package's plugable-express.yaml file
  * Security: Uses safe YAML parsing to prevent deserialization attacks
- * @param {string} packageName - Package name (must be valid npm package name)
+ * @param {Object} options - Options for reading package dependencies
+ * @param {string} options.packageName - Package name (must be valid npm package name) [REQUIRED]
+ * @param {string} options.packageDir - Directory where packages are installed [REQUIRED]
+ * @param {Object} options.reporter - Optional reporter for logging
  * @returns {Promise<Array>} Array of dependency package names (with optional version specs)
  */
-const readPackageDependencies = async(packageName, packageDir) => {
-  console.log(`Reading plugable-express dependencies for ${packageName} from ${packageDir}...`) // DEBUG
+const readPackageDependencies = async({ packageName, packageDir, reporter }) => {
   const yamlPath = path.resolve(packageDir, 'node_modules', packageName, 'plugable-express.yaml')
-  reporter?.log(`Reading plugable-express dependencies for ${packageName} from ${yamlPath}...`)
+  reporter?.log(`Reading dependencies for package '${packageName}' from: ${yamlPath}`)
 
   let yamlContent
   try {
     yamlContent = await fs.readFile(yamlPath, 'utf8')
+    reporter?.log(`Found plugable-express.yaml for '${packageName}'`)
   }
   catch (error) {
     if (error.code === 'ENOENT') {
       // File doesn't exist, no dependencies - this is OK
-      reporter?.log(`No plugable-express.yaml file found for ${packageName}`)
-      console.log(`No plugable-express.yaml file found for ${packageName}`) // DEBUG
+      reporter?.log(`No plugable-express.yaml found for '${packageName}' - no dependencies to install`)
       return []
     }
     else if (error.code === 'EACCES') {
@@ -53,7 +55,6 @@ const readPackageDependencies = async(packageName, packageDir) => {
       )
     }
 
-    reporter?.log(`yamlContent: ${yamlContent}`) // DEBUG
 
     const config = yaml.parse(yamlContent, {
       schema        : 'core', // Restricts to core YAML types only (no custom types)
@@ -61,7 +62,6 @@ const readPackageDependencies = async(packageName, packageDir) => {
       prettyErrors  : false // Prevents potential info leakage in error messages
     })
 
-    reporter?.log(`parsed config: ${JSON.stringify(config)}`) // DEBUG
 
     // Validate parsed structure
     if (config && typeof config !== 'object') {
@@ -74,10 +74,9 @@ const readPackageDependencies = async(packageName, packageDir) => {
     }
 
     const rawDependencies = config.dependencies || []
-    reporter?.log(`Found ${rawDependencies.length} dependencies for ${packageName}`) // DEBUG
+    reporter?.log(`Found ${rawDependencies.length} dependencies for '${packageName}'`)
 
     // Normalize dependencies to string format (supports both string and object format)
-    // return rawDependencies.map(dep => {
     const normalizedDependencies = rawDependencies.map(dep => {
       if (typeof dep === 'string') {
         return dep
@@ -101,6 +100,11 @@ const readPackageDependencies = async(packageName, packageDir) => {
         )
       }
     })
+
+    if (normalizedDependencies.length > 0) {
+      reporter?.log(`Dependencies for '${packageName}': ${normalizedDependencies.join(', ')}`)
+    }
+
     return normalizedDependencies
   }
   catch (error) {

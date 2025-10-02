@@ -30,7 +30,7 @@ const installPlugins = async({
   const alreadyInstalled = []
   const toInstall = []
   const originalToInstallSet = new Set() // Track originally requested packages
-  const dependencyGraph = new DepGraph() // Track dependencies for cycle detection
+  const dependencyGraph = new DepGraph({ circular: false }) // Track dependencies for cycle detection
 
   for (const testPackage of npmNames) {
     const { name: testName } = await getPackageOrgBasenameAndVersion(testPackage)
@@ -55,7 +55,7 @@ const installPlugins = async({
   }
 
   if (toInstall.length > 0) {
-    reporter.log(`To install: ${toInstall.join(', ')}`)
+    reporter?.log(`To install: ${toInstall.join(', ')}`)
 
     await fs.mkdir(pluginPkgDir, { recursive : true })
 
@@ -68,8 +68,7 @@ const installPlugins = async({
       packages    : toInstall,
       projectPath : pluginPkgDir,
       reporter,
-      dependencyGraph,
-      installChain: [] // Track installation chain for cycle detection
+      dependencyGraph
     })
       
     // Process each installed package
@@ -137,22 +136,7 @@ const checkMaxPackages = (count) => {
   }
 }
 
-const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter, dependencyGraph, installChain }) => {
-  // Check for cycles before installing
-  for (const pkgSpec of packages) {
-    const { name: pkgName } = await getPackageOrgBasenameAndVersion(pkgSpec)
-
-    // Check if this package would create a cycle
-    if (installChain.includes(pkgName)) {
-      const cycle = [...installChain.slice(installChain.indexOf(pkgName)), pkgName]
-      throw PluginError.dependency(
-        `Circular dependency detected: ${cycle.join(' → ')}`,
-        cycle,
-        pkgName
-      )
-    }
-  }
-
+const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter, dependencyGraph }) => {
   const { localPackages, productionPackages } = await install({
     devPaths,
     packages,
@@ -172,7 +156,7 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
       continue
     }
 
-    const pkgDependencies = await readPackageDependencies(name, projectPath)
+    const pkgDependencies = await readPackageDependencies({ packageName: name, packageDir: projectPath, reporter })
     dependencyMap.set(name, pkgDependencies)
 
     // Add to dependency graph for cycle detection
@@ -187,15 +171,19 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
         dependencyGraph.addNode(depName)
       }
 
-      // Check if adding this edge would create a cycle
+      // Add the dependency edge
+      dependencyGraph.addDependency(name, depName)
+
+      // Check if adding this edge created a cycle
       try {
-        dependencyGraph.addDependency(name, depName)
+        dependencyGraph.overallOrder()
       } catch (error) {
-        if (error.message.includes('Dependency Cycle')) {
-          // Extract cycle information from error message
-          const cycle = [name, depName]
+        if (error.message.includes('Dependency Cycle Found')) {
+          // Extract cycle information from error message if available
+          const cycleMatch = error.message.match(/Dependency Cycle Found: (.+)/)
+          const cycle = cycleMatch ? cycleMatch[1].split(' -> ') : [name, depName]
           throw PluginError.dependency(
-            `Circular dependency detected: ${name} → ${depName} (would create a cycle)`,
+            `Circular dependency detected: ${cycle.join(' → ')}`,
             cycle,
             depName
           )
@@ -210,15 +198,6 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
   if (pluginDependencies.length > 0) {
     checkMaxPackages(directInstallCount + pluginDependencies.length)
 
-    // Create extended install chain for recursive call
-    const newInstallChain = [...installChain]
-    for (const pkgSpec of [...localPackages, ...productionPackages]) {
-      const { name } = await getPackageOrgBasenameAndVersion(pkgSpec)
-      if (!newInstallChain.includes(name)) {
-        newInstallChain.push(name)
-      }
-    }
-
     const { localPackages: depLocalPackages, productionPackages: depProductionPackages } = await installAll({
       devPaths,
       installedPlugins,
@@ -226,8 +205,7 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
       packages : pluginDependencies,
       projectPath,
       reporter,
-      dependencyGraph,
-      installChain: newInstallChain
+      dependencyGraph
     })
 
     localPackages.push(...depLocalPackages)
