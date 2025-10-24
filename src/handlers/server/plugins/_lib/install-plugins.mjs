@@ -151,17 +151,18 @@ const checkMaxPackages = (count) => {
  * @returns {Promise<Array<string>|null>} Array of dependencies or null if not available from GitHub
  */
 const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version, reporter) => {
+  let urlBase = null
   try {
     // Check if repository exists and points to GitHub
     if (!packageData.repository || !packageData.repository.url) {
-      return null
+      return [null, null]
     }
 
     const repoUrl = packageData.repository.url
     const githubMatch = repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/)
 
     if (!githubMatch) {
-      return null
+      return [null, null]
     }
 
     const [, owner, repo] = githubMatch
@@ -169,16 +170,11 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
     // Determine the version tag to use
     // If version is specified and packageData.version matches, use that
     // Otherwise, fetch all versions and find the best match
-    let versionTag = packageData.version
-
-    if (version && version !== packageData.version) {
-      // Need to find the best matching version
-      // For now, we'll use the packageData.version which should be the one from view()
-      versionTag = packageData.version
-    }
+    const versionTag = version || packageData.version
 
     // Construct the raw GitHub URL
-    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/v${versionTag}/plugable-express.yaml`
+    urlBase = `https://raw.githubusercontent.com/${owner}/${repo}/v${versionTag}`
+    const rawUrl = `${urlBase}/plugable-express.yaml`
 
     reporter?.log(`Attempting to fetch plugable-express.yaml from GitHub: ${rawUrl}`)
 
@@ -204,7 +200,7 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
     })
 
     if (!yamlContent) {
-      return null
+      return [null, urlBase]
     }
 
     // Parse YAML and extract dependencies
@@ -223,12 +219,12 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
       }
     }
 
-    return dependencies
+    return [dependencies, urlBase]
   }
   catch (error) {
     // Log error but don't fail - fall back to tarball extraction
     reporter?.log(`Failed to fetch from GitHub: ${error.message}`)
-    return null
+    return [null, urlBase]
   }
 }
 
@@ -283,7 +279,38 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
   }
 
   // Try to get plugable-express.yaml dependencies from GitHub first
-  let pluginDependencies = await getPlugableExpressYamlFromGitHub(packageData, name, version, reporter)
+  let [pluginDependencies, urlBase] = await getPlugableExpressYamlFromGitHub(packageData, name, version, reporter)
+
+  if (pluginDependencies === null && urlBase !== null) {
+    // then we want to check if we can retrieve package.json from github; if so, then there are is no
+    // 'plugable-express.yaml' file to use, so we can just use the package.json dependencies
+    reporter?.log(`No plugable-express.yaml found for ${name}, checking for package.json on GitHub`)
+    const foundPackageJson = await new Promise((resolve, reject) => {
+      https.get(`${urlBase}/package.json`, (response) => {
+        if (response.statusCode === 404) {
+          // File doesn't exist, return null to trigger fallback
+          resolve(false)
+          return
+        }
+
+        if (response.statusCode !== 200) {
+          reject(new Error(`Failed to fetch package.json: ${response.statusCode}`))
+          return
+        }
+
+        response.on('end', () => resolve(true))
+        response.on('error', reject)
+      }).on('error', reject)
+    })
+
+    if (foundPackageJson) {
+      reporter?.log(`Found package.json for ${name}; confirms no plugable-express.yaml file is expected`)
+      return allDependencies
+    }
+    else {
+      reporter?.log(`No package.json found for ${name}; falling back to tarball extraction`)
+    }
+  }
 
   // If GitHub method failed, fall back to tarball extraction
   if (pluginDependencies === null && packageData.dist && packageData.dist.tarball) {

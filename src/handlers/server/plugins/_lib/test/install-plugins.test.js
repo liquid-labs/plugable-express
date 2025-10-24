@@ -487,6 +487,89 @@ describe('install-plugins', () => {
       expect(mockReporter.log).toHaveBeenCalledWith('Resolved caret-plugin@^2.0.0 to version 2.3.5')
     })
 
+    test('handles package without repository or dist info (npm deps only)', async() => {
+      const installedPlugins = []
+      const npmNames = ['no-repo-pkg']
+
+      // Mock view() to return package with NO repository and NO dist info
+      // This means we can't check for plugin deps, so we use npm deps only
+      view.mockResolvedValueOnce({
+        version      : '1.5.0',
+        dependencies : {
+          'npm-dep' : '^2.0.0'
+        },
+        repository : null // No repo info - can't check for YAML
+        // No dist/tarball info - can't fall back
+      })
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null
+        })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['no-repo-pkg', 'npm-dep']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should only use npm dependencies (no repository or tarball to check)
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1) // npm-dep is implied
+
+      // Verify readPackageDependencies was NOT called (no repository or tarball)
+      expect(readPackageDependencies).not.toHaveBeenCalled()
+    })
+
+    test('handles non-GitHub package (GitLab) with npm deps only', async() => {
+      const installedPlugins = []
+      const npmNames = ['gitlab-pkg']
+
+      // Mock view() to return non-GitHub repo (GitLab) with npm dependencies
+      // Non-GitHub repos don't support GitHub API fetch, so use npm deps only
+      view.mockResolvedValueOnce({
+        version      : '3.1.0',
+        dependencies : {
+          'another-dep' : '^1.0.0'
+        },
+        repository : {
+          url : 'https://gitlab.com/some-org/gitlab-pkg.git'
+        }
+      })
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null
+        })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['gitlab-pkg', 'another-dep']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should use npm dependencies only (no GitHub to check, no tarball fallback)
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1)
+
+      // Verify readPackageDependencies was NOT called (no tarball fallback for non-GitHub)
+      expect(readPackageDependencies).not.toHaveBeenCalled()
+    })
+
     test('returns full data structure with implied dependencies', async() => {
       const installedPlugins = []
       const npmNames = ['main-plugin']
@@ -519,7 +602,6 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      console.log(JSON.stringify(result.data, null, 2)) // DEBUG
       // Check the data structure
       expect(result.data.total).toBe(2)
       expect(result.data.implied).toBe(1) // implied-dep-1
