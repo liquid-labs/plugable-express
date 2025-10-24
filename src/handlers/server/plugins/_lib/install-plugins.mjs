@@ -1,7 +1,13 @@
 import * as fs from 'node:fs/promises'
+import { createWriteStream } from 'node:fs'
+import * as https from 'node:https'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 import { DepGraph } from 'dependency-graph'
-import { install, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
+import { rsort } from '@liquid-labs/semver-plus'
+import { install, view, getPackageOrgBasenameAndVersion } from '@liquid-labs/npm-toolkit'
+import yaml from 'js-yaml'
 
 import { PluginError } from './error-utils'
 import { readPackageDependencies } from './read-package-dependencies'
@@ -30,7 +36,7 @@ const installPlugins = async({
   const alreadyInstalled = []
   const toInstall = []
   const originalToInstallSet = new Set() // Track originally requested packages
-  const dependencyGraph = new DepGraph({ circular: false }) // Track dependencies for cycle detection
+  const dependencyGraph = new DepGraph({ circular : false }) // Track dependencies for cycle detection
 
   for (const testPackage of npmNames) {
     const { name: testName } = await getPackageOrgBasenameAndVersion(testPackage)
@@ -70,7 +76,7 @@ const installPlugins = async({
       reporter,
       dependencyGraph
     })
-      
+
     // Process each installed package
     for (const pkgSpec of [...localPackages, ...productionPackages]) {
       const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
@@ -136,50 +142,274 @@ const checkMaxPackages = (count) => {
   }
 }
 
-const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter, dependencyGraph }) => {
-  const { localPackages, productionPackages } = await install({
-    devPaths,
-    packages,
-    projectPath
-  })
-  const directInstallCount = localPackages.length + productionPackages.length
-  checkMaxPackages(directInstallCount)
+/**
+ * Attempts to fetch plugable-express.yaml from GitHub
+ * @param {Object} packageData - Package metadata from npm view
+ * @param {string} packageName - Package name
+ * @param {string} version - Requested version or version range
+ * @param {Object} reporter - Reporter for logging
+ * @returns {Promise<Array<string>|null>} Array of dependencies or null if not available from GitHub
+ */
+const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version, reporter) => {
+  try {
+    // Check if repository exists and points to GitHub
+    if (!packageData.repository || !packageData.repository.url) {
+      return null
+    }
 
-  const pluginDependencies = []
-  const dependencyMap = new Map() // Track dependencies for each package
+    const repoUrl = packageData.repository.url
+    const githubMatch = repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/)
 
-  for (const pkgSpec of [...localPackages, ...productionPackages]) {
+    if (!githubMatch) {
+      return null
+    }
+
+    const [, owner, repo] = githubMatch
+
+    // Determine the version tag to use
+    // If version is specified and packageData.version matches, use that
+    // Otherwise, fetch all versions and find the best match
+    let versionTag = packageData.version
+
+    if (version && version !== packageData.version) {
+      // Need to find the best matching version
+      // For now, we'll use the packageData.version which should be the one from view()
+      versionTag = packageData.version
+    }
+
+    // Construct the raw GitHub URL
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/v${versionTag}/plugable-express.yaml`
+
+    reporter?.log(`Attempting to fetch plugable-express.yaml from GitHub: ${rawUrl}`)
+
+    // Fetch the YAML file
+    const yamlContent = await new Promise((resolve, reject) => {
+      https.get(rawUrl, (response) => {
+        if (response.statusCode === 404) {
+          // File doesn't exist, return null to trigger fallback
+          resolve(null)
+          return
+        }
+
+        if (response.statusCode !== 200) {
+          reject(new Error(`Failed to fetch plugable-express.yaml: ${response.statusCode}`))
+          return
+        }
+
+        let data = ''
+        response.on('data', (chunk) => { data += chunk })
+        response.on('end', () => resolve(data))
+        response.on('error', reject)
+      }).on('error', reject)
+    })
+
+    if (!yamlContent) {
+      return null
+    }
+
+    // Parse YAML and extract dependencies
+    const config = yaml.load(yamlContent)
+    const dependencies = []
+
+    if (config && config.dependencies) {
+      for (const dep of config.dependencies) {
+        if (typeof dep === 'string') {
+          dependencies.push(dep)
+        }
+        else if (dep.npmPackage) {
+          const pkgSpec = dep.version ? `${dep.npmPackage}@${dep.version}` : dep.npmPackage
+          dependencies.push(pkgSpec)
+        }
+      }
+    }
+
+    return dependencies
+  }
+  catch (error) {
+    // Log error but don't fail - fall back to tarball extraction
+    reporter?.log(`Failed to fetch from GitHub: ${error.message}`)
+    return null
+  }
+}
+
+/**
+ * Fetches package dependencies from both package.json and plugable-express.yaml
+ * Uses GitHub raw content API when possible, falls back to tarball extraction
+ * @param {string} pkgSpec - Package specification (name with optional version)
+ * @param {Object} reporter - Reporter for logging
+ * @returns {Promise<Array<string>>} Array of dependency package specifications
+ */
+const fetchPackageDependencies = async(pkgSpec, reporter) => {
+  const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
+
+  // Use view() to get package metadata without installing
+  const viewResult = await view({ packageName : name, version })
+
+  if (!viewResult) {
+    reporter?.log(`No package data found for ${pkgSpec}`)
+    return []
+  }
+
+  // If view() returns an array (version range), select the latest version
+  let packageData
+  if (Array.isArray(viewResult)) {
+    // Extract versions and sort in descending order to get the latest
+    const versions = viewResult.map(pkg => pkg.version)
+    const sortedVersions = rsort(versions)
+    const latestVersion = sortedVersions[0]
+
+    // Find the package data for the latest version
+    packageData = viewResult.find(pkg => pkg.version === latestVersion)
+
+    reporter?.log(`Resolved ${pkgSpec} to version ${latestVersion}`)
+  }
+  else {
+    packageData = viewResult
+  }
+
+  if (!packageData) {
+    reporter?.log(`No package data found after version resolution for ${pkgSpec}`)
+    return []
+  }
+
+  const allDependencies = []
+
+  // Extract npm package.json dependencies
+  if (packageData.dependencies) {
+    for (const [depName, depVersion] of Object.entries(packageData.dependencies)) {
+      // Convert to package spec format (name@version or just name)
+      allDependencies.push(depVersion ? `${depName}@${depVersion}` : depName)
+    }
+  }
+
+  // Try to get plugable-express.yaml dependencies from GitHub first
+  let pluginDependencies = await getPlugableExpressYamlFromGitHub(packageData, name, version, reporter)
+
+  // If GitHub method failed, fall back to tarball extraction
+  if (pluginDependencies === null && packageData.dist && packageData.dist.tarball) {
+    reporter?.log(`Falling back to tarball extraction for ${name}`)
+
+    const tarballUrl = packageData.dist.tarball
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'plugable-express-'))
+
+    try {
+      // Download tarball to temp file
+      const tarballPath = path.join(tempDir, 'package.tgz')
+      await new Promise((resolve, reject) => {
+        https.get(tarballUrl, (response) => {
+          if (response.statusCode !== 200) {
+            reject(new Error(`Failed to download tarball: ${response.statusCode}`))
+            return
+          }
+
+          const fileStream = createWriteStream(tarballPath)
+          response.pipe(fileStream)
+          fileStream.on('finish', () => {
+            fileStream.close()
+            resolve()
+          })
+          fileStream.on('error', reject)
+        }).on('error', reject)
+      })
+
+      // Extract tarball (using dynamic import to avoid requiring tar if not needed)
+      const extractDir = path.join(tempDir, 'extracted')
+      await fs.mkdir(extractDir, { recursive : true })
+
+      const { x: extractTar } = await import('tar')
+      await extractTar({
+        file  : tarballPath,
+        cwd   : extractDir,
+        strip : 1 // Strip the 'package' directory from tarball
+      })
+
+      // Read plugable-express.yaml dependencies
+      pluginDependencies = await readPackageDependencies({
+        packageName : name,
+        packageDir  : extractDir,
+        reporter
+      })
+    }
+    finally {
+      // Clean up temp directory
+      await fs.rm(tempDir, { recursive : true, force : true })
+    }
+  }
+
+  // Combine both dependency sources
+  if (pluginDependencies && pluginDependencies.length > 0) {
+    allDependencies.push(...pluginDependencies)
+  }
+
+  return allDependencies
+}
+
+/**
+ * Discovers all dependencies recursively by viewing package metadata and building dependency graph
+ * Validates for cycles before any packages are installed
+ * @param {Object} options - Discovery options
+ * @param {Array} options.installedPlugins - Currently installed plugins
+ * @param {boolean} options.noImplicitInstallation - Skip implicit dependency discovery
+ * @param {Array} options.packages - Initial packages to discover dependencies for
+ * @param {Object} options.reporter - Reporter for logging
+ * @param {DepGraph} options.dependencyGraph - Dependency graph for cycle detection
+ * @returns {Promise<Object>} Object with dependencyMap and allPackagesToInstall
+ */
+const discoverAllDependencies = async({ installedPlugins, noImplicitInstallation, packages, reporter, dependencyGraph }) => {
+  const allPackagesToInstall = new Set()
+  const dependencyMap = new Map() // Maps package name to its dependencies
+  const toProcess = [...packages]
+  const processed = new Set()
+
+  while (toProcess.length > 0) {
+    const pkgSpec = toProcess.shift()
     const { name } = await getPackageOrgBasenameAndVersion(pkgSpec)
+
+    if (processed.has(name)) continue
+    processed.add(name)
+
+    // Skip if already installed in the system
+    if (installedPlugins.some(({ npmName }) => npmName === name)) {
+      continue
+    }
+
+    allPackagesToInstall.add(pkgSpec)
 
     // Skip dependency discovery if noImplicitInstallation is set
     if (noImplicitInstallation) {
       continue
     }
 
-    const pkgDependencies = await readPackageDependencies({ packageName: name, packageDir: projectPath, reporter })
+    // Fetch dependencies without installing
+    const pkgDependencies = await fetchPackageDependencies(pkgSpec, reporter)
     dependencyMap.set(name, pkgDependencies)
 
-    // Add to dependency graph for cycle detection
+    // Add package node to dependency graph
     if (!dependencyGraph.hasNode(name)) {
       dependencyGraph.addNode(name)
     }
 
+    // Process each dependency
     for (const dep of pkgDependencies) {
       const { name: depName } = await getPackageOrgBasenameAndVersion(dep)
 
+      // Skip if already installed in the system
+      if (installedPlugins.some(({ npmName }) => npmName === depName)) {
+        continue
+      }
+
+      // Add dependency node to graph
       if (!dependencyGraph.hasNode(depName)) {
         dependencyGraph.addNode(depName)
       }
 
-      // Add the dependency edge
-      dependencyGraph.addDependency(name, depName)
-
-      // Check if adding this edge created a cycle
+      // Add the dependency edge and check for cycles BEFORE installing the dependency
       try {
-        dependencyGraph.overallOrder()
-      } catch (error) {
+        dependencyGraph.addDependency(name, depName)
+        dependencyGraph.overallOrder() // Validates no cycles exist
+      }
+      catch (error) {
         if (error.message.includes('Dependency Cycle Found')) {
-          // Extract cycle information from error message if available
           const cycleMatch = error.message.match(/Dependency Cycle Found: (.+)/)
           const cycle = cycleMatch ? cycleMatch[1].split(' -> ') : [name, depName]
           throw PluginError.dependency(
@@ -191,28 +421,34 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
         throw error
       }
 
-      pluginDependencies.push(dep)
+      // Queue the dependency for processing
+      if (!processed.has(depName)) {
+        toProcess.push(dep)
+      }
     }
   }
 
-  if (pluginDependencies.length > 0) {
-    checkMaxPackages(directInstallCount + pluginDependencies.length)
+  return { dependencyMap, allPackagesToInstall }
+}
 
-    const { localPackages: depLocalPackages, productionPackages: depProductionPackages } = await installAll({
-      devPaths,
-      installedPlugins,
-      noImplicitInstallation,
-      packages : pluginDependencies,
-      projectPath,
-      reporter,
-      dependencyGraph
-    })
+const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter, dependencyGraph }) => {
+  // Discover all dependencies and validate dependency graph
+  // This uses view() to read package metadata without installing, checking for cycles during discovery
+  const { allPackagesToInstall } = await discoverAllDependencies({
+    installedPlugins,
+    noImplicitInstallation,
+    packages,
+    reporter,
+    dependencyGraph
+  })
 
-    localPackages.push(...depLocalPackages)
-    productionPackages.push(...depProductionPackages)
-    checkMaxPackages(localPackages.length + productionPackages.length)
-  }
+  checkMaxPackages(allPackagesToInstall.size)
 
-  return { localPackages, productionPackages }
+  // Install all packages with devPaths support (local packages are properly linked)
+  return await install({
+    devPaths,
+    packages : Array.from(allPackagesToInstall),
+    projectPath
+  })
 }
 export { installPlugins }

@@ -55,7 +55,7 @@ npm run qa
    - Manages plugin loading and handler registration
    - **Standard Packages Support**: Accepts `standardPackages` parameter (array of NPM package names) that are automatically installed as plugins on server startup (src/app.js:36-37, 134-169)
    - Key variables:
-     - `standardPackages` - Array of NPM package names to auto-install (src/app.js:36-37)
+     - `standardPackages` - Array of NPM package / plugin names to auto-install (src/app.js:36-37)
      - `app.ext.handlerPlugins` - Currently installed plugins (src/app.js:142)
      - `app.ext.pluginsPath` - Directory where plugins are installed (src/app.js:157)
 
@@ -136,7 +136,8 @@ Plugin dependencies are specified in a `plugable-express.yaml` file in the root 
 ```yaml
 dependencies:
   - package-name              # Simple package name (latest version)
-  - npmPackage: other-package # Object format with optional version
+  - other-package@2.x         # Package name + version spec
+  - npmPackage: third-package # Object format with optional version
     version: "^1.2.0"         # Semver range specification
 ```
 
@@ -147,51 +148,101 @@ Dependencies support:
 
 ### Plugin Installation Flow
 
-The plugin installation process follows a recursive pattern to handle transitive dependencies:
+The plugin installation process uses an efficient multi-phase approach that discovers all dependencies BEFORE installing any packages:
 
 1. **Initial Installation Request** (`installPlugins` in `src/handlers/server/plugins/_lib/install-plugins.mjs`)
-   - Receives a list of NPM package names to install
+   - Receives a list of NPM package names to install (with optional version ranges / tags)
    - Filters out already installed packages
    - Creates plugin directory if it doesn't exist
+   - Initiates dependency discovery phase
 
-2. **Recursive Installation** (`installAll` in `install-plugins.mjs`)
-   - Installs requested packages using `@liquid-labs/npm-toolkit`
-   - For each installed package, reads its `plugable-express.yaml` file
-   - Discovers dependencies using `readPackageDependencies` (`src/handlers/server/plugins/_lib/read-package-dependencies.mjs`)
-   - Recursively calls `installAll` for any discovered dependencies
-   - Tracks all installed packages to prevent duplicate installations
+2. **Dependency Discovery Phase** (`discoverAllDependencies` in `install-plugins.mjs`)
+   - Uses `npm view` to fetch package metadata WITHOUT installing packages
+   - For each package, calls `fetchPackageDependencies()` to discover all dependencies
+   - Builds complete dependency graph before any installation
+   - Validates for cyclic dependencies during graph construction
+   - Returns complete set of packages to install
 
-3. **Dependency Discovery** (`readPackageDependencies` in `read-package-dependencies.mjs`)
-   - Reads `plugable-express.yaml` from package root in node_modules
-   - Parses YAML safely to extract dependency declarations
-   - Returns array of dependency package specifications
+3. **Multi-Source Dependency Fetching** (`fetchPackageDependencies` in `install-plugins.mjs`)
+   - **Version Range Resolution**: If `npm view` returns array (for ranges like `1.x`, `^2.0.0`), selects latest version using `@liquid-labs/semver-plus.rsort()`
+   - **npm package.json dependencies**: Extracted directly from `npm view` results
+   - **plugable-express.yaml dependencies**: Fetched via multi-tier approach:
+     - **GitHub-first**: `getPlugableExpressYamlFromGitHub()` attempts to fetch from `https://raw.githubusercontent.com/{owner}/{repo}/v{version}/plugable-express.yaml`
+       - Parses repository URL from package metadata
+       - Constructs raw GitHub URL using version tag (e.g., `v1.2.0`)
+       - Returns `null` if not GitHub-hosted or file doesn't exist (404)
+     - **Tarball fallback**: If GitHub fetch fails, downloads and extracts package tarball, then uses `readPackageDependencies()`
+       - Uses dynamic import for `tar` package (only loaded when fallback is needed)
+       - Downloads tarball to temp directory
+       - Extracts and reads `plugable-express.yaml` from filesystem
+       - Cleans up temp files after extraction
+   - Returns combined list of all dependencies (npm + plugable-express.yaml)
 
 4. **Cyclic Dependency Prevention**
-   - During recursive installation, the system tracks the installation chain
-   - Uses `dependency-graph` package to detect cycles before installation
-   - Throws error if circular dependencies are detected
+   - Uses `dependency-graph` package to detect cycles BEFORE installation begins
+   - Adds edges to graph during discovery phase
+   - Throws error immediately if circular dependencies are detected
+   - Prevents any packages from being installed if cycles exist
 
-5. **Plugin Setup Phase** (after all packages are installed)
+5. **Bulk Installation Phase** (`installAll` in `install-plugins.mjs`)
+   - After successful discovery and validation, installs ALL packages in one operation
+   - Uses `@liquid-labs/npm-toolkit` install with complete package list
+   - Supports both local (dev) and production package installation
+   - Much more efficient than installing packages one-by-one
+
+6. **Plugin Setup Phase** (after all packages are installed)
    - Once all plugin packages are installed, the setup process begins
    - Uses `@liquid-labs/dependency-runner` to resolve inter-plugin dependencies
    - Ensures plugins are initialized in the correct order based on their dependencies
 
 **Key Methods:**
-- `installPlugins()` - Main entry point for plugin installation
-- `installAll()` - Recursive function that installs packages and their dependencies
-- `readPackageDependencies()` - Reads and parses plugin dependency declarations
+- `installPlugins()` - Main entry point for plugin installation (install-plugins.mjs:21-130)
+- `fetchPackageDependencies()` - Fetches dependencies from npm metadata and plugable-express.yaml (install-plugins.mjs:242-318)
+- `getPlugableExpressYamlFromGitHub()` - Attempts GitHub fetch for plugable-express.yaml (install-plugins.mjs:154-232)
+- `discoverAllDependencies()` - Recursively discovers all dependencies using npm view (install-plugins.mjs:320-380)
+- `installAll()` - Discovers dependencies and performs bulk installation (install-plugins.mjs:382-405)
+- `readPackageDependencies()` - Reads and parses plugable-express.yaml from filesystem (read-package-dependencies.mjs)
 - `load-plugins.js` - Discovers and loads installed plugins
 - `register-handlers.js` - Registers HTTP handlers from loaded plugins
+
+### Installation Performance Benefits
+
+The current implementation provides significant performance advantages over traditional approaches:
+
+1. **No Redundant Installations**
+   - Dependencies are discovered via `npm view` metadata queries, not by installing packages
+   - Packages are only installed once after complete dependency graph is built
+   - Eliminates duplicate installations during discovery phase
+
+2. **GitHub-First Approach**
+   - For GitHub-hosted packages, fetches `plugable-express.yaml` directly from raw content URL
+   - Avoids downloading and extracting entire package tarballs when possible
+   - Significantly faster than tarball extraction for dependency discovery
+
+3. **Version Range Optimization**
+   - Intelligently resolves version ranges (e.g., `1.x`, `^2.0.0`) to latest matching version
+   - Uses semver sorting to select optimal version without trial-and-error
+
+4. **Early Failure Detection**
+   - Cyclic dependencies detected during discovery phase before any installation
+   - Prevents partial installations that would need to be rolled back
+
+5. **Bulk Installation**
+   - All packages installed in single operation after discovery
+   - Reduces npm registry requests and improves parallel download efficiency
 
 ### Key Dependencies
 
 - `express` - Web framework (v5.0.0-beta)
-- `@liquid-labs/npm-toolkit` - NPM package management and version parsing
-- `@liquid-labs/dependency-runner` - Dependency management
+- `@liquid-labs/npm-toolkit` - NPM package management, `view()` for metadata, and version parsing
+- `@liquid-labs/semver-plus` - Semver utilities including `rsort()` for version range resolution
+- `@liquid-labs/dependency-runner` - Dependency management for plugin setup phase
 - `@liquid-labs/plugable-defaults` - Default configurations
-- `dependency-graph` - Plugin dependency resolution
-- `find-plugins` - Plugin discovery
-- `yaml` - YAML configuration parsing
+- `dependency-graph` - Cyclic dependency detection during installation
+- `find-plugins` - Plugin discovery in node_modules
+- `js-yaml` - YAML parsing for plugable-express.yaml files
+- `tar` - Tarball extraction (dynamic import, used as fallback for dependency discovery)
+- `https` - Native Node.js module for GitHub raw content fetching
 - Testing uses `supertest` for HTTP testing
 
 ## Code Style

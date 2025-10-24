@@ -55,13 +55,11 @@ const readPackageDependencies = async({ packageName, packageDir, reporter }) => 
       )
     }
 
-
     const config = yaml.parse(yamlContent, {
       schema        : 'core', // Restricts to core YAML types only (no custom types)
       maxAliasCount : 100, // Prevents billion laughs attack
       prettyErrors  : false // Prevents potential info leakage in error messages
     })
-
 
     // Validate parsed structure
     if (config && typeof config !== 'object') {
