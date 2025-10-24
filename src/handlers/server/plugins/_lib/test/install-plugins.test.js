@@ -570,6 +570,25 @@ describe('install-plugins', () => {
       expect(readPackageDependencies).not.toHaveBeenCalled()
     })
 
+    test('handles real GitHub package without plugable-express.yaml (checks package.json)', async() => {
+      const installedPlugins = []
+      // Use a real package that exists on GitHub but won't have plugable-express.yaml
+      const npmNames = ['express@4.18.0']
+
+      // This test uses real https.get to verify the package.json check doesn't hang
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should complete without hanging and install express
+      expect(result.data.total).toBeGreaterThanOrEqual(1)
+    }, 10000) // 10 second timeout
+
     test('returns full data structure with implied dependencies', async() => {
       const installedPlugins = []
       const npmNames = ['main-plugin']

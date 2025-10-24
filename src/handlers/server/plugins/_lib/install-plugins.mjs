@@ -176,7 +176,7 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
     urlBase = `https://raw.githubusercontent.com/${owner}/${repo}/v${versionTag}`
     const rawUrl = `${urlBase}/plugable-express.yaml`
 
-    reporter?.log(`Attempting to fetch plugable-express.yaml from GitHub: ${rawUrl}`)
+    reporter?.log(`Attempting to fetch plugable-express.yaml from GitHub:\n\t${rawUrl}`)
 
     // Fetch the YAML file
     const yamlContent = await new Promise((resolve, reject) => {
@@ -200,7 +200,11 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
     })
 
     if (!yamlContent) {
+      reporter?.log(`No plugable-express.yaml found for ${packageName}`)
       return [null, urlBase]
+    }
+    else {
+      reporter?.log(`Found plugable-express.yaml for ${packageName}`)
     }
 
     // Parse YAML and extract dependencies
@@ -284,9 +288,10 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
   if (pluginDependencies === null && urlBase !== null) {
     // then we want to check if we can retrieve package.json from github; if so, then there are is no
     // 'plugable-express.yaml' file to use, so we can just use the package.json dependencies
-    reporter?.log(`No plugable-express.yaml found for ${name}, checking for package.json on GitHub`)
+    const packageJsonUrl = `${urlBase}/package.json`
+    reporter?.log(`No plugable-express.yaml found for ${name}, checking for package.json on GitHub:\n\t${packageJsonUrl}`)
     const foundPackageJson = await new Promise((resolve, reject) => {
-      https.get(`${urlBase}/package.json`, (response) => {
+      https.get(packageJsonUrl, (response) => {
         if (response.statusCode === 404) {
           // File doesn't exist, return null to trigger fallback
           resolve(false)
@@ -298,12 +303,18 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
           return
         }
 
-        response.on('end', () => resolve(true))
+        // Must consume the response data for 'end' event to fire
+        // We don't need the data, just need to verify the file exists
+        response.resume() // Consume and discard the data
+        response.on('end', () => {
+          reporter?.log(`Found package.json for ${name}`)
+          resolve(true)
+        })
         response.on('error', reject)
       }).on('error', reject)
     })
 
-    if (foundPackageJson) {
+    if (foundPackageJson === true) {
       reporter?.log(`Found package.json for ${name}; confirms no plugable-express.yaml file is expected`)
       return allDependencies
     }
