@@ -221,7 +221,7 @@ Comprehensive tests for YAML parsing vulnerabilities:
 
 **File:** `src/handlers/server/plugins/_lib/test/yaml-security.test.js`
 ```javascript
-import { determineInstallationOrder } from '../installation-order'
+import { determineInstallationOrder } from '../read-package-dependencies'
 import { SecurityTestUtils } from './security-test-utils'
 import fs from 'fs/promises'
 
@@ -344,7 +344,7 @@ Comprehensive tests for file system security:
 
 **File:** `src/handlers/server/plugins/_lib/test/path-security.test.js`
 ```javascript
-import { determineInstallationOrder } from '../installation-order'
+import { determineInstallationOrder } from '../read-package-dependencies'
 import { SecurityTestUtils } from './security-test-utils'
 
 describe('Path Traversal Security Tests', () => {
@@ -421,7 +421,7 @@ Tests for DoS prevention:
 
 **File:** `src/handlers/server/plugins/_lib/test/resource-security.test.js`
 ```javascript
-import { determineInstallationOrder } from '../installation-order'
+import { determineInstallationOrder } from '../read-package-dependencies'
 import { SecurityTestUtils } from './security-test-utils'
 
 describe('Resource Exhaustion Security Tests', () => {
@@ -758,7 +758,7 @@ export class SecurityTestEnvironment {
 - `src/handlers/server/plugins/_lib/test/security.config.js`
 
 #### Files to Modify
-- `src/handlers/server/plugins/_lib/test/installation-order.test.js` (add security test imports)
+- `src/handlers/server/plugins/_lib/test/read-package-dependencies.test.js` (add security test imports)
 - `src/handlers/server/plugins/_lib/test/install-plugins.test.js` (add security test imports)
 - `package.json` (add security test scripts)
 
@@ -1339,10 +1339,10 @@ describe('input validation', () => {
 
 #### Files to Modify
 - `src/handlers/server/plugins/_lib/validation-utils.mjs` (new file)
-- `src/handlers/server/plugins/_lib/installation-order.mjs`
+- `src/handlers/server/plugins/_lib/read-package-dependencies.mjs`
 - `src/handlers/server/plugins/_lib/install-plugins.mjs`
 - `src/handlers/server/plugins/_lib/test/validation-utils.test.js` (new file)
-- `src/handlers/server/plugins/_lib/test/installation-order.test.js`
+- `src/handlers/server/plugins/_lib/test/read-package-dependencies.test.js`
 - `src/handlers/server/plugins/_lib/test/install-plugins.test.js`
 
 #### Success Criteria

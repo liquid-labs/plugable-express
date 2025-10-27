@@ -3,16 +3,31 @@
 import { installPlugins } from '../install-plugins'
 
 import * as fs from 'node:fs/promises'
-import { install } from '@liquid-labs/npm-toolkit'
-import { determineInstallationOrder } from '../installation-order'
+import * as https from 'node:https'
+import { install, view } from '@liquid-labs/npm-toolkit'
+import { readPackageDependencies } from '../read-package-dependencies'
 
 // Mock dependencies
 jest.mock('node:fs/promises')
+jest.mock('node:https')
 jest.mock('@liquid-labs/npm-toolkit', () => ({
   install                         : jest.fn(),
+  view                            : jest.fn(),
   getPackageOrgBasenameAndVersion : jest.requireActual('@liquid-labs/npm-toolkit').getPackageOrgBasenameAndVersion
 }))
-jest.mock('../installation-order')
+jest.mock('../read-package-dependencies', () => ({
+  readPackageDependencies : jest.fn()
+}))
+jest.mock('../error-utils', () => ({
+  PluginError : {
+    resourceLimit : jest.fn((limitType, current, maximum) =>
+      new Error(`${limitType} limit exceeded: ${current} > ${maximum}`)
+    ),
+    dependency : jest.fn((message, cycle, packageName) =>
+      new Error(message)
+    )
+  }
+}))
 
 describe('install-plugins', () => {
   let mockApp
@@ -20,7 +35,8 @@ describe('install-plugins', () => {
   let mockReloadFunc
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.clearAllMocks() // clears mock call history
+    view.mockReset() // resets the mock implementation
 
     mockApp = {
       ext : {
@@ -32,6 +48,7 @@ describe('install-plugins', () => {
     mockReloadFunc = jest.fn().mockReturnValue(Promise.resolve())
 
     fs.mkdir.mockResolvedValue()
+    readPackageDependencies.mockResolvedValue([])
   })
 
   describe('installPlugins', () => {
@@ -62,7 +79,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['new-plugin@1.0.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@1.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin@1.0.0']
@@ -94,7 +110,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['local-plugin', 'prod-plugin']
 
-      determineInstallationOrder.mockResolvedValue([['local-plugin', 'prod-plugin']])
       install.mockResolvedValue({
         localPackages      : ['local-plugin'],
         productionPackages : ['prod-plugin']
@@ -115,11 +130,10 @@ describe('install-plugins', () => {
       expect(result.data.production).toBe(1)
     })
 
-    test('calls reload function after each installation series', async() => {
+    test('calls reload function after installation', async() => {
       const installedPlugins = []
-      const npmNames = ['plugin1', 'plugin2']
+      const npmNames = ['plugin1']
 
-      determineInstallationOrder.mockResolvedValue([['plugin1'], ['plugin2']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['plugin1']
@@ -136,7 +150,7 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(mockReloadFunc).toHaveBeenCalledTimes(2)
+      expect(mockReloadFunc).toHaveBeenCalledTimes(1)
       expect(mockReloadFunc).toHaveBeenCalledWith({ app : mockApp })
     })
 
@@ -144,7 +158,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['plugin1']
 
-      determineInstallationOrder.mockResolvedValue([['plugin1']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['plugin1']
@@ -168,7 +181,6 @@ describe('install-plugins', () => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin', 'new-plugin']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -186,7 +198,7 @@ describe('install-plugins', () => {
       expect(result.msg).toBe('<em>Installed<rst> <code>new-plugin<rst> production packages\n<code>existing-plugin<rst> <em>already installed<rst>.')
     })
 
-    test('handles package names with version specifiers', async() => {
+    test('recognizes existing package names with version specifiers', async() => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin@1.0.0']
 
@@ -219,7 +231,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['new-plugin@^1.2.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@^1.2.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -247,7 +258,6 @@ describe('install-plugins', () => {
       const installedPlugins = [{ npmName : 'existing-plugin' }]
       const npmNames = ['existing-plugin@1.0.0', 'new-plugin@^2.0.0']
 
-      determineInstallationOrder.mockResolvedValue([['new-plugin@^2.0.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['new-plugin']
@@ -269,7 +279,6 @@ describe('install-plugins', () => {
       const installedPlugins = []
       const npmNames = ['@org/scoped-plugin@~3.1.0']
 
-      determineInstallationOrder.mockResolvedValue([['@org/scoped-plugin@~3.1.0']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['@org/scoped-plugin']
@@ -292,18 +301,17 @@ describe('install-plugins', () => {
       expect(result.msg).toBe('<em>Installed<rst> <code>@org/scoped-plugin<rst> production packages\n')
     })
 
-    test('passes noImplicitInstallation to determineInstallationOrder', async() => {
+    test('handles noImplicitInstallation option', async() => {
       const installedPlugins = []
       const npmNames = ['test-plugin']
       const noImplicitInstallation = true
 
-      determineInstallationOrder.mockResolvedValue([['test-plugin']])
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['test-plugin']
       })
 
-      await installPlugins({
+      const result = await installPlugins({
         app          : mockApp,
         installedPlugins,
         noImplicitInstallation,
@@ -313,20 +321,24 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(determineInstallationOrder).toHaveBeenCalledWith({
-        installedPlugins,
-        noImplicitInstallation : true,
-        packageDir             : '/plugins',
-        toInstall              : ['test-plugin']
+      expect(install).toHaveBeenCalledWith({
+        devPaths    : ['/dev/path'],
+        packages    : ['test-plugin'],
+        projectPath : '/plugins'
       })
+      expect(result.data.implied).toBe(0) // No implied dependencies
     })
 
-    test('passes undefined noImplicitInstallation to determineInstallationOrder when not provided', async() => {
+    test('processes dependencies when noImplicitInstallation not provided', async() => {
       const installedPlugins = []
       const npmNames = ['test-plugin']
       // noImplicitInstallation not provided
 
-      determineInstallationOrder.mockResolvedValue([['test-plugin']])
+      view.mockResolvedValueOnce({
+        dependencies : {},
+        repository   : null // No GitHub repo, so no plugin dependencies
+      })
+
       install.mockResolvedValue({
         localPackages      : [],
         productionPackages : ['test-plugin']
@@ -341,34 +353,265 @@ describe('install-plugins', () => {
         reporter     : mockReporter
       })
 
-      expect(determineInstallationOrder).toHaveBeenCalledWith({
-        installedPlugins,
-        noImplicitInstallation : undefined,
-        packageDir             : '/plugins',
-        toInstall              : ['test-plugin']
+      // view should have been called for test-plugin to fetch dependencies
+      expect(view).toHaveBeenCalledWith({
+        packageName : 'test-plugin',
+        version     : undefined
       })
     })
 
-    test('returns full data structure with implied dependencies', async() => {
+    test('handles packages with both npm and plugin dependencies', async() => {
       const installedPlugins = []
-      const npmNames = ['main-plugin', 'explicit-plugin']
+      const npmNames = ['complex-plugin']
 
-      // Simulating that determineInstallationOrder added implied-dep-1 and implied-dep-2
-      determineInstallationOrder.mockResolvedValue([
-        ['main-plugin', 'implied-dep-1'],
-        ['explicit-plugin', 'implied-dep-2']
+      // Mock view() to return package with npm dependencies but no GitHub repo
+      // This simulates a package that has npm dependencies but no plugable-express.yaml
+      view.mockResolvedValueOnce({
+        dependencies : {
+          'npm-dep-1' : '^1.0.0'
+        },
+        repository : null
+      })
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null
+        })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['complex-plugin', 'npm-dep-1']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should install both the main plugin and its npm dependency
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1) // npm-dep-1 is implied
+    })
+
+    test('handles version range specs like 1.x', async() => {
+      const installedPlugins = []
+      const npmNames = ['ranged-plugin@1.x']
+
+      // Mock view() to return an array of matching versions
+      view.mockResolvedValueOnce([
+        {
+          version      : '1.0.0',
+          dependencies : {},
+          repository   : null
+        },
+        {
+          version      : '1.2.0',
+          dependencies : {},
+          repository   : null
+        },
+        {
+          version      : '1.1.0',
+          dependencies : {},
+          repository   : null
+        }
       ])
 
-      // First series: main-plugin (production), implied-dep-1 (local)
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['ranged-plugin@1.2.0']
+      })
+
+      const result = await installPlugins({
+        app                    : mockApp,
+        installedPlugins,
+        noImplicitInstallation : true, // Skip dependency discovery to simplify test
+        npmNames,
+        pluginPkgDir           : '/plugins',
+        reloadFunc             : mockReloadFunc,
+        reporter               : mockReporter
+      })
+
+      // Should install the package successfully
+      expect(result.data.total).toBe(1)
+      // Version resolution happens during dependency discovery, which we skip with noImplicitInstallation
+      // So we just verify the package was installed
+      expect(result.data.installedPlugins[0].name).toBe('ranged-plugin')
+    })
+
+    test('handles caret range specs like ^2.0.0', async() => {
+      const installedPlugins = []
+      const npmNames = ['caret-plugin@^2.0.0']
+
+      // Mock view() to return an array of matching versions
+      view.mockResolvedValueOnce([
+        {
+          version      : '2.0.0',
+          dependencies : {},
+          repository   : null
+        },
+        {
+          version      : '2.1.0',
+          dependencies : {},
+          repository   : null
+        },
+        {
+          version      : '2.3.5',
+          dependencies : { 'dep-a' : '^1.0.0' },
+          repository   : null
+        },
+        {
+          version      : '2.2.0',
+          dependencies : {},
+          repository   : null
+        }
+      ])
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['caret-plugin@2.3.5']
+      })
+
+      const result = await installPlugins({
+        app                    : mockApp,
+        installedPlugins,
+        noImplicitInstallation : true, // Skip dependency discovery to simplify test
+        npmNames,
+        pluginPkgDir           : '/plugins',
+        reloadFunc             : mockReloadFunc,
+        reporter               : mockReporter
+      })
+
+      // Should install the package successfully
+      expect(result.data.total).toBe(1)
+      expect(result.data.installedPlugins[0].name).toBe('caret-plugin')
+    })
+
+    test('handles package without repository or dist info (npm deps only)', async() => {
+      const installedPlugins = []
+      const npmNames = ['no-repo-pkg']
+
+      // Mock view() to return package with NO repository and NO dist info
+      // This means we can't check for plugin deps, so we use npm deps only
+      view.mockResolvedValueOnce({
+        version      : '1.5.0',
+        dependencies : {
+          'npm-dep' : '^2.0.0'
+        },
+        repository : null // No repo info - can't check for YAML
+        // No dist/tarball info - can't fall back
+      })
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null
+        })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['no-repo-pkg', 'npm-dep']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should only use npm dependencies (no repository or tarball to check)
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1) // npm-dep is implied
+
+      // Verify readPackageDependencies was NOT called (no repository or tarball)
+      expect(readPackageDependencies).not.toHaveBeenCalled()
+    })
+
+    test('handles non-GitHub package (GitLab) with npm deps only', async() => {
+      const installedPlugins = []
+      const npmNames = ['gitlab-pkg']
+
+      // Mock view() to return non-GitHub repo (GitLab) with npm dependencies
+      // Non-GitHub repos don't support GitHub API fetch, so use npm deps only
+      view.mockResolvedValueOnce({
+        version      : '3.1.0',
+        dependencies : {
+          'another-dep' : '^1.0.0'
+        },
+        repository : {
+          url : 'https://gitlab.com/some-org/gitlab-pkg.git'
+        }
+      })
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null
+        })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : ['gitlab-pkg', 'another-dep']
+      })
+
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should use npm dependencies only (no GitHub to check, no tarball fallback)
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1)
+
+      // Verify readPackageDependencies was NOT called (no tarball fallback for non-GitHub)
+      expect(readPackageDependencies).not.toHaveBeenCalled()
+    })
+
+    test('handles real GitHub package without plugable-express.yaml (checks package.json)', async() => {
+      const installedPlugins = []
+      // Use a real package that exists on GitHub but won't have plugable-express.yaml
+      const npmNames = ['express@4.18.0']
+
+      // This test uses real https.get to verify the package.json check doesn't hang
+      const result = await installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })
+
+      // Should complete without hanging and install express
+      expect(result.data.total).toBeGreaterThanOrEqual(1)
+    }, 10000) // 10 second timeout
+
+    test('returns full data structure with implied dependencies', async() => {
+      const installedPlugins = []
+      const npmNames = ['main-plugin']
+
+      // Mock view() to return package metadata with dependencies (no GitHub repo)
+      view
+        .mockResolvedValueOnce({
+          dependencies : {
+            'implied-dep-1' : '^1.0.0'
+          },
+          repository : null // No GitHub repo
+        }) // main-plugin has implied-dep-1 as npm dependency
+        .mockResolvedValueOnce({
+          dependencies : {},
+          repository   : null // No GitHub repo
+        }) // implied-dep-1 has no npm dependencies
+
+      // Final install call with all discovered packages
       install.mockResolvedValueOnce({
         localPackages      : ['implied-dep-1'],
         productionPackages : ['main-plugin']
-      })
-
-      // Second series: explicit-plugin (production), implied-dep-2 (production)
-      install.mockResolvedValueOnce({
-        localPackages      : [],
-        productionPackages : ['explicit-plugin', 'implied-dep-2']
       })
 
       const result = await installPlugins({
@@ -381,10 +624,10 @@ describe('install-plugins', () => {
       })
 
       // Check the data structure
-      expect(result.data.total).toBe(4)
-      expect(result.data.implied).toBe(2) // implied-dep-1 and implied-dep-2
+      expect(result.data.total).toBe(2)
+      expect(result.data.implied).toBe(1) // implied-dep-1
       expect(result.data.local).toBe(1) // implied-dep-1
-      expect(result.data.production).toBe(3) // main-plugin, explicit-plugin, implied-dep-2
+      expect(result.data.production).toBe(1) // main-plugin
 
       // Verify each plugin's data
       const pluginMap = new Map(result.data.installedPlugins.map(p => [p.name, p]))
@@ -398,30 +641,12 @@ describe('install-plugins', () => {
         isImplied    : false
       })
 
-      // Explicit plugin (explicitly requested)
-      expect(pluginMap.get('explicit-plugin')).toMatchObject({
-        name         : 'explicit-plugin',
-        version      : 'latest',
-        fromLocal    : false,
-        fromRegistry : true,
-        isImplied    : false
-      })
-
-      // Implied dependency 1 (not requested, added by determineInstallationOrder)
+      // Implied dependency 1 (not requested, installed as dependency)
       expect(pluginMap.get('implied-dep-1')).toMatchObject({
         name         : 'implied-dep-1',
         version      : 'latest',
         fromLocal    : true,
         fromRegistry : false,
-        isImplied    : true
-      })
-
-      // Implied dependency 2 (not requested, added by determineInstallationOrder)
-      expect(pluginMap.get('implied-dep-2')).toMatchObject({
-        name         : 'implied-dep-2',
-        version      : 'latest',
-        fromLocal    : false,
-        fromRegistry : true,
         isImplied    : true
       })
 
@@ -432,10 +657,6 @@ describe('install-plugins', () => {
     test('handles versioned packages in data structure', async() => {
       const installedPlugins = []
       const npmNames = ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
-
-      determineInstallationOrder.mockResolvedValue([
-        ['@scope/plugin@1.2.3', 'regular-plugin@^2.0.0']
-      ])
 
       install.mockResolvedValue({
         localPackages      : ['@scope/plugin@1.2.3'],
@@ -474,6 +695,100 @@ describe('install-plugins', () => {
         fromRegistry : true,
         isImplied    : false
       })
+    })
+
+    // Data-driven tests for circular dependency detection
+    // Each test case defines a dependency cycle with different chain lengths
+    test.each([
+      {
+        testName     : '2-step cycle',
+        description  : 'plugin-a -> plugin-b -> plugin-a',
+        entryPackage : 'plugin-a',
+        // Defines the dependency chain where each package depends on the next
+        // The last package depends on the first, creating the cycle
+        cycle        : [
+          { name : 'plugin-a', dependsOn : 'plugin-b' },
+          { name : 'plugin-b', dependsOn : 'plugin-a' }
+        ]
+      },
+      {
+        testName     : '3-step cycle',
+        description  : 'plugin-x -> plugin-y -> plugin-z -> plugin-x',
+        entryPackage : 'plugin-x',
+        cycle        : [
+          { name : 'plugin-x', dependsOn : 'plugin-y' },
+          { name : 'plugin-y', dependsOn : 'plugin-z' },
+          { name : 'plugin-z', dependsOn : 'plugin-x' }
+        ]
+      }
+    ])('detects circular dependencies: $testName ($description)', async({ entryPackage, cycle }) => {
+      const installedPlugins = []
+      const npmNames = [entryPackage]
+
+      // Reset mocks to clear any leftover state from previous tests
+      view.mockReset()
+      https.get.mockReset()
+
+      // Build viewResults map dynamically from cycle data
+      const viewResults = {}
+      for (const pkg of cycle) {
+        viewResults[pkg.name] = {
+          version      : '1.0.0',
+          dependencies : {},
+          repository   : { url : `https://github.com/test/${pkg.name}.git` }
+        }
+      }
+
+      view.mockImplementation(({ packageName }) => Promise.resolve(viewResults[packageName]))
+
+      // Build githubResponses map dynamically from cycle data
+      const githubResponses = {}
+      for (const pkg of cycle) {
+        // YAML file with dependency
+        githubResponses[`https://raw.githubusercontent.com/test/${pkg.name}/v1.0.0/plugable-express.yaml`] = {
+          statusCode : 200,
+          data       : `dependencies:\n  - ${pkg.dependsOn}\n`
+        }
+        // package.json returns 404 (not needed since YAML exists)
+        githubResponses[`https://raw.githubusercontent.com/test/${pkg.name}/v1.0.0/package.json`] = {
+          statusCode : 404
+        }
+      }
+
+      https.get.mockImplementation((url, callback) => {
+        const responseConfig = githubResponses[url]
+        if (responseConfig) {
+          const response = {
+            statusCode : responseConfig.statusCode,
+            on(event, handler) {
+              if (event === 'data' && responseConfig.data) {
+                setImmediate(() => handler(responseConfig.data))
+              }
+              if (event === 'end') {
+                setImmediate(() => handler())
+              }
+              return this
+            },
+            resume() { return this } // For package.json check
+          }
+          callback(response)
+        }
+        return { on : jest.fn() }
+      })
+
+      install.mockResolvedValue({
+        localPackages      : [],
+        productionPackages : [entryPackage]
+      })
+
+      await expect(installPlugins({
+        app          : mockApp,
+        installedPlugins,
+        npmNames,
+        pluginPkgDir : '/plugins',
+        reloadFunc   : mockReloadFunc,
+        reporter     : mockReporter
+      })).rejects.toThrow('Circular dependency detected')
     })
   })
 })

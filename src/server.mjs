@@ -21,7 +21,7 @@ const startServer = async({
       return
     } // else good to go!
 
-    reporter.log(`liq server listening on ${port}`)
+    reporter.log(`Server listening on ${port}`)
     reporter.log('Press Ctrl+C to quit.')
   })
 
