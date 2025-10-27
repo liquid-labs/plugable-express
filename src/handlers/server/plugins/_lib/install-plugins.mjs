@@ -237,7 +237,7 @@ const getPlugableExpressYamlFromGitHub = async(packageData, packageName, version
  * Uses GitHub raw content API when possible, falls back to tarball extraction
  * @param {string} pkgSpec - Package specification (name with optional version)
  * @param {Object} reporter - Reporter for logging
- * @returns {Promise<Array<string>>} Array of dependency package specifications
+ * @returns {Promise<{npmDependencies: Array<string>, pluginDependencies: Array<string>}>} Object with separate npm and plugin dependencies
  */
 const fetchPackageDependencies = async(pkgSpec, reporter) => {
   const { name, version } = await getPackageOrgBasenameAndVersion(pkgSpec)
@@ -247,7 +247,7 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
 
   if (!viewResult) {
     reporter?.log(`No package data found for ${pkgSpec}`)
-    return []
+    return { npmDependencies : [], pluginDependencies : [] }
   }
 
   // If view() returns an array (version range), select the latest version
@@ -269,25 +269,26 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
 
   if (!packageData) {
     reporter?.log(`No package data found after version resolution for ${pkgSpec}`)
-    return []
+    return { npmDependencies : [], pluginDependencies : [] }
   }
 
-  const allDependencies = []
+  const npmDependencies = []
+  const pluginDependencies = []
 
   // Extract npm package.json dependencies
   if (packageData.dependencies) {
     for (const [depName, depVersion] of Object.entries(packageData.dependencies)) {
       // Convert to package spec format (name@version or just name)
-      allDependencies.push(depVersion ? `${depName}@${depVersion}` : depName)
+      npmDependencies.push(depVersion ? `${depName}@${depVersion}` : depName)
     }
   }
 
   // Try to get plugable-express.yaml dependencies from GitHub first
-  let [pluginDependencies, urlBase] = await getPlugableExpressYamlFromGitHub(packageData, name, version, reporter)
+  let [yamlDependencies, urlBase] = await getPlugableExpressYamlFromGitHub(packageData, name, version, reporter)
 
-  if (pluginDependencies === null && urlBase !== null) {
-    // then we want to check if we can retrieve package.json from github; if so, then there are is no
-    // 'plugable-express.yaml' file to use, so we can just use the package.json dependencies
+  if (yamlDependencies === null && urlBase !== null) {
+    // then we want to check if we can retrieve package.json from github; if so, then there is no
+    // 'plugable-express.yaml' file to use, so we return empty plugin dependencies
     const packageJsonUrl = `${urlBase}/package.json`
     reporter?.log(`No plugable-express.yaml found for ${name}, checking for package.json on GitHub:\n\t${packageJsonUrl}`)
     const foundPackageJson = await new Promise((resolve, reject) => {
@@ -316,7 +317,7 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
 
     if (foundPackageJson === true) {
       reporter?.log(`Found package.json for ${name}; confirms no plugable-express.yaml file is expected`)
-      return allDependencies
+      return { npmDependencies, pluginDependencies : [] }
     }
     else {
       reporter?.log(`No package.json found for ${name}; falling back to tarball extraction`)
@@ -324,7 +325,7 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
   }
 
   // If GitHub method failed, fall back to tarball extraction
-  if (pluginDependencies === null && packageData.dist && packageData.dist.tarball) {
+  if (yamlDependencies === null && packageData.dist && packageData.dist.tarball) {
     reporter?.log(`Falling back to tarball extraction for ${name}`)
 
     const tarballUrl = packageData.dist.tarball
@@ -362,7 +363,7 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
       })
 
       // Read plugable-express.yaml dependencies
-      pluginDependencies = await readPackageDependencies({
+      yamlDependencies = await readPackageDependencies({
         packageName : name,
         packageDir  : extractDir,
         reporter
@@ -374,30 +375,30 @@ const fetchPackageDependencies = async(pkgSpec, reporter) => {
     }
   }
 
-  // Combine both dependency sources
-  if (pluginDependencies && pluginDependencies.length > 0) {
-    allDependencies.push(...pluginDependencies)
+  // Set plugin dependencies from yaml if found
+  if (yamlDependencies && yamlDependencies.length > 0) {
+    pluginDependencies.push(...yamlDependencies)
   }
 
-  return allDependencies
+  return { npmDependencies, pluginDependencies }
 }
 
 /**
  * Discovers all dependencies recursively by viewing package metadata and building dependency graph
  * Validates for cycles before any packages are installed
+ * Only installs standardPackages + plugable-express.yaml dependencies (not npm dependencies)
  * @param {Object} options - Discovery options
  * @param {Array} options.installedPlugins - Currently installed plugins
  * @param {boolean} options.noImplicitInstallation - Skip implicit dependency discovery
- * @param {Array} options.packages - Initial packages to discover dependencies for
+ * @param {Array} options.packages - Initial packages to discover dependencies for (standardPackages)
  * @param {Object} options.reporter - Reporter for logging
  * @param {DepGraph} options.dependencyGraph - Dependency graph for cycle detection
- * @returns {Promise<Object>} Object with dependencyMap and allPackagesToInstall
+ * @returns {Promise<Object>} Object with packagesToInstall
  */
 const discoverAllDependencies = async({ installedPlugins, noImplicitInstallation, packages, reporter, dependencyGraph }) => {
-  const allPackagesToInstall = new Set()
-  const dependencyMap = new Map() // Maps package name to its dependencies
-  const toProcess = [...packages]
-  const processed = new Set()
+  const packagesToInstall = new Set() // Only plugin deps - what we actually install
+  const toProcess = [...packages] // Queue of packages to process
+  const processed = new Set() // Packages we've already processed
 
   while (toProcess.length > 0) {
     const pkgSpec = toProcess.shift()
@@ -411,7 +412,7 @@ const discoverAllDependencies = async({ installedPlugins, noImplicitInstallation
       continue
     }
 
-    allPackagesToInstall.add(pkgSpec)
+    packagesToInstall.add(pkgSpec)
 
     // Skip dependency discovery if noImplicitInstallation is set
     if (noImplicitInstallation) {
@@ -419,16 +420,17 @@ const discoverAllDependencies = async({ installedPlugins, noImplicitInstallation
     }
 
     // Fetch dependencies without installing
-    const pkgDependencies = await fetchPackageDependencies(pkgSpec, reporter)
-    dependencyMap.set(name, pkgDependencies)
+    const { npmDependencies, pluginDependencies } = await fetchPackageDependencies(pkgSpec, reporter)
 
     // Add package node to dependency graph
     if (!dependencyGraph.hasNode(name)) {
       dependencyGraph.addNode(name)
     }
 
-    // Process each dependency
-    for (const dep of pkgDependencies) {
+    // Add ALL dependencies (npm + plugin) to graph for cycle validation
+    const allDependencies = [...npmDependencies, ...pluginDependencies]
+
+    for (const dep of allDependencies) {
       const { name: depName } = await getPackageOrgBasenameAndVersion(dep)
 
       // Skip if already installed in the system
@@ -458,21 +460,24 @@ const discoverAllDependencies = async({ installedPlugins, noImplicitInstallation
         }
         throw error
       }
+    }
 
-      // Queue the dependency for processing
+    // Only queue PLUGIN dependencies for recursive installation (not npm dependencies)
+    for (const dep of pluginDependencies) {
+      const { name: depName } = await getPackageOrgBasenameAndVersion(dep)
       if (!processed.has(depName)) {
         toProcess.push(dep)
       }
     }
   }
 
-  return { dependencyMap, allPackagesToInstall }
+  return { packagesToInstall }
 }
 
 const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, packages, projectPath, reporter, dependencyGraph }) => {
   // Discover all dependencies and validate dependency graph
   // This uses view() to read package metadata without installing, checking for cycles during discovery
-  const { allPackagesToInstall } = await discoverAllDependencies({
+  const { packagesToInstall } = await discoverAllDependencies({
     installedPlugins,
     noImplicitInstallation,
     packages,
@@ -480,12 +485,12 @@ const installAll = async({ devPaths, installedPlugins, noImplicitInstallation, p
     dependencyGraph
   })
 
-  checkMaxPackages(allPackagesToInstall.size)
+  checkMaxPackages(packagesToInstall.size)
 
   // Install all packages with devPaths support (local packages are properly linked)
   return await install({
     devPaths,
-    packages : Array.from(allPackagesToInstall),
+    packages : Array.from(packagesToInstall),
     projectPath
   })
 }

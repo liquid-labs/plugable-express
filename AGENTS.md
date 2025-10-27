@@ -158,10 +158,14 @@ The plugin installation process uses an efficient multi-phase approach that disc
 
 2. **Dependency Discovery Phase** (`discoverAllDependencies` in `install-plugins.mjs`)
    - Uses `npm view` to fetch package metadata WITHOUT installing packages
-   - For each package, calls `fetchPackageDependencies()` to discover all dependencies
+   - For each package, calls `fetchPackageDependencies()` to discover all dependencies (both npm and plugin dependencies)
+   - **Validation vs Installation Separation**:
+     - Validates ALL dependencies (npm + plugin) for cycle detection by adding them to the dependency graph
+     - Only queues PLUGIN dependencies (from `plugable-express.yaml`) for recursive installation
+     - npm `package.json` dependencies are validated but NOT installed recursively
    - Builds complete dependency graph before any installation
    - Validates for cyclic dependencies during graph construction
-   - Returns complete set of packages to install
+   - Returns complete set of packages to install (standardPackages + plugable-express.yaml dependencies)
 
 3. **Multi-Source Dependency Fetching** (`fetchPackageDependencies` in `install-plugins.mjs`)
    - **Version Range Resolution**: If `npm view` returns array (for ranges like `1.x`, `^2.0.0`), selects latest version using `@liquid-labs/semver-plus.rsort()`
@@ -176,11 +180,12 @@ The plugin installation process uses an efficient multi-phase approach that disc
        - Downloads tarball to temp directory
        - Extracts and reads `plugable-express.yaml` from filesystem
        - Cleans up temp files after extraction
-   - Returns combined list of all dependencies (npm + plugable-express.yaml)
+   - Returns object with separate arrays: `{ npmDependencies, pluginDependencies }`
 
 4. **Cyclic Dependency Prevention**
    - Uses `dependency-graph` package to detect cycles BEFORE installation begins
-   - Adds edges to graph during discovery phase
+   - Validates ALL dependencies (both npm and plugin) by adding edges to dependency graph
+   - This includes npm `package.json` dependencies even though they won't be installed recursively
    - Throws error immediately if circular dependencies are detected
    - Prevents any packages from being installed if cycles exist
 
