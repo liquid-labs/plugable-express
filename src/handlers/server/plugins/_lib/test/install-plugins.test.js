@@ -35,7 +35,8 @@ describe('install-plugins', () => {
   let mockReloadFunc
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.clearAllMocks() // clears mock call history
+    view.mockReset() // resets the mock implementation
 
     mockApp = {
       ext : {
@@ -696,126 +697,62 @@ describe('install-plugins', () => {
       })
     })
 
-    test.skip('detects and throws error for cyclic dependencies', async() => {
+    // Data-driven tests for circular dependency detection
+    // Each test case defines a dependency cycle with different chain lengths
+    test.each([
+      {
+        testName     : '2-step cycle',
+        description  : 'plugin-a -> plugin-b -> plugin-a',
+        entryPackage : 'plugin-a',
+        // Defines the dependency chain where each package depends on the next
+        // The last package depends on the first, creating the cycle
+        cycle        : [
+          { name : 'plugin-a', dependsOn : 'plugin-b' },
+          { name : 'plugin-b', dependsOn : 'plugin-a' }
+        ]
+      },
+      {
+        testName     : '3-step cycle',
+        description  : 'plugin-x -> plugin-y -> plugin-z -> plugin-x',
+        entryPackage : 'plugin-x',
+        cycle        : [
+          { name : 'plugin-x', dependsOn : 'plugin-y' },
+          { name : 'plugin-y', dependsOn : 'plugin-z' },
+          { name : 'plugin-z', dependsOn : 'plugin-x' }
+        ]
+      }
+    ])('detects circular dependencies: $testName ($description)', async({ entryPackage, cycle }) => {
       const installedPlugins = []
-      const npmNames = ['plugin-a']
+      const npmNames = [entryPackage]
 
-      // Mock view() to return package metadata with GitHub repos
-      view
-        .mockResolvedValueOnce({
+      // Reset mocks to clear any leftover state from previous tests
+      view.mockReset()
+      https.get.mockReset()
+
+      // Build viewResults map dynamically from cycle data
+      const viewResults = {}
+      for (const pkg of cycle) {
+        viewResults[pkg.name] = {
           version      : '1.0.0',
           dependencies : {},
-          repository   : { url : 'git+https://github.com/test/plugin-a.git' }
-        }) // plugin-a
-        .mockResolvedValueOnce({
-          version      : '1.0.0',
-          dependencies : {},
-          repository   : { url : 'git+https://github.com/test/plugin-b.git' }
-        }) // plugin-b
-
-      // Mock https.get() to return plugable-express.yaml content from GitHub
-      https.get
-        .mockImplementationOnce((url, callback) => {
-          // plugin-a's plugable-express.yaml: depends on plugin-b
-          const handlers = {}
-          const response = {
-            statusCode : 200,
-            on(event, handler) {
-              handlers[event] = handler
-              // Call handlers immediately when registered
-              if (event === 'data') {
-                setImmediate(() => handler('dependencies:\n  - plugin-b\n'))
-              }
-              if (event === 'end') {
-                setImmediate(() => handler())
-              }
-              return this
-            }
-          }
-          callback(response)
-          return { on : jest.fn() }
-        })
-        .mockImplementationOnce((url, callback) => {
-          // plugin-b's plugable-express.yaml: depends on plugin-a - CYCLE!
-          const handlers = {}
-          const response = {
-            statusCode : 200,
-            on(event, handler) {
-              handlers[event] = handler
-              // Call handlers immediately when registered
-              if (event === 'data') {
-                setImmediate(() => handler('dependencies:\n  - plugin-a\n'))
-              }
-              if (event === 'end') {
-                setImmediate(() => handler())
-              }
-              return this
-            }
-          }
-          callback(response)
-          return { on : jest.fn() }
-        })
-
-      install.mockResolvedValue({
-        localPackages      : [],
-        productionPackages : ['plugin-a']
-      })
-
-      await expect(installPlugins({
-        app          : mockApp,
-        installedPlugins,
-        npmNames,
-        pluginPkgDir : '/plugins',
-        reloadFunc   : mockReloadFunc,
-        reporter     : mockReporter
-      })).rejects.toThrow('Circular dependency detected')
-    })
-
-    test('detects multi-level cyclic dependencies', async() => {
-      // This test emulates a circular dependency chain where:
-      // plugin-x -> plugin-y -> plugin-z -> plugin-x (cycle)
-      const installedPlugins = []
-      const npmNames = ['plugin-x']
-
-      // Return map for view() - maps package names to their metadata
-      const viewResults = {
-        'plugin-x' : {
-          version      : '1.0.0',
-          dependencies : {},
-          repository   : { url : 'https://github.com/test/plugin-x.git' }
-        },
-        'plugin-y' : {
-          version      : '1.0.0',
-          dependencies : {},
-          repository   : { url : 'https://github.com/test/plugin-y.git' }
-        },
-        'plugin-z' : {
-          version      : '1.0.0',
-          dependencies : {},
-          repository   : { url : 'https://github.com/test/plugin-z.git' }
+          repository   : { url : `https://github.com/test/${pkg.name}.git` }
         }
       }
 
       view.mockImplementation(({ packageName }) => Promise.resolve(viewResults[packageName]))
 
-      // Return map for https.get() - handles both YAML files and package.json checks
-      const githubResponses = {
-        'https://raw.githubusercontent.com/test/plugin-x/v1.0.0/plugable-express.yaml' : {
+      // Build githubResponses map dynamically from cycle data
+      const githubResponses = {}
+      for (const pkg of cycle) {
+        // YAML file with dependency
+        githubResponses[`https://raw.githubusercontent.com/test/${pkg.name}/v1.0.0/plugable-express.yaml`] = {
           statusCode : 200,
-          data       : 'dependencies:\n  - plugin-y\n'
-        },
-        'https://raw.githubusercontent.com/test/plugin-y/v1.0.0/plugable-express.yaml' : {
-          statusCode : 200,
-          data       : 'dependencies:\n  - plugin-z\n'
-        },
-        'https://raw.githubusercontent.com/test/plugin-z/v1.0.0/plugable-express.yaml' : {
-          statusCode : 200,
-          data       : 'dependencies:\n  - plugin-x\n' // Creates cycle
-        },
-        // Return 404 for package.json checks (not needed since YAML exists)
-        'https://raw.githubusercontent.com/test/plugin-x/v1.0.0/package.json' : { statusCode : 404 },
-        'https://raw.githubusercontent.com/test/plugin-y/v1.0.0/package.json' : { statusCode : 404 },
-        'https://raw.githubusercontent.com/test/plugin-z/v1.0.0/package.json' : { statusCode : 404 }
+          data       : `dependencies:\n  - ${pkg.dependsOn}\n`
+        }
+        // package.json returns 404 (not needed since YAML exists)
+        githubResponses[`https://raw.githubusercontent.com/test/${pkg.name}/v1.0.0/package.json`] = {
+          statusCode : 404
+        }
       }
 
       https.get.mockImplementation((url, callback) => {
@@ -841,7 +778,7 @@ describe('install-plugins', () => {
 
       install.mockResolvedValue({
         localPackages      : [],
-        productionPackages : ['plugin-x']
+        productionPackages : [entryPackage]
       })
 
       await expect(installPlugins({
