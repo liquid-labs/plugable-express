@@ -1,4 +1,5 @@
 /* global beforeEach describe expect jest test */
+import { resolve } from 'node:path'
 
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
 
@@ -23,7 +24,7 @@ describe('add plugin handler', () => {
         handlerPlugins : [
           { npmName : 'existing-plugin' }
         ],
-        pluginsPath : '/test/plugins'
+        dynamicPluginInstallDir : '/test/plugins'
       },
       reload : jest.fn().mockReturnValue(Promise.resolve())
     }
@@ -84,34 +85,31 @@ describe('add plugin handler', () => {
       })
     })
 
-    test('uses process.cwd() when pluginsPath is not provided', async() => {
-      mockApp.ext.pluginsPath = undefined
+    test.each([
+      [undefined, '/test/plugins'],
+      [null, '/test/plugins'],
+      ['/test/plugins', '/test/plugins'],
+    ])('uses %s when dynamicPluginInstallDir is %s', async(testValue, expectedValue) => {
+      const originalServerHome = mockApp.ext.serverHome
+      const originalDynamicPluginInstallDir = mockApp.ext.dynamicPluginInstallDir
+      try {
+        mockApp.ext.dynamicPluginInstallDir = testValue
+        mockApp.ext.serverHome = resolve('/test/plugins')
 
-      const handler = func({ app : mockApp, reporter : mockReporter })
-      await handler(mockReq, mockRes)
+        const handler = func({ app : mockApp, reporter : mockReporter })
+        await handler(mockReq, mockRes)
 
-      expect(installPlugins).toHaveBeenCalledWith({
-        installedPlugins : [{ npmName : 'existing-plugin' }],
-        npmNames         : ['new-plugin'],
-        pluginPkgDir     : process.cwd(),
-        reloadFunc       : expect.any(Function),
-        reporter         : mockReporter
-      })
-    })
-
-    test('uses process.cwd() when pluginsPath is null', async() => {
-      mockApp.ext.pluginsPath = null
-
-      const handler = func({ app : mockApp, reporter : mockReporter })
-      await handler(mockReq, mockRes)
-
-      expect(installPlugins).toHaveBeenCalledWith({
-        installedPlugins : [{ npmName : 'existing-plugin' }],
-        npmNames         : ['new-plugin'],
-        pluginPkgDir     : process.cwd(),
-        reloadFunc       : expect.any(Function),
-        reporter         : mockReporter
-      })
+        expect(installPlugins).toHaveBeenCalledWith({
+          installedPlugins : [{ npmName : 'existing-plugin' }],
+          npmNames         : ['new-plugin'],
+          pluginPkgDir     : expectedValue,
+          reloadFunc       : expect.any(Function),
+          reporter         : mockReporter
+        })
+      } finally {
+        mockApp.ext.serverHome = originalServerHome
+        mockApp.ext.dynamicPluginInstallDir = originalDynamicPluginInstallDir
+      }
     })
 
     test('calls httpSmartResponse with result', async() => {

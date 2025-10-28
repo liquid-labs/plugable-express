@@ -13,8 +13,8 @@ import { installPlugins } from './install-plugins'
  */
 const addPlugins = async({ app, cache, packages, reporter }) => {
   const installedPlugins = app.ext.handlerPlugins || []
-  // Use pluginsPath if provided, otherwise use current working directory
-  const pluginPkgDir = app.ext.pluginsPath || process.cwd()
+  // Use dynamicPluginInstallDir if provided, otherwise use current working directory
+  const pluginPkgDir = app.ext.dynamicPluginInstallDir || app.ext.serverHome
   const reloadFunc = () => app.reload()
 
   const result = await installPlugins({

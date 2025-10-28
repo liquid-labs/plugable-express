@@ -56,7 +56,7 @@ npm run qa
    - Manages plugin loading and handler registration
    - Key variables:
      - `app.ext.handlerPlugins` - Currently loaded plugins
-     - `app.ext.pluginsPath` - Optional directory for plugins (defaults to current working directory)
+     - `app.ext.dynamicPluginInstallDir` - Optional directory for plugins (defaults to `serverHome`)
 
 2. **Plugin System (`src/lib/load-plugins.js`)**
    - **Keyword-Based Discovery**: Plugins are discovered by scanning npm dependencies for the `pluggable-endpoints` keyword
@@ -186,7 +186,7 @@ For runtime plugin installation via HTTP endpoints:
 
 2. **Package Installation**
    - Uses `@liquid-labs/npm-toolkit` to install packages
-   - Installs to pluginsPath (if provided) or current working directory
+   - Installs to dynamicPluginInstallDir (if provided) or `serverHome` directory
    - Standard npm dependency resolution handles transitive dependencies
 
 3. **Keyword Verification**

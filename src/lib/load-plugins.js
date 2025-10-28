@@ -98,12 +98,9 @@ const discoverPlugins = async(searchPath, reporter) => {
 
 /**
  * Given an app, cache, reporter, and optional plugin path, loads plugins.
- * If pluginsPath is provided, searches there. Otherwise searches in the current working directory.
+ * If dynamicPluginInstallDir is provided, searches there. Otherwise searches in the current working directory.
  */
-const loadPlugins = async(app, { cache, reporter, pluginsPath }) => {
-  // Use pluginsPath if provided, otherwise use current working directory
-  const searchPath = pluginsPath || process.cwd()
-
+const loadPlugins = async(app, { cache, reporter, searchPath }) => {
   reporter.log(`Searching for handler plugins with 'pluggable-endpoints' keyword (in ${searchPath})...`)
 
   const plugins = await discoverPlugins(searchPath, reporter)

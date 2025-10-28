@@ -33,7 +33,7 @@ const serverVersion = pkgJSON.version
 *    used for testing.
 * - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
 *    primarily used in conjuction with `pluginPaths` for testing.
-* - `pluginsPath` (opt): optional directory to search for plugins. If not provided, searches in current working directory.
+* - `dynamicPluginInstallDir` (opt): optional directory to search for plugins. If not provided, searches in current working directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
@@ -44,9 +44,9 @@ const appInit = async(initArgs) => {
     noAPIUpdate = false,
     noRegistries,
     pluginPaths,
-    pluginsPath,
+    dynamicPluginInstallDir,
     reporter = new Reporter(),
-    serverHome,
+    serverHome = throw new Error("'serverHome' must be defined for appInit()."),
     skipCorePlugins = false,
     version
   } = initArgs
@@ -74,7 +74,7 @@ const appInit = async(initArgs) => {
     noRegistries,
     pathResolvers   : commonPathResolvers,
     pendingHandlers : [],
-    pluginsPath,
+    dynamicPluginInstallDir : dynamicPluginInstallDir || serverHome,
     serverHome,
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
@@ -103,17 +103,11 @@ const appInit = async(initArgs) => {
   // from here on out, we need to release the cache if we run into an exception which prevents us from returning it
   // (in which case it is the responsibility of the caller to release the cache)
   try {
-    const options = { cache, pluginsPath, reporter }
-
     reporter.log('Loading core handlers...')
-    registerHandlers(app, Object.assign(
-      {},
-      options,
-      { name : 'core', npmName : '@liquid-labs/plugable-express', handlers }
-    ))
+    registerHandlers(app, {cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers})
 
     if (skipCorePlugins !== true) {
-      await loadPlugins(app, options)
+      await loadPlugins(app, {cache, reporter, searchPath : dynamicPluginInstallDir})
     }
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {

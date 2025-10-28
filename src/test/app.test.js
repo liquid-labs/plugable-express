@@ -53,7 +53,7 @@ describe('app', () => {
 
     beforeAll(async() => {
       process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
-      testOptions.pluginsPath = pluginsPath
+      testOptions.dynamicPluginInstallDir = pluginsPath
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))

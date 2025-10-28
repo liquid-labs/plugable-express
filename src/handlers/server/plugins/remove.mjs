@@ -57,7 +57,7 @@ const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const func = removePluginsHandler({
   installedPluginsRetriever,
   nameKey               : pluginNameKey,
-  pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath || process.cwd(),
+  pluginPkgDirRetriever : ({ app }) => app.ext.dynamicPluginInstallDir || app.ext.serverHome,
   reloadFunc            : ({ app }) => app.reload()
 })
 

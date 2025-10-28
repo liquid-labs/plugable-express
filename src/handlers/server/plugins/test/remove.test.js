@@ -31,7 +31,7 @@ describe('remove plugin handler', () => {
           { npmName : 'test-plugin-1' },
           { npmName : 'test-plugin-2' }
         ],
-        pluginsPath : '/test/plugins/path'
+        dynamicPluginInstallDir : '/test/plugins/path'
       },
       reload : jest.fn().mockReturnValue(mockReload)
     }
