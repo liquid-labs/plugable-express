@@ -52,7 +52,7 @@ describe('app', () => {
     const testOptions = mockLogOptions()
 
     beforeAll(async() => {
-      process.env.LIQ_PLAYGROUND = testOptions.LIQ_PLAYGROUND_PATH
+      process.env.LIQ_PLAYGROUND = path.join(process.cwd(), 'tmp', 'plugins')
       testOptions.dynamicPluginInstallDir = pluginsPath
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
