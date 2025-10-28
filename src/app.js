@@ -63,23 +63,23 @@ const appInit = async(initArgs) => {
 
   // setup app.ext
   app.ext = {
-    commandPaths    : {},
-    errorsEphemeral : [],
-    errorsRetained  : [],
-    constants       : {}, // what is this? is it used?
-    handlers        : [],
-    handlerPlugins  : [],
-    localSettings   : {},
+    commandPaths            : {},
+    errorsEphemeral         : [],
+    errorsRetained          : [],
+    constants               : {}, // what is this? is it used?
+    handlers                : [],
+    handlerPlugins          : [],
+    localSettings           : {},
     name,
     noRegistries,
-    pathResolvers   : commonPathResolvers,
-    pendingHandlers : [],
+    pathResolvers           : commonPathResolvers,
+    pendingHandlers         : [],
     dynamicPluginInstallDir : dynamicPluginInstallDir || serverHome,
     serverHome,
-    serverSettings  : getServerSettings(serverHome),
+    serverSettings          : getServerSettings(serverHome),
     serverVersion,
-    setupMethods    : [],
-    teardownMethods : [],
+    setupMethods            : [],
+    teardownMethods         : [],
     version
   }
 
@@ -104,10 +104,10 @@ const appInit = async(initArgs) => {
   // (in which case it is the responsibility of the caller to release the cache)
   try {
     reporter.log('Loading core handlers...')
-    registerHandlers(app, {cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers})
+    registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
 
     if (skipCorePlugins !== true) {
-      await loadPlugins(app, {cache, reporter, searchPath : dynamicPluginInstallDir})
+      await loadPlugins(app, { cache, reporter, searchPath : dynamicPluginInstallDir })
     }
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {

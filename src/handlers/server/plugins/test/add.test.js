@@ -88,7 +88,7 @@ describe('add plugin handler', () => {
     test.each([
       [undefined, '/test/plugins'],
       [null, '/test/plugins'],
-      ['/test/plugins', '/test/plugins'],
+      ['/test/plugins', '/test/plugins']
     ])('uses %s when dynamicPluginInstallDir is %s', async(testValue, expectedValue) => {
       const originalServerHome = mockApp.ext.serverHome
       const originalDynamicPluginInstallDir = mockApp.ext.dynamicPluginInstallDir
@@ -106,7 +106,8 @@ describe('add plugin handler', () => {
           reloadFunc       : expect.any(Function),
           reporter         : mockReporter
         })
-      } finally {
+      }
+      finally {
         mockApp.ext.serverHome = originalServerHome
         mockApp.ext.dynamicPluginInstallDir = originalDynamicPluginInstallDir
       }
