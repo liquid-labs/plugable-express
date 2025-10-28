@@ -43,8 +43,6 @@ describe('add plugin handler', () => {
       data : {
         installedPlugins : [],
         total            : 0,
-        implied          : 0,
-        local            : 0,
         production       : 0
       }
     })
@@ -59,69 +57,60 @@ describe('add plugin handler', () => {
       expect(path).toEqual(['server', 'plugins', 'add'])
     })
 
-    test('includes noImplicitInstallation parameter', () => {
-      const noImplicitParam = parameters.find(p => p.name === 'noImplicitInstallation')
-      expect(noImplicitParam).toBeDefined()
-      expect(noImplicitParam.isBoolean).toBe(true)
-      expect(noImplicitParam.description).toContain('implicit plugin dependencies')
-    })
-
     test('includes npmNames parameter', () => {
       const npmNamesParam = parameters.find(p => p.name === 'npmNames')
       expect(npmNamesParam).toBeDefined()
       expect(npmNamesParam.isMultivalue).toBe(true)
+      expect(npmNamesParam.description).toContain('pluggable-endpoints')
+    })
+
+    test('does not include noImplicitInstallation parameter', () => {
+      const noImplicitParam = parameters.find(p => p.name === 'noImplicitInstallation')
+      expect(noImplicitParam).toBeUndefined()
     })
   })
 
   describe('func', () => {
-    test('calls installPlugins with correct parameters when noImplicitInstallation is true', async() => {
-      mockReq.vars.noImplicitInstallation = true
-
+    test('calls installPlugins with correct parameters', async() => {
       const handler = func({ app : mockApp, reporter : mockReporter })
       await handler(mockReq, mockRes)
 
       expect(installPlugins).toHaveBeenCalledWith({
-        app                    : mockApp,
-        installedPlugins       : [{ npmName : 'existing-plugin' }],
-        noImplicitInstallation : true,
-        npmNames               : ['new-plugin'],
-        pluginPkgDir           : '/test/plugins',
-        reloadFunc             : expect.any(Function),
-        reporter               : mockReporter
+        installedPlugins : [{ npmName : 'existing-plugin' }],
+        npmNames         : ['new-plugin'],
+        pluginPkgDir     : '/test/plugins',
+        reloadFunc       : expect.any(Function),
+        reporter         : mockReporter
       })
     })
 
-    test('calls installPlugins with correct parameters when noImplicitInstallation is false', async() => {
-      mockReq.vars.noImplicitInstallation = false
+    test('uses process.cwd() when pluginsPath is not provided', async() => {
+      mockApp.ext.pluginsPath = undefined
 
       const handler = func({ app : mockApp, reporter : mockReporter })
       await handler(mockReq, mockRes)
 
       expect(installPlugins).toHaveBeenCalledWith({
-        app                    : mockApp,
-        installedPlugins       : [{ npmName : 'existing-plugin' }],
-        noImplicitInstallation : false,
-        npmNames               : ['new-plugin'],
-        pluginPkgDir           : '/test/plugins',
-        reloadFunc             : expect.any(Function),
-        reporter               : mockReporter
+        installedPlugins : [{ npmName : 'existing-plugin' }],
+        npmNames         : ['new-plugin'],
+        pluginPkgDir     : process.cwd(),
+        reloadFunc       : expect.any(Function),
+        reporter         : mockReporter
       })
     })
 
-    test('calls installPlugins with undefined noImplicitInstallation when not provided', async() => {
-      // noImplicitInstallation not in req.vars
+    test('uses process.cwd() when pluginsPath is null', async() => {
+      mockApp.ext.pluginsPath = null
 
       const handler = func({ app : mockApp, reporter : mockReporter })
       await handler(mockReq, mockRes)
 
       expect(installPlugins).toHaveBeenCalledWith({
-        app                    : mockApp,
-        installedPlugins       : [{ npmName : 'existing-plugin' }],
-        noImplicitInstallation : undefined,
-        npmNames               : ['new-plugin'],
-        pluginPkgDir           : '/test/plugins',
-        reloadFunc             : expect.any(Function),
-        reporter               : mockReporter
+        installedPlugins : [{ npmName : 'existing-plugin' }],
+        npmNames         : ['new-plugin'],
+        pluginPkgDir     : process.cwd(),
+        reloadFunc       : expect.any(Function),
+        reporter         : mockReporter
       })
     })
 
@@ -133,8 +122,6 @@ describe('add plugin handler', () => {
         data : {
           installedPlugins : [],
           total            : 0,
-          implied          : 0,
-          local            : 0,
           production       : 0
         },
         msg : 'Installation complete',
@@ -149,7 +136,7 @@ describe('add plugin handler', () => {
 
       // Get the reloadFunc that was passed to installPlugins
       const reloadFunc = installPlugins.mock.calls[0][0].reloadFunc
-      await reloadFunc({ app : mockApp })
+      await reloadFunc()
 
       expect(mockApp.reload).toHaveBeenCalled()
     })
@@ -161,13 +148,26 @@ describe('add plugin handler', () => {
       await handler(mockReq, mockRes)
 
       expect(installPlugins).toHaveBeenCalledWith({
-        app                    : mockApp,
-        installedPlugins       : [],
-        noImplicitInstallation : undefined,
-        npmNames               : ['new-plugin'],
-        pluginPkgDir           : '/test/plugins',
-        reloadFunc             : expect.any(Function),
-        reporter               : mockReporter
+        installedPlugins : [],
+        npmNames         : ['new-plugin'],
+        pluginPkgDir     : '/test/plugins',
+        reloadFunc       : expect.any(Function),
+        reporter         : mockReporter
+      })
+    })
+
+    test('handles multiple packages', async() => {
+      mockReq.vars.npmNames = ['plugin1', 'plugin2', 'plugin3']
+
+      const handler = func({ app : mockApp, reporter : mockReporter })
+      await handler(mockReq, mockRes)
+
+      expect(installPlugins).toHaveBeenCalledWith({
+        installedPlugins : [{ npmName : 'existing-plugin' }],
+        npmNames         : ['plugin1', 'plugin2', 'plugin3'],
+        pluginPkgDir     : '/test/plugins',
+        reloadFunc       : expect.any(Function),
+        reporter         : mockReporter
       })
     })
   })

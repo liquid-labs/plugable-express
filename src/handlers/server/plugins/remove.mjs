@@ -1,6 +1,6 @@
 import createError from 'http-errors'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
-import { tryExec } from '@liquid-labs/shell-toolkit'
+import { uninstall } from '@liquid-labs/npm-toolkit'
 
 const removePluginsSetup = ({ pluginsDesc }) => {
   const help = {
@@ -29,7 +29,12 @@ const removePluginsHandler = ({ installedPluginsRetriever, nameKey, pluginPkgDir
 
     const npmName = pluginData.npmName
     const pluginPkgDir = pluginPkgDirRetriever({ app, reporter, req })
-    tryExec(`cd "${(pluginPkgDir)}" && npm uninstall ${npmName}`)
+
+    // Use npm-toolkit's uninstall function for safe package removal
+    await uninstall({
+      packages    : [npmName],
+      projectPath : pluginPkgDir
+    })
 
     if (reloadFunc !== undefined) {
       const reload = reloadFunc({ app })
@@ -52,7 +57,7 @@ const installedPluginsRetriever = ({ app }) => app.ext.handlerPlugins
 const func = removePluginsHandler({
   installedPluginsRetriever,
   nameKey               : pluginNameKey,
-  pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath,
+  pluginPkgDirRetriever : ({ app }) => app.ext.pluginsPath || process.cwd(),
   reloadFunc            : ({ app }) => app.reload()
 })
 

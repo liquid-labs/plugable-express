@@ -2,7 +2,7 @@
 
 import createError from 'http-errors'
 import { httpSmartResponse } from '@liquid-labs/http-smart-response'
-import { tryExec } from '@liquid-labs/shell-toolkit'
+import { uninstall } from '@liquid-labs/npm-toolkit'
 
 // Import the module under test
 import { func, help, method, parameters, path } from '../remove.js'
@@ -10,7 +10,9 @@ import { func, help, method, parameters, path } from '../remove.js'
 // Mock dependencies
 jest.mock('http-errors')
 jest.mock('@liquid-labs/http-smart-response')
-jest.mock('@liquid-labs/shell-toolkit')
+jest.mock('@liquid-labs/npm-toolkit', () => ({
+  uninstall : jest.fn()
+}))
 
 describe('remove plugin handler', () => {
   let mockApp
@@ -44,7 +46,7 @@ describe('remove plugin handler', () => {
 
     mockRes = {}
 
-    tryExec.mockReturnValue({ stdout : '', stderr : '', status : 0 })
+    uninstall.mockResolvedValue()
     httpSmartResponse.mockReturnValue()
   })
 
@@ -80,7 +82,10 @@ describe('remove plugin handler', () => {
 
       await handler(mockReq, mockRes)
 
-      expect(tryExec).toHaveBeenCalledWith('cd "/test/plugins/path" && npm uninstall test-plugin-1')
+      expect(uninstall).toHaveBeenCalledWith({
+        packages    : ['test-plugin-1'],
+        projectPath : '/test/plugins/path'
+      })
       expect(mockApp.reload).toHaveBeenCalledWith()
       expect(httpSmartResponse).toHaveBeenCalledWith({
         msg : '<em>Removed<rst> <code>test-plugin-1<rst> plugin. Server endpoints refreshed.',
@@ -98,7 +103,7 @@ describe('remove plugin handler', () => {
 
       await expect(handler(mockReq, mockRes)).rejects.toThrow(notFoundError)
       expect(createError.NotFound).toHaveBeenCalledWith("No such plugin 'non-existent-plugin' found.")
-      expect(tryExec).not.toHaveBeenCalled()
+      expect(uninstall).not.toHaveBeenCalled()
       expect(httpSmartResponse).not.toHaveBeenCalled()
     })
 
@@ -111,7 +116,7 @@ describe('remove plugin handler', () => {
       await handler(mockReq, mockRes)
 
       expect(mockApp.reload).toHaveBeenCalledWith()
-      expect(tryExec).toHaveBeenCalled()
+      expect(uninstall).toHaveBeenCalled()
       expect(httpSmartResponse).toHaveBeenCalled()
     })
 
@@ -124,7 +129,7 @@ describe('remove plugin handler', () => {
       await handler(mockReq, mockRes)
 
       expect(mockApp.reload).toHaveBeenCalledWith()
-      expect(tryExec).toHaveBeenCalled()
+      expect(uninstall).toHaveBeenCalled()
       expect(httpSmartResponse).toHaveBeenCalled()
     })
 
@@ -134,7 +139,7 @@ describe('remove plugin handler', () => {
 
       await handler(mockReq, mockRes)
 
-      expect(tryExec).toHaveBeenCalled()
+      expect(uninstall).toHaveBeenCalled()
       expect(httpSmartResponse).toHaveBeenCalled()
     })
   })

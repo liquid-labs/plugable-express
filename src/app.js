@@ -8,11 +8,10 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { PLUGABLE_PLAYGROUND, PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
+import { PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
-import { installPlugins } from './handlers/server/plugins/_lib/install-plugins'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugin, loadPlugins, registerHandlers } from './lib'
@@ -34,14 +33,12 @@ const serverVersion = pkgJSON.version
 *    used for testing.
 * - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
 *    primarily used in conjuction with `pluginPaths` for testing.
-* - `standardPackages` (opt): an array of NPM package names that should be automatically installed as plugins when the
-*    server starts. These packages will be installed if they are not already present in the plugin directory.
+* - `pluginsPath` (opt): optional directory to search for plugins. If not provided, searches in current working directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
   const {
     apiSpecPath,
-    devPaths = [PLUGABLE_PLAYGROUND()],
     defaultRegistries = [PLUGABLE_REGISTRY()],
     name,
     noAPIUpdate = false,
@@ -51,7 +48,6 @@ const appInit = async(initArgs) => {
     reporter = new Reporter(),
     serverHome,
     skipCorePlugins = false,
-    standardPackages,
     version
   } = initArgs
 
@@ -68,7 +64,6 @@ const appInit = async(initArgs) => {
   // setup app.ext
   app.ext = {
     commandPaths    : {},
-    devPaths,
     errorsEphemeral : [],
     errorsRetained  : [],
     constants       : {}, // what is this? is it used?
@@ -84,7 +79,6 @@ const appInit = async(initArgs) => {
     serverSettings  : getServerSettings(serverHome),
     serverVersion,
     setupMethods    : [],
-    standardPackages,
     teardownMethods : [],
     version
   }
@@ -130,45 +124,6 @@ const appInit = async(initArgs) => {
 
     for (const pendingHandler of app.ext.pendingHandlers) {
       pendingHandler()
-    }
-
-    // Add standard packages setup method if standardPackages are provided
-    if (standardPackages && standardPackages.length > 0) {
-      // Create a setup method to install standard packages
-      const installStandardPackages = {
-        name : 'install-standard-packages',
-        func : async({ app, cache, reporter }) => {
-          const installedPlugins = app.ext.handlerPlugins || []
-          const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
-
-          // Determine which standard packages need to be installed
-          const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
-
-          if (packagesToInstall.length > 0) {
-            reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
-
-            await installPlugins({
-              app,
-              cache,
-              hostVersion  : app.ext.serverVersion,
-              installedPlugins,
-              npmNames     : packagesToInstall,
-              pluginPkgDir : app.ext.pluginsPath,
-              pluginType   : 'server',
-              reloadFunc   : () => app.reload(),
-              reporter
-            })
-
-            reporter.log('Standard packages installation complete.')
-          }
-          else {
-            reporter.log('All standard packages already installed.')
-          }
-        }
-      }
-
-      // Insert at the beginning of setupMethods to ensure standard packages are installed first
-      app.ext.setupMethods.unshift(installStandardPackages)
     }
 
     // log errors

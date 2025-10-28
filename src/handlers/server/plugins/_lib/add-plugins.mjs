@@ -12,20 +12,15 @@ import { installPlugins } from './install-plugins'
  * @returns {Promise<Object>} Result object with installation details
  */
 const addPlugins = async({ app, cache, packages, reporter }) => {
-  const hostVersion = app.ext.serverVersion
   const installedPlugins = app.ext.handlerPlugins || []
-  const pluginPkgDir = app.ext.pluginsPath
-  const pluginType = 'server'
+  // Use pluginsPath if provided, otherwise use current working directory
+  const pluginPkgDir = app.ext.pluginsPath || process.cwd()
   const reloadFunc = () => app.reload()
 
   const result = await installPlugins({
-    app,
-    cache,
-    hostVersion,
     installedPlugins,
     npmNames : packages,
     pluginPkgDir,
-    pluginType,
     reloadFunc,
     reporter
   })
