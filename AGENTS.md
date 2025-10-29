@@ -53,10 +53,15 @@ npm run qa
    - Main entry point that sets up Express app with `appInit()`
    - Configures middleware (JSON, URL encoding, file upload)
    - Sets up `app.ext` object containing server configuration and state
-   - Manages plugin loading and handler registration
-   - Key variables:
+   - Manages plugin loading from multiple sources (see Plugin Discovery & Loading Flow)
+   - Key parameters:
+     - `serverHome` (required) - Server package directory, always searched for plugins
+     - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `serverHome`
+     - `pluginPaths` (optional) - Array of additional plugin directories for testing/development
+     - `skipCorePlugins` (optional) - If true, skips plugin discovery (loads only `pluginPaths`)
+   - Key properties:
      - `app.ext.handlerPlugins` - Currently loaded plugins
-     - `app.ext.dynamicPluginInstallDir` - Optional directory for plugins (defaults to `serverHome`)
+     - `app.ext.dynamicPluginInstallDir` - Where dynamic plugins are installed
 
 2. **Plugin System (`src/lib/load-plugins.js`)**
    - **Keyword-Based Discovery**: Plugins are discovered by scanning npm dependencies for the `pluggable-endpoints` keyword
@@ -154,26 +159,48 @@ export const setup = async ({ app, cache, reporter }) => {
 
 ### Plugin Discovery & Loading Flow
 
-The plugin system uses a simple, efficient keyword-based approach:
+The plugin system loads plugins from multiple sources in a specific order:
 
-1. **Plugin Discovery** (`discoverPlugins` in `src/lib/load-plugins.js`)
-   - Reads project's package.json to get all dependencies
-   - For each dependency:
-     - First checks if installed locally in node_modules
-     - Reads local package.json and checks for `pluggable-endpoints` keyword
-     - Only makes network call to npm registry if package not installed locally
-   - Returns list of plugins with dir and pkg metadata
+#### Plugin Loading Sources (in order)
 
-2. **Plugin Loading** (`loadPlugins` in `src/lib/load-plugins.js`)
-   - Loads each discovered plugin via dynamic import
-   - Validates plugin exports `handlers` or `setup`
-   - Executes plugin's `setup()` function if defined
-   - Registers handlers in `app.ext.pendingHandlers` for later execution
+1. **serverHome** (always loaded, unless `skipCorePlugins: true`)
+   - Loads from the server package's `package.json` and `node_modules`
+   - Discovers all direct plugins and plugins of plugins (transitive dependencies)
+   - This is the primary location for standard, permanent plugins
+   - Example: `/path/to/my-server/` with its own package.json
 
-3. **Handler Registration** (after all plugins loaded)
-   - Executes all pending handlers
-   - Registers HTTP endpoints with Express
-   - Updates `app.ext.handlerPlugins` list
+2. **dynamicPluginInstallDir** (loaded if different from `serverHome`)
+   - Loads from a separate plugin directory's `package.json` and `node_modules`
+   - This is where dynamically installed plugins (via HTTP endpoints) are installed
+   - Defaults to `serverHome` if not specified
+   - If set to a different location, both directories are searched
+   - Example: `/var/lib/my-server/dynamic-plugins/`
+
+3. **pluginPaths** (optional array, primarily for testing)
+   - Array of additional directories to search for plugins
+   - Each directory is searched using the same discovery mechanism
+   - **Read-once operation**: Changes to these directories require explicit reload
+   - Used primarily for testing or development scenarios
+   - Example: `['/path/to/dev-plugin-1', '/path/to/dev-plugin-2']`
+
+#### Discovery Mechanism (same for all sources)
+
+For each search location, the system uses the `find-plugins` package to discover plugins:
+
+1. **Scans node_modules recursively** (`scanAllDirs: true`) to find ALL packages with the `pluggable-endpoints` keyword
+   - This includes both direct dependencies AND transitive dependencies
+   - Example: If your server depends on plugin-a, and plugin-a depends on plugin-b (both with the keyword), BOTH are discovered
+2. **Optionally reads package.json** at the search path if present (for additional metadata)
+3. **Loads each discovered plugin** via dynamic import from its directory
+4. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
+5. **Executes setup** - runs plugin's `setup()` function if defined
+6. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+
+#### Handler Registration (after all plugins loaded)
+
+- Executes all pending handlers from all sources
+- Registers HTTP endpoints with Express
+- Updates `app.ext.handlerPlugins` list with metadata
 
 ### Plugin Installation Flow (Dynamic Runtime Installation)
 
@@ -186,8 +213,9 @@ For runtime plugin installation via HTTP endpoints:
 
 2. **Package Installation**
    - Uses `@liquid-labs/npm-toolkit` to install packages
-   - Installs to dynamicPluginInstallDir (if provided) or `serverHome` directory
+   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `serverHome`)
    - Standard npm dependency resolution handles transitive dependencies
+   - Installed plugins are immediately available after app reload
 
 3. **Keyword Verification**
    - After installation, verifies each package has `pluggable-endpoints` keyword

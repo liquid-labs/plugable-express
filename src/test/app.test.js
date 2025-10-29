@@ -77,5 +77,15 @@ describe('app', () => {
       expect(status).toBe(200)
       expect(body).toEqual(fooOutput)
     })
+
+    test('discovers plugins from node_modules (not just package.json dependencies)', () => {
+      // The 'foo' plugin is located in node_modules/foo/, demonstrating that
+      // the discovery mechanism scans node_modules recursively using find-plugins,
+      // not just reading dependencies from package.json
+      const fooPlugin = app.ext.handlerPlugins.find(p => p.npmName === 'foo')
+      expect(fooPlugin).toBeDefined()
+      expect(fooPlugin.npmName).toBe('foo')
+      expect(fooPlugin.version).toBe('1.0.0')
+    })
   })
 })
