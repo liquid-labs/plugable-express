@@ -14,7 +14,7 @@ import { WeakCache } from '@liquid-labs/weak-cache'
 import { handlers } from './handlers'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
-import { loadPlugin, loadPlugins, registerHandlers } from './lib'
+import { loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { Reporter } from './lib/reporter'
 
@@ -33,7 +33,8 @@ const serverVersion = pkgJSON.version
 *    used for testing.
 * - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
 *    primarily used in conjuction with `pluginPaths` for testing.
-* - `dynamicPluginInstallDir` (opt): optional directory to search for plugins. If not provided, searches in current working directory.
+* - `dynamicPluginInstallDir` (opt): optional directory to install dynamically loaded plugins. If not provided, plugins
+*    are installed in the `serverHome` directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
@@ -107,12 +108,19 @@ const appInit = async(initArgs) => {
     registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
 
     if (skipCorePlugins !== true) {
-      await loadPlugins(app, { cache, reporter, searchPath : dynamicPluginInstallDir })
+      reporter.log(`Loading core plugins from '${serverHome}'...`)
+      await loadPlugins(app, { cache, reporter, searchPath : serverHome })
+
+      // Also load plugins from dynamicPluginInstallDir if it's different from serverHome
+      if (app.ext.dynamicPluginInstallDir !== serverHome) {
+        reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
+        await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir })
+      }
     }
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {
-        const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
-        await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
+        reporter.log(`Loading additional plugins from '${pluginDir}'...`)
+        await loadPlugins(app, { cache, reporter, searchPath : pluginDir })
       }
     }
 

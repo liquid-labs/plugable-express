@@ -2,7 +2,7 @@
 import * as path from 'path'
 import request from 'supertest'
 
-import { pluginsPath } from '@liquid-labs/liq-test-lib'
+import { finalizeTestData, pluginsPath } from '@liquid-labs/liq-test-lib'
 
 import { appInit } from '../app'
 import { COMMAND_COUNT, defaultTestOptions } from './lib/test-utils'
@@ -22,6 +22,8 @@ const mockLogOptions = () => {
 const registrationRegExp = /^registering handler for path: [A-Z]+:/
 
 describe('app', () => {
+  beforeAll(finalizeTestData)
+
   describe('default setup provides useful info', () => {
     const testOptions = mockLogOptions()
     let cache
@@ -52,8 +54,7 @@ describe('app', () => {
     const testOptions = mockLogOptions()
 
     beforeAll(async() => {
-      process.env.LIQ_PLAYGROUND = path.join(process.cwd(), 'tmp', 'plugins')
-      testOptions.dynamicPluginInstallDir = pluginsPath
+      testOptions.pluginPaths = [pluginsPath]
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
       ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))

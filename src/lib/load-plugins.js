@@ -1,7 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import findPlugins from 'find-plugins'
 import * as path from 'path'
-
-import { view } from '@liquid-labs/npm-toolkit'
 
 import { registerHandlers } from './register-handlers'
 
@@ -42,58 +41,22 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
 const discoverPlugins = async(searchPath, reporter) => {
   const packageJsonPath = path.join(searchPath, 'package.json')
   const nodeModulesPath = path.join(searchPath, 'node_modules')
+  const findOptions = { keyword : 'pluggable-endpoints' }
 
-  if (!existsSync(packageJsonPath)) {
-    reporter?.log(`No package.json found at ${packageJsonPath}`)
+  if (existsSync(packageJsonPath)) {
+    findOptions.pkg = packageJsonPath
+  }
+  if (existsSync(nodeModulesPath)) {
+    findOptions.dir = nodeModulesPath
+    findOptions.scanAllDirs = true
+  }
+  if (findOptions.pkg === undefined && findOptions.dir === undefined) {
+    reporter?.warn(`Did not find package.json found at ${packageJsonPath} nor node_modules at ${nodeModulesPath}`)
     return []
   }
-
-  // Read dependencies from package.json
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
-  const dependencies = {
-    ...packageJson.dependencies,
-    ...packageJson.devDependencies
-  }
-
-  const plugins = []
-
-  // Check each dependency for the 'pluggable-endpoints' keyword
-  for (const [depName] of Object.entries(dependencies || {})) {
-    try {
-      const depPath = path.join(nodeModulesPath, depName)
-      const depPackageJsonPath = path.join(depPath, 'package.json')
-
-      // First, check if package is installed locally
-      if (existsSync(depPackageJsonPath)) {
-        const depPackageJson = JSON.parse(readFileSync(depPackageJsonPath, 'utf8'))
-        const localKeywords = depPackageJson.keywords || []
-
-        if (localKeywords.includes('pluggable-endpoints')) {
-          // Package is installed and has the keyword - use it!
-          plugins.push({
-            dir : depPath,
-            pkg : depPackageJson
-          })
-
-          reporter?.log(`Found plugin: ${depName}@${depPackageJson.version}`)
-        }
-      }
-      else {
-        // Package not installed - check registry to see if it has the keyword
-        const packageData = await view({ packageName : depName })
-        const keywords = packageData?.keywords || []
-
-        if (keywords.includes('pluggable-endpoints')) {
-          reporter?.log(`Warning: Plugin ${depName} has 'pluggable-endpoints' keyword but is not installed`)
-        }
-      }
-    }
-    catch (error) {
-      reporter?.log(`Warning: Could not check keywords for ${depName}: ${error.message}`)
-    }
-  }
-
-  return plugins
+  // return await findPlugins(findOptions)
+  const results = await findPlugins(findOptions)
+  return results
 }
 
 /**
@@ -112,7 +75,4 @@ const loadPlugins = async(app, { cache, reporter, searchPath }) => {
   }
 }
 
-export {
-  loadPlugin,
-  loadPlugins
-}
+export { loadPlugins }

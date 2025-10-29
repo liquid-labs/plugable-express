@@ -7,10 +7,10 @@
     "build": "make",
     "lint": "make lint",
     "lint:fix": "make lint-fix",
-    "test": "make test",
     "prepack": "make build",
     "preversion": "make test && make lint",
-    "qa": "make qa"
+    "qa": "make qa",
+    "test": "make test"
   },
   "files": [
     "./dist",
@@ -39,7 +39,7 @@
     "@liquid-labs/catalyst-resource-eslint": "^1.0.0-alpha.1",
     "@liquid-labs/catalyst-resource-jest": "^1.0.0-alpha.1",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
-    "@liquid-labs/liq-test-lib": "^1.0.0-alpha.8",
+    "@liquid-labs/liq-test-lib": "file:.yalc/@liquid-labs/liq-test-lib",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "http-errors": "^2.0.0",
     "lodash.omit": "^4.5.0",
@@ -57,6 +57,7 @@
     "@liquid-labs/shell-toolkit": "^1.0.0-alpha.10",
     "express": "^5.0.0-beta.1",
     "express-fileupload": "^1.2.1",
+    "find-plugins": "^1.1.7",
     "find-root": "^1.1.0",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21"
