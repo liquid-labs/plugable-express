@@ -88,4 +88,47 @@ describe('app', () => {
       expect(fooPlugin.version).toBe('1.0.0')
     })
   })
+
+  describe('explicit plugins', () => {
+    let app, cache
+    const testOptions = mockLogOptions()
+
+    beforeAll(async() => {
+      testOptions.pluginPaths = [pluginsPath]
+      testOptions.explicitPlugins = ['foo']
+      testOptions.noAPIUpdate = true
+      testOptions.skipCorePlugins = false;
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+    })
+
+    afterAll(() => {
+      delete process.env.LIQ_PLAYGROUND
+      cache.release()
+    })
+
+    test('loads explicitly specified plugins', () => {
+      const fooPlugin = app.ext.handlerPlugins.find(p => p.npmName === 'foo')
+      expect(fooPlugin).toBeDefined()
+      expect(fooPlugin.npmName).toBe('foo')
+    })
+
+    test('logs search for explicitly specified plugins', () => {
+      const explicitPluginLogs = testOptions.logs.filter((msg) =>
+        msg.includes('explicitly specified plugins'))
+      expect(explicitPluginLogs.length).toBeGreaterThan(0)
+    })
+
+    test('loads explicit plugins only once (no duplicates)', () => {
+      // 'foo' has the keyword AND is explicitly specified, but should only be loaded once
+      const fooPluginCount = app.ext.handlerPlugins.filter(p => p.npmName === 'foo').length
+      expect(fooPluginCount).toBe(1) // Should only be loaded once despite matching both criteria
+    })
+
+    test('can call endpoints from explicitly loaded plugins', async() => {
+      const { fooOutput } = await import(fooPath)
+      const { status, body } = await request(app).get('/foo')
+      expect(status).toBe(200)
+      expect(body).toEqual(fooOutput)
+    })
+  })
 })

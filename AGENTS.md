@@ -56,6 +56,7 @@ npm run qa
    - Manages plugin loading from multiple sources (see Plugin Discovery & Loading Flow)
    - Key parameters:
      - `serverHome` (required) - Server package directory, always searched for plugins
+     - `explicitPlugins` (optional) - Array of NPM package names to explicitly load as plugins, regardless of keyword. Supports transition from previous plugin models. Loaded in addition to keyword-discovered plugins.
      - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `serverHome`
      - `pluginPaths` (optional) - Array of additional plugin directories for testing/development
      - `skipCorePlugins` (optional) - If true, skips plugin discovery (loads only `pluginPaths`)
@@ -185,16 +186,30 @@ The plugin system loads plugins from multiple sources in a specific order:
 
 #### Discovery Mechanism (same for all sources)
 
-For each search location, the system uses the `find-plugins` package to discover plugins:
+For each search location, the system loads plugins in two phases:
 
-1. **Scans node_modules recursively** (`scanAllDirs: true`) to find ALL packages with the `pluggable-endpoints` keyword
+**Phase 1: Explicit Plugin Loading** (if `explicitPlugins` specified)
+1. **Uses custom filter** - Calls `findPlugins()` with a filter that ONLY accepts plugins in the `explicitPlugins` array
+2. **Scans node_modules recursively** (`scanAllDirs: true`) to find packages matching the filter
+3. **Skips keyword validation** - Does not require the `pluggable-endpoints` keyword (transition support)
+4. **Loads each explicit plugin** via dynamic import from its directory
+5. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
+6. **Executes setup** - runs plugin's `setup()` function if defined
+7. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+8. **Tracks loaded plugins** - Maintains a set of loaded plugin names to prevent duplicates
+
+**Phase 2: Keyword-Based Discovery**
+1. **Scans node_modules recursively** (`scanAllDirs: true`) using `findPlugins()` to find ALL packages with the `pluggable-endpoints` keyword
    - This includes both direct dependencies AND transitive dependencies
    - Example: If your server depends on plugin-a, and plugin-a depends on plugin-b (both with the keyword), BOTH are discovered
-2. **Optionally reads package.json** at the search path if present (for additional metadata)
-3. **Loads each discovered plugin** via dynamic import from its directory
-4. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
-5. **Executes setup** - runs plugin's `setup()` function if defined
-6. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+2. **Filters already-loaded plugins** - Skips plugins already loaded in Phase 1
+3. **Optionally reads package.json** at the search path if present (for additional metadata)
+4. **Loads each discovered plugin** via dynamic import from its directory
+5. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
+6. **Executes setup** - runs plugin's `setup()` function if defined
+7. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+
+**Note**: If a plugin is both explicitly listed AND has the keyword, it's only loaded once (in Phase 1).
 
 #### Handler Registration (after all plugins loaded)
 

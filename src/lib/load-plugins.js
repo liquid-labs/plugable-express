@@ -38,7 +38,7 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
  * @param {Object} reporter - Reporter for logging
  * @returns {Promise<Array>} Array of plugin objects with {dir, pkg} structure
  */
-const discoverPlugins = async(searchPath, reporter) => {
+const discoverPluginsByKeyword = async(searchPath, reporter) => {
   const packageJsonPath = path.join(searchPath, 'package.json')
   const nodeModulesPath = path.join(searchPath, 'node_modules')
   const findOptions = { keyword : 'pluggable-endpoints' }
@@ -54,7 +54,39 @@ const discoverPlugins = async(searchPath, reporter) => {
     reporter?.warn(`Did not find package.json found at ${packageJsonPath} nor node_modules at ${nodeModulesPath}`)
     return []
   }
-  // return await findPlugins(findOptions)
+
+  const results = await findPlugins(findOptions)
+  return results
+}
+
+/**
+ * Discovers explicit plugins by name, regardless of keyword
+ * @param {string} searchPath - Directory to search for package.json and node_modules
+ * @param {Array<string>} explicitPlugins - Array of package names to load
+ * @param {Object} reporter - Reporter for logging
+ * @returns {Promise<Array>} Array of plugin objects with {dir, pkg} structure
+ */
+const discoverExplicitPlugins = async(searchPath, explicitPlugins, reporter) => {
+  const packageJsonPath = path.join(searchPath, 'package.json')
+  const nodeModulesPath = path.join(searchPath, 'node_modules')
+  const explicitPluginSet = new Set(explicitPlugins)
+
+  const findOptions = {
+    filter : (pluginSummary) => explicitPluginSet.has(pluginSummary.pkg?.name)
+  }
+
+  if (existsSync(packageJsonPath)) {
+    findOptions.pkg = packageJsonPath
+  }
+  if (existsSync(nodeModulesPath)) {
+    findOptions.dir = nodeModulesPath
+    findOptions.scanAllDirs = true
+  }
+  if (findOptions.pkg === undefined && findOptions.dir === undefined) {
+    reporter?.warn(`Did not find package.json found at ${packageJsonPath} nor node_modules at ${nodeModulesPath}`)
+    return []
+  }
+
   const results = await findPlugins(findOptions)
   return results
 }
@@ -63,14 +95,36 @@ const discoverPlugins = async(searchPath, reporter) => {
  * Given an app, cache, reporter, and optional plugin path, loads plugins.
  * If dynamicPluginInstallDir is provided, searches there. Otherwise searches in the current working directory.
  */
-const loadPlugins = async(app, { cache, reporter, searchPath }) => {
+const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins }) => {
+  const loadedPluginNames = new Set()
+
+  // First, load explicit plugins if specified
+  if (explicitPlugins?.length > 0) {
+    reporter.log(`Searching for ${explicitPlugins.length} explicitly specified plugins (in ${searchPath})...`)
+    const explicitResults = await discoverExplicitPlugins(searchPath, explicitPlugins, reporter)
+
+    reporter.log(explicitResults.length === 0
+      ? 'No explicit plugins found.'
+      : `Found ${explicitResults.length} explicit plugins.`)
+
+    for (const plugin of explicitResults) {
+      await loadPlugin({ app, cache, reporter, ...plugin })
+      loadedPluginNames.add(plugin.pkg.name)
+    }
+  }
+
+  // Then discover and load keyword-based plugins
   reporter.log(`Searching for handler plugins with 'pluggable-endpoints' keyword (in ${searchPath})...`)
+  const keywordPlugins = await discoverPluginsByKeyword(searchPath, reporter)
 
-  const plugins = await discoverPlugins(searchPath, reporter)
+  // Filter out already-loaded plugins to avoid duplicates
+  const newPlugins = keywordPlugins.filter(p => !loadedPluginNames.has(p.pkg.name))
 
-  reporter.log(plugins.length === 0 ? 'No plugins found.' : `Found ${plugins.length} plugins.`)
+  reporter.log(newPlugins.length === 0
+    ? 'No additional keyword-based plugins found.'
+    : `Found ${newPlugins.length} keyword-based plugins.`)
 
-  for (const plugin of plugins) {
+  for (const plugin of newPlugins) {
     await loadPlugin({ app, cache, reporter, ...plugin })
   }
 }

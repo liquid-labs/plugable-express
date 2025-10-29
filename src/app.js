@@ -28,6 +28,9 @@ const serverVersion = pkgJSON.version
 *
 * Options:
 * - `app` (opt): passed in when reloading
+* - `explicitPlugins` (opt): array of NPM package names to explicitly load as plugins, regardless of whether they have
+*    the 'pluggable-endpoints' keyword. This supports transition from the previous separate plugins model. These plugins
+*    are loaded in addition to keyword-discovered plugins.
 * - `pluginPaths` (opt): additional (NPM package) directories from which to load additional plugins. This is in addition
 *    to the plugins found in the handler plugin directory, unless `skipCorePlugins` is true. This option is primarily
 *    used for testing.
@@ -41,6 +44,7 @@ const appInit = async(initArgs) => {
   const {
     apiSpecPath,
     defaultRegistries = [PLUGABLE_REGISTRY()],
+    explicitPlugins,
     name,
     noAPIUpdate = false,
     noRegistries,
@@ -109,18 +113,18 @@ const appInit = async(initArgs) => {
 
     if (skipCorePlugins !== true) {
       reporter.log(`Loading core plugins from '${serverHome}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : serverHome })
+      await loadPlugins(app, { cache, reporter, searchPath : serverHome, explicitPlugins })
 
       // Also load plugins from dynamicPluginInstallDir if it's different from serverHome
       if (app.ext.dynamicPluginInstallDir !== serverHome) {
         reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
-        await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir })
+        await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins })
       }
     }
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {
         reporter.log(`Loading additional plugins from '${pluginDir}'...`)
-        await loadPlugins(app, { cache, reporter, searchPath : pluginDir })
+        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins })
       }
     }
 
