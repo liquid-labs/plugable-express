@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@liquid-labs/plugable-express` is an Express-based HTTP server framework with pluggable endpoints and built-in plugin management. The server dynamically loads handler plugins from NPM packages and provides a modular architecture for extending functionality.
 
-This package is designed to be used by consumer packages which determine the plugins to install and may implement some handlers directly to provide a complete feature set. Plugin dependencies are self-contained with transitive installation handled automatically through YAML-based dependency specifications.
+Plugins are identified by the `pluggable-endpoints` keyword in their package.json. This allows the framework to automatically discover and load plugins from standard npm dependencies, simplifying the development workflow and leveraging npm's dependency management.
 
 ## Build and Development Commands
 
@@ -42,9 +42,10 @@ npm run qa
 
 `@liquid-labs/plugable-express` serves as a framework for building modular HTTP servers. In the ecosystem:
 - **This framework** provides the core plugin loading and management infrastructure
-- **Consumer packages** define standard plugin sets via the `standardPackages` parameter
-- **Final server packages** can be relatively thin wrappers that primarily specify a plugin install list
-- **Server packages** may also define special handlers, configuration, middleware, etc. for more robust implementations
+- **Plugins** are identified by the `pluggable-endpoints` keyword in their package.json
+- **Consumer packages**:
+  - add plugins as standard npm dependencies in package.json
+  - may also define special handlers, configuration, middleware, etc. for more robust implementations
 
 ### Core Components
 
@@ -52,25 +53,32 @@ npm run qa
    - Main entry point that sets up Express app with `appInit()`
    - Configures middleware (JSON, URL encoding, file upload)
    - Sets up `app.ext` object containing server configuration and state
-   - Manages plugin loading and handler registration
-   - **Standard Packages Support**: Accepts `standardPackages` parameter (array of NPM package names) that are automatically installed as plugins on server startup (src/app.js:36-37, 134-169)
-   - Key variables:
-     - `standardPackages` - Array of NPM package / plugin names to auto-install (src/app.js:36-37)
-     - `app.ext.handlerPlugins` - Currently installed plugins (src/app.js:142)
-     - `app.ext.pluginsPath` - Directory where plugins are installed (src/app.js:157)
+   - Manages plugin loading from multiple sources (see Plugin Discovery & Loading Flow)
+   - Key parameters:
+     - `serverConfigRoot` (required) - Runtime configuration and data directory (e.g., `~/.config/comply-server`). Used for settings, local configuration, and as the default `dynamicPluginInstallDir`
+     - `explicitPlugins` (optional) - Array of NPM package names to explicitly load as plugins, regardless of keyword. Supports transition from previous plugin models. Loaded in addition to keyword-discovered plugins.
+     - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `{serverConfigRoot}/dynamic-plugins`
+     - `pluginPaths` (optional) - Array of additional plugin directories for testing/development
+     - `skipCorePlugins` (optional) - If true, skips core plugin discovery (loads only `pluginPaths`)
+   - Key properties:
+     - `app.ext.handlerPlugins` - Currently loaded plugins
+     - `app.ext.dynamicPluginInstallDir` - Where dynamic plugins are installed
+   - **Server Package Root**: Core plugins are loaded from the server package directory (found via `findRoot(process.argv[1])`), NOT from `serverConfigRoot`
 
 2. **Plugin System (`src/lib/load-plugins.js`)**
-   - Plugins are NPM packages loaded from a configurable plugin directory
+   - **Keyword-Based Discovery**: Plugins are discovered by scanning npm dependencies for the `pluggable-endpoints` keyword
+   - **Local-First**: Checks local node_modules first before making network calls for performance
+   - **Duplicate Prevention**: Tracks loaded plugins across all sources to prevent loading the same plugin multiple times
    - Each plugin must export either `handlers` or `setup` (or both)
    - Plugins can register HTTP route handlers and run setup code
-   - Plugin discovery uses the `find-plugins` package to scan node_modules
-   - **Plugin Dependencies**: Dependencies are specified in `plugable-express.yaml` files within each plugin package
-   - **Transitive Installation**: Plugin dependencies are automatically resolved and installed in the correct order
+   - **Plugin Dependencies**: Use standard npm package.json dependencies/peerDependencies
+   - **Validation**: Exports must include `handlers` or `setup`, otherwise throws error
 
 3. **Plugin Management (`src/handlers/server/plugins/`)**
    - Built-in handlers for plugin installation, removal, listing, and details
-   - Support for both string dependencies (`package-name`) and object format with version specs (`{npmPackage: 'name', version: '^1.0.0'}`)
-   - Automatic installation of transitive dependencies
+   - Dynamic runtime plugin installation via HTTP endpoints
+   - Keyword verification on installation
+   - Support for version specs (`package-name@version`)
 
 4. **Handler Registration (`src/lib/register-handlers.js`)**
    - Handles registration of HTTP endpoints from plugins
@@ -113,8 +121,12 @@ Build artifacts go to:
 
 ### Plugin Development
 
-Plugins must export an object with:
+Plugins must:
+1. Include the `pluggable-endpoints` keyword in package.json
+2. Export an object with `handlers` or `setup` (or both)
+
 ```javascript
+// Example plugin structure
 export const handlers = [
   {
     method: 'GET',
@@ -129,125 +141,147 @@ export const setup = async ({ app, cache, reporter }) => {
 }
 ```
 
-#### Plugin Dependencies
+#### Plugin package.json
 
-Plugin dependencies are specified in a `plugable-express.yaml` file in the root of the plugin package:
-
-```yaml
-dependencies:
-  - package-name              # Simple package name (latest version)
-  - other-package@2.x         # Package name + version spec
-  - npmPackage: third-package # Object format with optional version
-    version: "^1.2.0"         # Semver range specification
+```json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "keywords": ["pluggable-endpoints"],
+  "dependencies": {
+    "other-plugin": "^2.0.0"
+  }
+}
 ```
 
-Dependencies support:
-- **String format**: Simple package names install the latest version
-- **Object format**: Explicit version control with semver ranges (^, ~, exact versions)
-- **Transitive resolution**: Dependencies of dependencies are automatically discovered and installed
+#### Plugin Dependencies
 
-### Plugin Installation Flow
+- Use standard npm `dependencies` or `peerDependencies` in package.json
+- NPM handles dependency resolution automatically
+- For local development, use `yalc` to link local plugin packages
 
-The plugin installation process uses an efficient multi-phase approach that discovers all dependencies BEFORE installing any packages:
+### Plugin Discovery & Loading Flow
 
-1. **Initial Installation Request** (`installPlugins` in `src/handlers/server/plugins/_lib/install-plugins.mjs`)
-   - Receives a list of NPM package names to install (with optional version ranges / tags)
+The plugin system loads plugins from multiple sources in a specific order:
+
+#### Plugin Loading Sources (in order)
+
+1. **Server Package Root** (always loaded, unless `skipCorePlugins: true`)
+   - Found via `findRoot(process.argv[1])` - the package directory of the running server executable
+   - Loads from the server package's `package.json` and `node_modules`
+   - Discovers all direct plugins and plugins of plugins (transitive dependencies)
+   - This is the primary location for standard, permanent plugins
+   - Example: `/usr/local/lib/node_modules/@sdlcforge/core-server/` (the actual server package)
+   - **Not the same as `serverConfigRoot`**: `serverConfigRoot` is for runtime configuration, not plugin loading
+
+2. **dynamicPluginInstallDir** (loaded if different from Server Package Root)
+   - Loads from a separate plugin directory's `package.json` and `node_modules`
+   - This is where dynamically installed plugins (via HTTP endpoints) are installed
+   - Defaults to `{serverConfigRoot}/dynamic-plugins` if not specified
+   - If set to a different location, plugins from both the server package root and this directory are loaded
+   - Example: `~/.config/comply-server/dynamic-plugins/` or `/var/lib/my-server/dynamic-plugins/`
+
+3. **pluginPaths** (optional array, primarily for testing)
+   - Array of additional directories to search for plugins
+   - Each directory is searched using the same discovery mechanism
+   - **Read-once operation**: Changes to these directories require explicit reload
+   - Used primarily for testing or development scenarios
+   - Example: `['/path/to/dev-plugin-1', '/path/to/dev-plugin-2']`
+
+#### Discovery Mechanism (same for all sources)
+
+For each search location, the system loads plugins in two phases:
+
+**Phase 1: Explicit Plugin Loading** (if `explicitPlugins` specified)
+1. **Uses custom filter** - Calls `findPlugins()` with a filter that ONLY accepts plugins in the `explicitPlugins` array
+2. **Scans node_modules recursively** (`scanAllDirs: true`) to find packages matching the filter
+3. **Skips keyword validation** - Does not require the `pluggable-endpoints` keyword (transition support)
+4. **Loads each explicit plugin** via dynamic import from its directory
+5. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
+6. **Executes setup** - runs plugin's `setup()` function if defined
+7. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+8. **Tracks loaded plugins** - Maintains a set of loaded plugin names to prevent duplicates
+
+**Phase 2: Keyword-Based Discovery**
+1. **Scans node_modules recursively** (`scanAllDirs: true`) using `findPlugins()` to find ALL packages with the `pluggable-endpoints` keyword
+   - This includes both direct dependencies AND transitive dependencies
+   - Example: If your server depends on plugin-a, and plugin-a depends on plugin-b (both with the keyword), BOTH are discovered
+2. **Filters already-loaded plugins** - Skips plugins already loaded in Phase 1
+3. **Optionally reads package.json** at the search path if present (for additional metadata)
+4. **Loads each discovered plugin** via dynamic import from its directory
+5. **Validates exports** - must have `handlers` or `setup` (or both), throws error otherwise
+6. **Executes setup** - runs plugin's `setup()` function if defined
+7. **Queues handlers** - registers handlers in `app.ext.pendingHandlers` for later execution
+
+**Note**: If a plugin is both explicitly listed AND has the keyword, it's only loaded once (in Phase 1).
+
+#### Handler Registration (after all plugins loaded)
+
+- Executes all pending handlers from all sources
+- Registers HTTP endpoints with Express
+- Updates `app.ext.handlerPlugins` list with metadata
+
+### Plugin Installation Flow (Dynamic Runtime Installation)
+
+For runtime plugin installation via HTTP endpoints:
+
+1. **Installation Request** (`installPlugins` in `src/handlers/server/plugins/_lib/install-plugins.mjs`)
+   - Receives list of NPM package names to install
    - Filters out already installed packages
-   - Creates plugin directory if it doesn't exist
-   - Initiates dependency discovery phase
+   - Creates plugin directory if needed
 
-2. **Dependency Discovery Phase** (`discoverAllDependencies` in `install-plugins.mjs`)
-   - Uses `npm view` to fetch package metadata WITHOUT installing packages
-   - For each package, calls `fetchPackageDependencies()` to discover all dependencies (both npm and plugin dependencies)
-   - **Validation vs Installation Separation**:
-     - Validates ALL dependencies (npm + plugin) for cycle detection by adding them to the dependency graph
-     - Only queues PLUGIN dependencies (from `plugable-express.yaml`) for recursive installation
-     - npm `package.json` dependencies are validated but NOT installed recursively
-   - Builds complete dependency graph before any installation
-   - Validates for cyclic dependencies during graph construction
-   - Returns complete set of packages to install (standardPackages + plugable-express.yaml dependencies)
+2. **Dynamic Package Installation**
+   - Uses `@liquid-labs/npm-toolkit` to install packages
+   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `{serverConfigRoot}/dynamic-plugins` - the runtime configuration directory)
+   - Standard npm dependency resolution handles transitive dependencies
+   - Installed plugins are immediately available after app reload
 
-3. **Multi-Source Dependency Fetching** (`fetchPackageDependencies` in `install-plugins.mjs`)
-   - **Version Range Resolution**: If `npm view` returns array (for ranges like `1.x`, `^2.0.0`), selects latest version using `@liquid-labs/semver-plus.rsort()`
-   - **npm package.json dependencies**: Extracted directly from `npm view` results
-   - **plugable-express.yaml dependencies**: Fetched via multi-tier approach:
-     - **GitHub-first**: `getPlugableExpressYamlFromGitHub()` attempts to fetch from `https://raw.githubusercontent.com/{owner}/{repo}/v{version}/plugable-express.yaml`
-       - Parses repository URL from package metadata
-       - Constructs raw GitHub URL using version tag (e.g., `v1.2.0`)
-       - Returns `null` if not GitHub-hosted or file doesn't exist (404)
-     - **Tarball fallback**: If GitHub fetch fails, downloads and extracts package tarball, then uses `readPackageDependencies()`
-       - Uses dynamic import for `tar` package (only loaded when fallback is needed)
-       - Downloads tarball to temp directory
-       - Extracts and reads `plugable-express.yaml` from filesystem
-       - Cleans up temp files after extraction
-   - Returns object with separate arrays: `{ npmDependencies, pluginDependencies }`
+3. **Keyword Verification**
+   - After installation, verifies each package has `pluggable-endpoints` keyword
+   - Logs warnings for packages without the keyword
 
-4. **Cyclic Dependency Prevention**
-   - Uses `dependency-graph` package to detect cycles BEFORE installation begins
-   - Validates ALL dependencies (both npm and plugin) by adding edges to dependency graph
-   - This includes npm `package.json` dependencies even though they won't be installed recursively
-   - Throws error immediately if circular dependencies are detected
-   - Prevents any packages from being installed if cycles exist
-
-5. **Bulk Installation Phase** (`installAll` in `install-plugins.mjs`)
-   - After successful discovery and validation, installs ALL packages in one operation
-   - Uses `@liquid-labs/npm-toolkit` install with complete package list
-   - Supports both local (dev) and production package installation
-   - Much more efficient than installing packages one-by-one
-
-6. **Plugin Setup Phase** (after all packages are installed)
-   - Once all plugin packages are installed, the setup process begins
-   - Uses `@liquid-labs/dependency-runner` to resolve inter-plugin dependencies
-   - Ensures plugins are initialized in the correct order based on their dependencies
+4. **App Reload**
+   - Calls reload function to refresh plugin discovery and loading
+   - New plugins become available immediately
 
 **Key Methods:**
-- `installPlugins()` - Main entry point for plugin installation (install-plugins.mjs:21-130)
-- `fetchPackageDependencies()` - Fetches dependencies from npm metadata and plugable-express.yaml (install-plugins.mjs:242-318)
-- `getPlugableExpressYamlFromGitHub()` - Attempts GitHub fetch for plugable-express.yaml (install-plugins.mjs:154-232)
-- `discoverAllDependencies()` - Recursively discovers all dependencies using npm view (install-plugins.mjs:320-380)
-- `installAll()` - Discovers dependencies and performs bulk installation (install-plugins.mjs:382-405)
-- `readPackageDependencies()` - Reads and parses plugable-express.yaml from filesystem (read-package-dependencies.mjs)
-- `load-plugins.js` - Discovers and loads installed plugins
+- `installPlugins()` - Main entry point for plugin installation (install-plugins.mjs)
+- `discoverPlugins()` - Discovers plugins by keyword (load-plugins.js)
+- `loadPlugin()` - Loads individual plugin (load-plugins.js)
+- `loadPlugins()` - Loads all discovered plugins (load-plugins.js)
 - `register-handlers.js` - Registers HTTP handlers from loaded plugins
 
 ### Installation Performance Benefits
 
-The current implementation provides significant performance advantages over traditional approaches:
+The current implementation provides several performance advantages:
 
-1. **No Redundant Installations**
-   - Dependencies are discovered via `npm view` metadata queries, not by installing packages
-   - Packages are only installed once after complete dependency graph is built
-   - Eliminates duplicate installations during discovery phase
+1. **Local-First Discovery**
+   - Checks local node_modules before making network calls
+   - Avoids redundant npm registry queries for installed packages
+   - Significantly faster startup time
 
-2. **GitHub-First Approach**
-   - For GitHub-hosted packages, fetches `plugable-express.yaml` directly from raw content URL
-   - Avoids downloading and extracting entire package tarballs when possible
-   - Significantly faster than tarball extraction for dependency discovery
+2. **Standard npm Resolution**
+   - Leverages npm's battle-tested dependency resolution
+   - No custom dependency graph or cycle detection needed
+   - Simpler, more reliable installation
 
-3. **Version Range Optimization**
-   - Intelligently resolves version ranges (e.g., `1.x`, `^2.0.0`) to latest matching version
-   - Uses semver sorting to select optimal version without trial-and-error
+3. **Keyword-Based Filtering**
+   - Lightweight check for plugin identification
+   - No need to download or parse configuration files
+   - Minimal overhead during discovery
 
-4. **Early Failure Detection**
-   - Cyclic dependencies detected during discovery phase before any installation
-   - Prevents partial installations that would need to be rolled back
-
-5. **Bulk Installation**
-   - All packages installed in single operation after discovery
-   - Reduces npm registry requests and improves parallel download efficiency
+4. **Optional Dynamic Installation**
+   - Runtime installation via HTTP endpoints for admin convenience
+   - Most use cases: plugins declared in package.json and installed via npm
 
 ### Key Dependencies
 
 - `express` - Web framework (v5.0.0-beta)
-- `@liquid-labs/npm-toolkit` - NPM package management, `view()` for metadata, and version parsing
-- `@liquid-labs/semver-plus` - Semver utilities including `rsort()` for version range resolution
+- `@liquid-labs/npm-toolkit` - NPM package management, `view()` for metadata, `install()`/`uninstall()` for package management
 - `@liquid-labs/dependency-runner` - Dependency management for plugin setup phase
 - `@liquid-labs/plugable-defaults` - Default configurations
-- `dependency-graph` - Cyclic dependency detection during installation
-- `find-plugins` - Plugin discovery in node_modules
-- `js-yaml` - YAML parsing for plugable-express.yaml files
-- `tar` - Tarball extraction (dynamic import, used as fallback for dependency discovery)
-- `https` - Native Node.js module for GitHub raw content fetching
+- `find-root` - Find project root directory
+- `js-yaml` - YAML parsing for server settings
 - Testing uses `supertest` for HTTP testing
 
 ## Code Style

@@ -7,8 +7,8 @@ import { Questioner } from '@liquid-labs/question-and-answer'
 
 import { getServerSettings } from './get-server-settings'
 
-const initServerSettings = async({ ask = false, defaultRegistries, noRegistries = false, serverHome } = {}) => {
-  const serverSettings = getServerSettings(serverHome) || {}
+const initServerSettings = async({ ask = false, defaultRegistries, noRegistries = false, serverConfigRoot } = {}) => {
+  const serverSettings = getServerSettings(serverConfigRoot) || {}
   const origSettings = structuredClone(serverSettings)
 
   const ibActions = []
@@ -50,7 +50,7 @@ const initServerSettings = async({ ask = false, defaultRegistries, noRegistries 
   }
 
   if (!isEqual(origSettings, serverSettings)) {
-    const serverSettingsPath = fsPath.join(serverHome, 'server-settings.yaml')
+    const serverSettingsPath = fsPath.join(serverConfigRoot, 'server-settings.yaml')
     writeFJSON({ file : serverSettingsPath, data : serverSettings })
   }
 

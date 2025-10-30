@@ -8,14 +8,14 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { PLUGABLE_PLAYGROUND, PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
+import { PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
-import { installPlugins } from './handlers/server/plugins/_lib/install-plugins'
+import { findOwnHome } from './lib/find-own-home'
 import { getServerSettings } from './lib/get-server-settings'
 import { initServerSettings } from './lib/init-server-settings'
-import { loadPlugin, loadPlugins, registerHandlers } from './lib'
+import { loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { Reporter } from './lib/reporter'
 
@@ -29,35 +29,39 @@ const serverVersion = pkgJSON.version
 *
 * Options:
 * - `app` (opt): passed in when reloading
+* - `serverConfigRoot` (required): runtime configuration and data directory (e.g., ~/.config/comply-server). Used for settings,
+*    local configuration, and as the default dynamicPluginInstallDir.
+* - `explicitPlugins` (opt): array of NPM package names to explicitly load as plugins, regardless of whether they have
+*    the 'pluggable-endpoints' keyword. This supports transition from the previous separate plugins model. These plugins
+*    are loaded in addition to keyword-discovered plugins.
 * - `pluginPaths` (opt): additional (NPM package) directories from which to load additional plugins. This is in addition
-*    to the plugins found in the handler plugin directory, unless `skipCorePlugins` is true. This option is primarily
+*    to the plugins found in the server package directory, unless `skipCorePlugins` is true. This option is primarily
 *    used for testing.
-* - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
-*    primarily used in conjuction with `pluginPaths` for testing.
-* - `standardPackages` (opt): an array of NPM package names that should be automatically installed as plugins when the
-*    server starts. These packages will be installed if they are not already present in the plugin directory.
+* - `skipCorePlugins` (opt): if true, then the plugins in the server package directory are NOT loaded. This option is
+*    primarily used in conjunction with `pluginPaths` for testing.
+* - `dynamicPluginInstallDir` (opt): optional directory to install dynamically loaded plugins. If not provided, plugins
+*    are installed in the `serverConfigRoot/dynamic-plugins` directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
   const {
     apiSpecPath,
-    devPaths = [PLUGABLE_PLAYGROUND()],
     defaultRegistries = [PLUGABLE_REGISTRY()],
+    explicitPlugins,
     name,
     noAPIUpdate = false,
     noRegistries,
     pluginPaths,
-    pluginsPath,
+    dynamicPluginInstallDir,
     reporter = new Reporter(),
-    serverHome,
+    serverConfigRoot = throw new Error("'serverConfigRoot' must be defined for appInit()."),
     skipCorePlugins = false,
-    standardPackages,
     version
   } = initArgs
 
-  if (serverHome === undefined) {
-    throw new Error("No 'serverHome' defined; bailing out.")
-  }
+  // Find the server package root (where the running server's package.json is)
+  // This is where core plugins are loaded from
+  const serverPackageRoot = await findOwnHome(process.argv[1])
 
   app = app || express()
 
@@ -67,31 +71,29 @@ const appInit = async(initArgs) => {
 
   // setup app.ext
   app.ext = {
-    commandPaths    : {},
-    devPaths,
-    errorsEphemeral : [],
-    errorsRetained  : [],
-    constants       : {}, // what is this? is it used?
-    handlers        : [],
-    handlerPlugins  : [],
-    localSettings   : {},
+    commandPaths            : {},
+    errorsEphemeral         : [],
+    errorsRetained          : [],
+    constants               : {}, // what is this? is it used?
+    handlers                : [],
+    handlerPlugins          : [],
+    localSettings           : {},
     name,
     noRegistries,
-    pathResolvers   : commonPathResolvers,
-    pendingHandlers : [],
-    pluginsPath,
-    serverHome,
-    serverSettings  : getServerSettings(serverHome),
+    pathResolvers           : commonPathResolvers,
+    pendingHandlers         : [],
+    dynamicPluginInstallDir : dynamicPluginInstallDir || fsPath.join(serverConfigRoot, 'dynamic-plugins'),
+    serverConfigRoot,
+    serverSettings          : getServerSettings(serverConfigRoot),
     serverVersion,
-    setupMethods    : [],
-    standardPackages,
-    teardownMethods : [],
+    setupMethods            : [],
+    teardownMethods         : [],
     version
   }
 
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
-  const localSettingsPath = fsPath.join(serverHome, 'local-settings.yaml')
+  const localSettingsPath = fsPath.join(serverConfigRoot, 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.ext.localSettings = readFJSON(localSettingsPath)
   }
@@ -109,66 +111,32 @@ const appInit = async(initArgs) => {
   // from here on out, we need to release the cache if we run into an exception which prevents us from returning it
   // (in which case it is the responsibility of the caller to release the cache)
   try {
-    const options = { cache, pluginsPath, reporter }
-
     reporter.log('Loading core handlers...')
-    registerHandlers(app, Object.assign(
-      {},
-      options,
-      { name : 'core', npmName : '@liquid-labs/plugable-express', handlers }
-    ))
+    registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
+
+    // Track loaded plugins across all sources to prevent duplicates
+    const loadedPluginNames = new Set()
 
     if (skipCorePlugins !== true) {
-      await loadPlugins(app, options)
+      reporter.log(`Loading core plugins from '${serverPackageRoot}'...`)
+      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot, explicitPlugins, loadedPluginNames })
     }
+
+    // Also load plugins from dynamicPluginInstallDir if it's different from serverPackageRoot
+    if (app.ext.dynamicPluginInstallDir !== serverPackageRoot) {
+      reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
+      await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins, loadedPluginNames })
+    }
+
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {
-        const packageJSON = JSON.parse(await fs.readFile(fsPath.join(pluginDir, 'package.json'), { encoding : 'utf8' }))
-        await loadPlugin({ app, cache, reporter, dir : pluginDir, pkg : packageJSON })
+        reporter.log(`Loading additional plugins from '${pluginDir}'...`)
+        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins, loadedPluginNames })
       }
     }
 
     for (const pendingHandler of app.ext.pendingHandlers) {
       pendingHandler()
-    }
-
-    // Add standard packages setup method if standardPackages are provided
-    if (standardPackages && standardPackages.length > 0) {
-      // Create a setup method to install standard packages
-      const installStandardPackages = {
-        name : 'install-standard-packages',
-        func : async({ app, cache, reporter }) => {
-          const installedPlugins = app.ext.handlerPlugins || []
-          const installedPackageNames = installedPlugins.map(plugin => plugin.npmName)
-
-          // Determine which standard packages need to be installed
-          const packagesToInstall = standardPackages.filter(pkg => !installedPackageNames.includes(pkg))
-
-          if (packagesToInstall.length > 0) {
-            reporter.log(`Installing ${packagesToInstall.length} standard packages: ${packagesToInstall.join(', ')}`)
-
-            await installPlugins({
-              app,
-              cache,
-              hostVersion  : app.ext.serverVersion,
-              installedPlugins,
-              npmNames     : packagesToInstall,
-              pluginPkgDir : app.ext.pluginsPath,
-              pluginType   : 'server',
-              reloadFunc   : () => app.reload(),
-              reporter
-            })
-
-            reporter.log('Standard packages installation complete.')
-          }
-          else {
-            reporter.log('All standard packages already installed.')
-          }
-        }
-      }
-
-      // Insert at the beginning of setupMethods to ensure standard packages are installed first
-      app.ext.setupMethods.unshift(installStandardPackages)
     }
 
     // log errors
@@ -229,8 +197,8 @@ const appInit = async(initArgs) => {
       }
     })
 
-    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverHome })
-    app.ext.serverSettings = getServerSettings(serverHome)
+    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverConfigRoot })
+    app.ext.serverSettings = getServerSettings(serverConfigRoot)
 
     const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
     for (const setupMethod of app.ext.setupMethods) {
@@ -241,7 +209,7 @@ const appInit = async(initArgs) => {
 
     if (noAPIUpdate !== true) {
       reporter.log('Registering API...')
-      const apiSpecFile = apiSpecPath || fsPath.join(serverHome, 'core-api.json')
+      const apiSpecFile = apiSpecPath || fsPath.join(serverConfigRoot, 'core-api.json')
       await fs.writeFile(apiSpecFile, JSON.stringify(app.ext.handlers, null, '  '))
     }
 
