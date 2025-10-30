@@ -131,4 +131,49 @@ describe('app', () => {
       expect(body).toEqual(fooOutput)
     })
   })
+
+  describe('duplicate plugin detection across sources', () => {
+    let app, cache
+    const testOptions = mockLogOptions()
+
+    beforeAll(async() => {
+      // Set up multiple plugin paths that contain the same plugin (foo)
+      // This simulates the scenario where a plugin exists in both serverPackageRoot and dynamicPluginInstallDir
+      testOptions.pluginPaths = [pluginsPath, pluginsPath] // Same path twice to simulate duplicate
+      testOptions.noAPIUpdate = true
+      testOptions.skipCorePlugins = false;
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+    })
+
+    afterAll(() => {
+      delete process.env.LIQ_PLAYGROUND
+      cache.release()
+    })
+
+    test('prevents duplicate plugin loading across multiple sources', () => {
+      // Verify that 'foo' plugin is only loaded once despite appearing in multiple search paths
+      const fooPluginCount = app.ext.handlerPlugins.filter(p => p.npmName === 'foo').length
+      expect(fooPluginCount).toBe(1)
+    })
+
+    test('logs warning when duplicate plugin is found in another source', () => {
+      const warningLogs = testOptions.logs.filter((msg) =>
+        msg.includes('Warning') && msg.includes('already loaded from another source'))
+      expect(warningLogs.length).toBeGreaterThan(0)
+    })
+
+    test('includes plugin name in duplicate warning message', () => {
+      const fooWarningLogs = testOptions.logs.filter((msg) =>
+        msg.includes('Warning') && msg.includes('foo') && msg.includes('already loaded'))
+      expect(fooWarningLogs.length).toBeGreaterThan(0)
+    })
+
+    test('plugin from first source still works correctly', async() => {
+      // Verify that the plugin loaded from the first source still functions
+      const { fooOutput } = await import(fooPath)
+      const { status, body } = await request(app).get('/foo')
+      expect(status).toBe(200)
+      expect(body).toEqual(fooOutput)
+    })
+  })
 })

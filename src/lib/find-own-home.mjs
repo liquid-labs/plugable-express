@@ -63,8 +63,8 @@ const findOwnHome = async(executablePath) => {
           throw new Error(`Package root found at '${serverPackageRoot}' but package.json does not exist`)
         }
       }
-      else {
-        throw new Error(`Could not find package.json in any parent directory of '${executablePath}'`)
+      else { // it's not a symlink but we already looked for the package root based on the literal path
+        throw new Error(`Package root could not be resolved from '${executablePath}' directly or as a symlink`)
       }
     }
     catch (error) {

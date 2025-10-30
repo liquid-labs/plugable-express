@@ -68,6 +68,7 @@ npm run qa
 2. **Plugin System (`src/lib/load-plugins.js`)**
    - **Keyword-Based Discovery**: Plugins are discovered by scanning npm dependencies for the `pluggable-endpoints` keyword
    - **Local-First**: Checks local node_modules first before making network calls for performance
+   - **Duplicate Prevention**: Tracks loaded plugins across all sources to prevent loading the same plugin multiple times
    - Each plugin must export either `handlers` or `setup` (or both)
    - Plugins can register HTTP route handlers and run setup code
    - **Plugin Dependencies**: Use standard npm package.json dependencies/peerDependencies
@@ -176,7 +177,7 @@ The plugin system loads plugins from multiple sources in a specific order:
 2. **dynamicPluginInstallDir** (loaded if different from Server Package Root)
    - Loads from a separate plugin directory's `package.json` and `node_modules`
    - This is where dynamically installed plugins (via HTTP endpoints) are installed
-   - Defaults to `serverHome` if not specified
+   - Defaults to `{serverHome}/dynamic-plugins` if not specified
    - If set to a different location, plugins from both the server package root and this directory are loaded
    - Example: `~/.config/comply-server/` or `/var/lib/my-server/dynamic-plugins/`
 
@@ -229,9 +230,9 @@ For runtime plugin installation via HTTP endpoints:
    - Filters out already installed packages
    - Creates plugin directory if needed
 
-2. **Package Installation**
+2. **Dynamic Package Installation**
    - Uses `@liquid-labs/npm-toolkit` to install packages
-   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `serverHome` - the runtime configuration directory)
+   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `{serverHome}/dynamic-plugins` - the runtime configuration directory)
    - Standard npm dependency resolution handles transitive dependencies
    - Installed plugins are immediately available after app reload
 

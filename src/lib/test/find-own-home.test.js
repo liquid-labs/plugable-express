@@ -154,7 +154,7 @@ describe('findOwnHome', () => {
       fs.realpath.mockResolvedValue(execPath) // Not a symlink
 
       await expect(findOwnHome(execPath)).rejects.toThrow(
-        "Could not find package.json in any parent directory of '/some/invalid/path.js'"
+        "Could not determine server package root from '/some/invalid/path.js'"
       )
     })
 

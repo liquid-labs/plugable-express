@@ -114,21 +114,24 @@ const appInit = async(initArgs) => {
     reporter.log('Loading core handlers...')
     registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
 
+    // Track loaded plugins across all sources to prevent duplicates
+    const loadedPluginNames = new Set()
+
     if (skipCorePlugins !== true) {
       reporter.log(`Loading core plugins from '${serverPackageRoot}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot, explicitPlugins })
+      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot, explicitPlugins, loadedPluginNames })
     }
 
     // Also load plugins from dynamicPluginInstallDir if it's different from serverPackageRoot
     if (app.ext.dynamicPluginInstallDir !== serverPackageRoot) {
       reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins })
+      await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins, loadedPluginNames })
     }
 
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {
         reporter.log(`Loading additional plugins from '${pluginDir}'...`)
-        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins })
+        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins, loadedPluginNames })
       }
     }
 

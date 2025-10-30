@@ -94,9 +94,18 @@ const discoverExplicitPlugins = async(searchPath, explicitPlugins, reporter) => 
 /**
  * Given an app, cache, reporter, and optional plugin path, loads plugins.
  * If dynamicPluginInstallDir is provided, searches there. Otherwise searches in the current working directory.
+ * @param {Object} app - Express app instance
+ * @param {Object} options - Loading options
+ * @param {Object} options.cache - Cache instance
+ * @param {Object} options.reporter - Reporter for logging
+ * @param {string} options.searchPath - Directory to search for plugins
+ * @param {Array<string>} options.explicitPlugins - Optional array of package names to explicitly load
+ * @param {Set<string>} options.loadedPluginNames - Optional Set to track loaded plugins across multiple calls
+ * @returns {Promise<void>}
  */
-const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins }) => {
-  const loadedPluginNames = new Set()
+const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins, loadedPluginNames }) => {
+  // Use provided Set or create a new one for this call
+  const pluginNames = loadedPluginNames || new Set()
 
   // First, load explicit plugins if specified
   if (explicitPlugins?.length > 0) {
@@ -108,8 +117,16 @@ const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins })
       : `Found ${explicitResults.length} explicit plugins.`)
 
     for (const plugin of explicitResults) {
+      const pluginName = plugin.pkg.name
+
+      // Check for duplicates and warn
+      if (pluginNames.has(pluginName)) {
+        reporter.log(`Warning: Plugin '${pluginName}' was already loaded from another source, skipping duplicate from '${searchPath}'`)
+        continue
+      }
+
       await loadPlugin({ app, cache, reporter, ...plugin })
-      loadedPluginNames.add(plugin.pkg.name)
+      pluginNames.add(pluginName)
     }
   }
 
@@ -118,7 +135,19 @@ const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins })
   const keywordPlugins = await discoverPluginsByKeyword(searchPath, reporter)
 
   // Filter out already-loaded plugins to avoid duplicates
-  const newPlugins = keywordPlugins.filter(p => !loadedPluginNames.has(p.pkg.name))
+  const duplicates = []
+  const newPlugins = keywordPlugins.filter(p => {
+    if (pluginNames.has(p.pkg.name)) {
+      duplicates.push(p.pkg.name)
+      return false
+    }
+    return true
+  })
+
+  // Warn about duplicates
+  if (duplicates.length > 0) {
+    reporter.log(`Warning: Found ${duplicates.length} plugin(s) already loaded from another source, skipping: ${duplicates.join(', ')}`)
+  }
 
   reporter.log(newPlugins.length === 0
     ? 'No additional keyword-based plugins found.'
@@ -126,6 +155,7 @@ const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins })
 
   for (const plugin of newPlugins) {
     await loadPlugin({ app, cache, reporter, ...plugin })
+    pluginNames.add(plugin.pkg.name)
   }
 }
 
