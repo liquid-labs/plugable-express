@@ -18,7 +18,7 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
   }
 
   if (setup !== undefined) reporter.log(`Running setup for ${npmName}@${version} plugin...`)
-  let setupData = setup?.({ app, cache, reporter })
+  let setupData = setup?.({ app, cache, reporter, serverConfigRoot : app.ext.serverConfigRoot })
   if (setupData?.then !== undefined) {
     setupData = await setupData
   }
