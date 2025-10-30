@@ -57,7 +57,7 @@ npm run qa
    - Key parameters:
      - `serverHome` (required) - Runtime configuration and data directory (e.g., `~/.config/comply-server`). Used for settings, local configuration, and as the default `dynamicPluginInstallDir`
      - `explicitPlugins` (optional) - Array of NPM package names to explicitly load as plugins, regardless of keyword. Supports transition from previous plugin models. Loaded in addition to keyword-discovered plugins.
-     - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `serverHome`
+     - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `{serverHome}/dynamic-plugins`
      - `pluginPaths` (optional) - Array of additional plugin directories for testing/development
      - `skipCorePlugins` (optional) - If true, skips core plugin discovery (loads only `pluginPaths`)
    - Key properties:
