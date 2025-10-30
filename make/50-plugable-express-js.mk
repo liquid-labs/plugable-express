@@ -2,18 +2,18 @@
 # https://npmjs.com/package/@liquid-labs/catalyst-builder-node for further details
 
 #####
-# build dist/plugable-express.js
+# build dist/pluggable-express.js
 #####
 
-CATALYST_PLUGABLE_EXPRESS_JS:=$(DIST)/plugable-express.js
-CATALYST_PLUGABLE_EXPRESS_JS_ENTRY=$(SRC)/index.js
-BUILD_TARGETS+=$(CATALYST_PLUGABLE_EXPRESS_JS)
+CATALYST_PLUGGABLE_EXPRESS_JS:=$(DIST)/pluggable-express.js
+CATALYST_PLUGGABLE_EXPRESS_JS_ENTRY=$(SRC)/index.js
+BUILD_TARGETS+=$(CATALYST_PLUGGABLE_EXPRESS_JS)
 
-$(CATALYST_PLUGABLE_EXPRESS_JS): package.json $(CATALYST_ALL_NON_TEST_JS_FILES_SRC)
-	JS_BUILD_TARGET=$(CATALYST_PLUGABLE_EXPRESS_JS_ENTRY) \
+$(CATALYST_PLUGGABLE_EXPRESS_JS): package.json $(CATALYST_ALL_NON_TEST_JS_FILES_SRC)
+	JS_BUILD_TARGET=$(CATALYST_PLUGGABLE_EXPRESS_JS_ENTRY) \
 	  JS_OUT=$@ \
 	  $(CATALYST_ROLLUP) --config $(CATALYST_ROLLUP_CONFIG)
 
 #####
-# end dist/plugable-express.js
+# end dist/pluggable-express.js
 #####

@@ -1,8 +1,8 @@
 {
-  "name": "@liquid-labs/plugable-express",
+  "name": "@liquid-labs/pluggable-express",
   "version": "1.0.0-alpha.55",
   "description": "An Express based web server with ",
-  "main": "dist/plugable-express.js",
+  "main": "dist/pluggable-express.js",
   "scripts": {
     "build": "make",
     "lint": "make lint",
@@ -23,13 +23,13 @@
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
   "license": "UNLICENSED",
   "repository": {
-    "url": "git+ssh://git@github.com/liquid-labs/plugable-express.git",
+    "url": "git+ssh://git@github.com/liquid-labs/pluggable-express.git",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/liquid-labs/plugable-express/issues"
+    "url": "https://github.com/liquid-labs/pluggable-express/issues"
   },
-  "homepage": "https://github.com/liquid-labs/plugable-express#readme",
+  "homepage": "https://github.com/liquid-labs/pluggable-express#readme",
   "liq": {
     "orgBase": "git@github.com:liquid-labs/liquid-labs.git",
     "packageType": "node|server"
