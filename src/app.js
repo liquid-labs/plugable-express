@@ -29,7 +29,7 @@ const serverVersion = pkgJSON.version
 *
 * Options:
 * - `app` (opt): passed in when reloading
-* - `serverHome` (required): runtime configuration and data directory (e.g., ~/.config/comply-server). Used for settings,
+* - `serverConfigRoot` (required): runtime configuration and data directory (e.g., ~/.config/comply-server). Used for settings,
 *    local configuration, and as the default dynamicPluginInstallDir.
 * - `explicitPlugins` (opt): array of NPM package names to explicitly load as plugins, regardless of whether they have
 *    the 'pluggable-endpoints' keyword. This supports transition from the previous separate plugins model. These plugins
@@ -40,7 +40,7 @@ const serverVersion = pkgJSON.version
 * - `skipCorePlugins` (opt): if true, then the plugins in the server package directory are NOT loaded. This option is
 *    primarily used in conjunction with `pluginPaths` for testing.
 * - `dynamicPluginInstallDir` (opt): optional directory to install dynamically loaded plugins. If not provided, plugins
-*    are installed in the `serverHome` directory.
+*    are installed in the `serverConfigRoot/dynamic-plugins` directory.
 */
 const appInit = async(initArgs) => {
   let { app } = initArgs
@@ -54,7 +54,7 @@ const appInit = async(initArgs) => {
     pluginPaths,
     dynamicPluginInstallDir,
     reporter = new Reporter(),
-    serverHome = throw new Error("'serverHome' must be defined for appInit()."),
+    serverConfigRoot = throw new Error("'serverConfigRoot' must be defined for appInit()."),
     skipCorePlugins = false,
     version
   } = initArgs
@@ -82,9 +82,9 @@ const appInit = async(initArgs) => {
     noRegistries,
     pathResolvers           : commonPathResolvers,
     pendingHandlers         : [],
-    dynamicPluginInstallDir : dynamicPluginInstallDir || fsPath.join(serverHome, 'dynamic-plugins'),
-    serverHome,
-    serverSettings          : getServerSettings(serverHome),
+    dynamicPluginInstallDir : dynamicPluginInstallDir || fsPath.join(serverConfigRoot, 'dynamic-plugins'),
+    serverConfigRoot,
+    serverSettings          : getServerSettings(serverConfigRoot),
     serverVersion,
     setupMethods            : [],
     teardownMethods         : [],
@@ -93,7 +93,7 @@ const appInit = async(initArgs) => {
 
   // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
   // itself incorrect as we should specify by registry
-  const localSettingsPath = fsPath.join(serverHome, 'local-settings.yaml')
+  const localSettingsPath = fsPath.join(serverConfigRoot, 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.ext.localSettings = readFJSON(localSettingsPath)
   }
@@ -197,8 +197,8 @@ const appInit = async(initArgs) => {
       }
     })
 
-    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverHome })
-    app.ext.serverSettings = getServerSettings(serverHome)
+    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverConfigRoot })
+    app.ext.serverSettings = getServerSettings(serverConfigRoot)
 
     const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })
     for (const setupMethod of app.ext.setupMethods) {
@@ -209,7 +209,7 @@ const appInit = async(initArgs) => {
 
     if (noAPIUpdate !== true) {
       reporter.log('Registering API...')
-      const apiSpecFile = apiSpecPath || fsPath.join(serverHome, 'core-api.json')
+      const apiSpecFile = apiSpecPath || fsPath.join(serverConfigRoot, 'core-api.json')
       await fs.writeFile(apiSpecFile, JSON.stringify(app.ext.handlers, null, '  '))
     }
 

@@ -90,11 +90,11 @@ describe('add plugin handler', () => {
       [null, '/test/plugins'],
       ['/test/plugins', '/test/plugins']
     ])('uses %s when dynamicPluginInstallDir is %s', async(testValue, expectedValue) => {
-      const originalServerHome = mockApp.ext.serverHome
+      const originalServerConfigRoot = mockApp.ext.serverConfigRoot
       const originalDynamicPluginInstallDir = mockApp.ext.dynamicPluginInstallDir
       try {
         mockApp.ext.dynamicPluginInstallDir = testValue
-        mockApp.ext.serverHome = resolve('/test/plugins')
+        mockApp.ext.serverConfigRoot = resolve('/test/plugins')
 
         const handler = func({ app : mockApp, reporter : mockReporter })
         await handler(mockReq, mockRes)
@@ -108,7 +108,7 @@ describe('add plugin handler', () => {
         })
       }
       finally {
-        mockApp.ext.serverHome = originalServerHome
+        mockApp.ext.serverConfigRoot = originalServerConfigRoot
         mockApp.ext.dynamicPluginInstallDir = originalDynamicPluginInstallDir
       }
     })

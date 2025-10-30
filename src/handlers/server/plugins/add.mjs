@@ -27,7 +27,7 @@ const func = ({ app, reporter }) => async(req, res) => {
   const installedPlugins = app.ext.handlerPlugins || []
   const { npmNames } = req.vars
   // Use dynamicPluginInstallDir if provided, otherwise use current working directory
-  const pluginPkgDir = app.ext.dynamicPluginInstallDir || app.ext.serverHome
+  const pluginPkgDir = app.ext.dynamicPluginInstallDir || app.ext.serverConfigRoot
 
   const { msg, data } = await installPlugins({
     installedPlugins,
