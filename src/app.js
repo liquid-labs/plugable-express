@@ -8,13 +8,11 @@ import findRoot from 'find-root'
 
 import { DependencyRunner } from '@liquid-labs/dependency-runner'
 import { readFJSON } from '@liquid-labs/federated-json'
-import { PLUGABLE_REGISTRY } from '@liquid-labs/plugable-defaults'
 import { WeakCache } from '@liquid-labs/weak-cache'
 
 import { handlers } from './handlers'
 import { findOwnHome } from './lib/find-own-home'
 import { getServerSettings } from './lib/get-server-settings'
-import { initServerSettings } from './lib/init-server-settings'
 import { loadPlugins, registerHandlers } from './lib'
 import { commonPathResolvers } from './lib/path-resolvers'
 import { Reporter } from './lib/reporter'
@@ -46,11 +44,9 @@ const appInit = async(initArgs) => {
   let { app } = initArgs
   const {
     apiSpecPath,
-    defaultRegistries = [PLUGABLE_REGISTRY()],
     explicitPlugins,
     name,
     noAPIUpdate = false,
-    noRegistries,
     pluginPaths,
     dynamicPluginInstallDir,
     reporter = new Reporter(),
@@ -79,7 +75,6 @@ const appInit = async(initArgs) => {
     handlerPlugins          : [],
     localSettings           : {},
     name,
-    noRegistries,
     pathResolvers           : commonPathResolvers,
     pendingHandlers         : [],
     dynamicPluginInstallDir : dynamicPluginInstallDir || fsPath.join(serverConfigRoot, 'dynamic-plugins'),
@@ -91,8 +86,7 @@ const appInit = async(initArgs) => {
     version
   }
 
-  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there, which is
-  // itself incorrect as we should specify by registry
+  // drop 'local-settings.yaml', it's really for the CLI, though we do currently keep 'OTP required' there
   const localSettingsPath = fsPath.join(serverConfigRoot, 'local-settings.yaml')
   if (existsSync(localSettingsPath)) {
     app.ext.localSettings = readFJSON(localSettingsPath)
@@ -197,7 +191,6 @@ const appInit = async(initArgs) => {
       }
     })
 
-    await initServerSettings({ defaultRegistries, noRegistries : app.ext.noRegistries, serverConfigRoot })
     app.ext.serverSettings = getServerSettings(serverConfigRoot)
 
     const depRunner = new DependencyRunner({ runArgs : { app, cache, reporter }, waitTillComplete : true })

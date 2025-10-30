@@ -29,7 +29,7 @@ describe('app', () => {
     let cache
 
     beforeAll(async() => {
-      ({ cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+      ({ cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
     })
 
     afterAll(() => {
@@ -57,7 +57,7 @@ describe('app', () => {
       testOptions.pluginPaths = [pluginsPath]
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
     })
 
     afterAll(() => {
@@ -98,7 +98,7 @@ describe('app', () => {
       testOptions.explicitPlugins = ['foo']
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
     })
 
     afterAll(() => {
@@ -142,7 +142,7 @@ describe('app', () => {
       testOptions.pluginPaths = [pluginsPath, pluginsPath] // Same path twice to simulate duplicate
       testOptions.noAPIUpdate = true
       testOptions.skipCorePlugins = false;
-      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true, noRegistries : true })))
+      ({ app, cache } = await appInit(Object.assign(testOptions, { noAPIUpdate : true })))
     })
 
     afterAll(() => {

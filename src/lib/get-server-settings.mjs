@@ -11,9 +11,7 @@ const getServerSettings = (serverConfigRoot) => {
     return readFJSON(serverSettingsPath) || {}
   }
   else {
-    const serverSettings = {
-      registries : []
-    }
+    const serverSettings = {}
 
     writeFJSON({ file : serverSettingsPath, data : serverSettings })
 
