@@ -87,7 +87,6 @@ npm run qa
    - Provides automatic API documentation generation
 
 5. **Server Settings Management**
-   - `initServerSettings()` - initializes server configuration
    - `getServerSettings()` - retrieves current settings
    - Settings stored in YAML files in the server home directory
 
@@ -279,7 +278,6 @@ The current implementation provides several performance advantages:
 - `express` - Web framework (v5.0.0-beta)
 - `@liquid-labs/npm-toolkit` - NPM package management, `view()` for metadata, `install()`/`uninstall()` for package management
 - `@liquid-labs/dependency-runner` - Dependency management for plugin setup phase
-- `@liquid-labs/plugable-defaults` - Default configurations
 - `find-root` - Find project root directory
 - `js-yaml` - YAML parsing for server settings
 - Testing uses `supertest` for HTTP testing
