@@ -28,11 +28,13 @@ const serverVersion = pkgJSON.version
 *
 * Options:
 * - `app` (opt): passed in when reloading
+* - `serverHome` (required): runtime configuration and data directory (e.g., ~/.config/comply-server). Used for settings,
+*    local configuration, and as the default dynamicPluginInstallDir.
 * - `pluginPaths` (opt): additional (NPM package) directories from which to load additional plugins. This is in addition
-*    to the plugins found in the handler plugin directory, unless `skipCorePlugins` is true. This option is primarily
+*    to the plugins found in the server package directory, unless `skipCorePlugins` is true. This option is primarily
 *    used for testing.
-* - `skipCorePlugins` (opt): if true, then the plugins in the handler plugin directory are NOT loaded. This option is
-*    primarily used in conjuction with `pluginPaths` for testing.
+* - `skipCorePlugins` (opt): if true, then the plugins in the server package directory are NOT loaded. This option is
+*    primarily used in conjunction with `pluginPaths` for testing.
 * - `dynamicPluginInstallDir` (opt): optional directory to install dynamically loaded plugins. If not provided, plugins
 *    are installed in the `serverHome` directory.
 */
@@ -55,6 +57,10 @@ const appInit = async(initArgs) => {
   if (serverHome === undefined) {
     throw new Error("No 'serverHome' defined; bailing out.")
   }
+
+  // Find the server package root (where the running server's package.json is)
+  // This is where core plugins are loaded from
+  const serverPackageRoot = findRoot(process.argv[1])
 
   app = app || express()
 
@@ -108,11 +114,11 @@ const appInit = async(initArgs) => {
     registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
 
     if (skipCorePlugins !== true) {
-      reporter.log(`Loading core plugins from '${serverHome}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : serverHome })
+      reporter.log(`Loading core plugins from '${serverPackageRoot}'...`)
+      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot })
 
-      // Also load plugins from dynamicPluginInstallDir if it's different from serverHome
-      if (app.ext.dynamicPluginInstallDir !== serverHome) {
+      // Also load plugins from dynamicPluginInstallDir if it's different from serverPackageRoot
+      if (app.ext.dynamicPluginInstallDir !== serverPackageRoot) {
         reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
         await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir })
       }

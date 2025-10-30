@@ -39,7 +39,7 @@
     "@liquid-labs/catalyst-resource-eslint": "^1.0.0-alpha.1",
     "@liquid-labs/catalyst-resource-jest": "^1.0.0-alpha.1",
     "@liquid-labs/federated-json": "^1.0.0-alpha.33",
-    "@liquid-labs/liq-test-lib": "file:.yalc/@liquid-labs/liq-test-lib",
+    "@liquid-labs/liq-test-lib": "^1.0.0-alpha.19",
     "@liquid-labs/weak-cache": "^1.0.0-alpha.1",
     "http-errors": "^2.0.0",
     "lodash.omit": "^4.5.0",

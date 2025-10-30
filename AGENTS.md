@@ -55,13 +55,14 @@ npm run qa
    - Sets up `app.ext` object containing server configuration and state
    - Manages plugin loading from multiple sources (see Plugin Discovery & Loading Flow)
    - Key parameters:
-     - `serverHome` (required) - Server package directory, always searched for plugins
+     - `serverHome` (required) - Runtime configuration and data directory (e.g., `~/.config/comply-server`). Used for settings, local configuration, and as the default `dynamicPluginInstallDir`
      - `dynamicPluginInstallDir` (optional) - Additional plugin directory, defaults to `serverHome`
      - `pluginPaths` (optional) - Array of additional plugin directories for testing/development
-     - `skipCorePlugins` (optional) - If true, skips plugin discovery (loads only `pluginPaths`)
+     - `skipCorePlugins` (optional) - If true, skips core plugin discovery (loads only `pluginPaths`)
    - Key properties:
      - `app.ext.handlerPlugins` - Currently loaded plugins
      - `app.ext.dynamicPluginInstallDir` - Where dynamic plugins are installed
+   - **Server Package Root**: Core plugins are loaded from the server package directory (found via `findRoot(process.argv[1])`), NOT from `serverHome`
 
 2. **Plugin System (`src/lib/load-plugins.js`)**
    - **Keyword-Based Discovery**: Plugins are discovered by scanning npm dependencies for the `pluggable-endpoints` keyword
@@ -163,18 +164,20 @@ The plugin system loads plugins from multiple sources in a specific order:
 
 #### Plugin Loading Sources (in order)
 
-1. **serverHome** (always loaded, unless `skipCorePlugins: true`)
+1. **Server Package Root** (always loaded, unless `skipCorePlugins: true`)
+   - Found via `findRoot(process.argv[1])` - the package directory of the running server executable
    - Loads from the server package's `package.json` and `node_modules`
    - Discovers all direct plugins and plugins of plugins (transitive dependencies)
    - This is the primary location for standard, permanent plugins
-   - Example: `/path/to/my-server/` with its own package.json
+   - Example: `/usr/local/lib/node_modules/@sdlcforge/core-server/` (the actual server package)
+   - **Not the same as `serverHome`**: `serverHome` is for runtime configuration, not plugin loading
 
-2. **dynamicPluginInstallDir** (loaded if different from `serverHome`)
+2. **dynamicPluginInstallDir** (loaded if different from Server Package Root)
    - Loads from a separate plugin directory's `package.json` and `node_modules`
    - This is where dynamically installed plugins (via HTTP endpoints) are installed
    - Defaults to `serverHome` if not specified
-   - If set to a different location, both directories are searched
-   - Example: `/var/lib/my-server/dynamic-plugins/`
+   - If set to a different location, plugins from both the server package root and this directory are loaded
+   - Example: `~/.config/comply-server/` or `/var/lib/my-server/dynamic-plugins/`
 
 3. **pluginPaths** (optional array, primarily for testing)
    - Array of additional directories to search for plugins
@@ -213,7 +216,7 @@ For runtime plugin installation via HTTP endpoints:
 
 2. **Package Installation**
    - Uses `@liquid-labs/npm-toolkit` to install packages
-   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `serverHome`)
+   - Installs to `app.ext.dynamicPluginInstallDir` (which defaults to `serverHome` - the runtime configuration directory)
    - Standard npm dependency resolution handles transitive dependencies
    - Installed plugins are immediately available after app reload
 
