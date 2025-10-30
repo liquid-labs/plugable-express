@@ -32,7 +32,7 @@ const startServer = async({
       reporter.log('Server shut down.')
     })
 
-    // see https://github.com/liquid-labs/plugable-express/issues/211
+    // see https://github.com/liquid-labs/pluggable-express/issues/211
     process.exit()
   })
 

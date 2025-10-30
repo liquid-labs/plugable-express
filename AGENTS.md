@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`@liquid-labs/plugable-express` is an Express-based HTTP server framework with pluggable endpoints and built-in plugin management. The server dynamically loads handler plugins from NPM packages and provides a modular architecture for extending functionality.
+`@liquid-labs/pluggable-express` is an Express-based HTTP server framework with pluggable endpoints and built-in plugin management. The server dynamically loads handler plugins from NPM packages and provides a modular architecture for extending functionality.
 
 Plugins are identified by the `pluggable-endpoints` keyword in their package.json. This allows the framework to automatically discover and load plugins from standard npm dependencies, simplifying the development workflow and leveraging npm's dependency management.
 
@@ -40,7 +40,7 @@ npm run qa
 
 ### Framework Ecosystem
 
-`@liquid-labs/plugable-express` serves as a framework for building modular HTTP servers. In the ecosystem:
+`@liquid-labs/pluggable-express` serves as a framework for building modular HTTP servers. In the ecosystem:
 - **This framework** provides the core plugin loading and management infrastructure
 - **Plugins** are identified by the `pluggable-endpoints` keyword in their package.json
 - **Consumer packages**:

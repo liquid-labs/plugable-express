@@ -8,7 +8,7 @@ const COMMAND_COUNT = 13
 const HELP_COUNT = 15
 
 const defaultTestOptions = ({
-  serverConfigRoot = fsPath.join(os.tmpdir(), 'plugable-express-' + Math.round(Math.random() * 10000000000000000)),
+  serverConfigRoot = fsPath.join(os.tmpdir(), 'pluggable-express-' + Math.round(Math.random() * 10000000000000000)),
   skipCorePlugins = true,
   reporter = new Reporter({ silent : true }),
   useDefaultSettings = true,

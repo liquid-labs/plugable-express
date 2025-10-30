@@ -106,7 +106,7 @@ const appInit = async(initArgs) => {
   // (in which case it is the responsibility of the caller to release the cache)
   try {
     reporter.log('Loading core handlers...')
-    registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
+    registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/pluggable-express', handlers })
 
     // Track loaded plugins across all sources to prevent duplicates
     const loadedPluginNames = new Set()
