@@ -60,7 +60,33 @@ const appInit = async(initArgs) => {
 
   // Find the server package root (where the running server's package.json is)
   // This is where core plugins are loaded from
-  const serverPackageRoot = findRoot(process.argv[1])
+  let serverPackageRoot = findRoot(process.argv[1])
+  const serverPackageJsonPath = fsPath.join(serverPackageRoot, 'package.json')
+  console.log('serverPackageJsonPath', serverPackageJsonPath, '\nserverPackageRoot', serverPackageRoot, '\nprocess.argv[1]', process.argv[1]) // DEBUG
+  if (!serverPackageRoot ||!existsSync(serverPackageJsonPath)) {
+    // it might be a symlink
+    const target = await fs.readlink(process.argv[1])
+    console.log('target', target) // DEBUG
+    const targetDir = fsPath.dirname(target)
+    let absTargetDir
+    if (targetDir.startsWith(fsPath.sep)) {
+      absTargetDir = targetDir
+    }
+    else {
+      absTargetDir = fsPath.resolve(fsPath.join(fsPath.dirname(process.argv[1]), targetDir))
+    }
+    console.log('absTargetDir', absTargetDir) // DEBUG
+    const targetRoot = findRoot(absTargetDir)
+    console.log('targetRoot', targetRoot) // DEBUG
+    if (targetRoot) {
+      const targetJsonPath = fsPath.join(targetRoot, 'package.json')
+      console.log('targetJsonPath', targetJsonPath) // DEBUG
+      if (existsSync(targetJsonPath)) {
+        console.log('targetJsonPath exists', targetJsonPath) // DEBUG
+        serverPackageRoot = targetRoot
+      }
+    }
+  }
 
   app = app || express()
 
@@ -114,6 +140,7 @@ const appInit = async(initArgs) => {
     registerHandlers(app, { cache, reporter, name : 'core', npmName : '@liquid-labs/plugable-express', handlers })
 
     if (skipCorePlugins !== true) {
+      console.log('argv', process.argv) // DEBUG
       reporter.log(`Loading core plugins from '${serverPackageRoot}'...`)
       await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot })
 
