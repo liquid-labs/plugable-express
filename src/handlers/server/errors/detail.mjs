@@ -64,12 +64,12 @@ const httpOut = ({ data, req, res }) => {
   }
 }
 
-const func = ({ app, model, reporter }) => {
-  app.ext.pathResolvers.errorKey = {
+const func = ({ app, model, reporter, registerPathVar }) => {
+  registerPathVar('errorKey', {
     optionsFetcher : () => app.ext.errorsRetained.map((e) => e.id)
       .concat(app.ext.errorsEphemeral.map((e) => e.id)),
-    bitReString : '[a-z0-9]{5}'
-  }
+    validationRe : '[a-z0-9]{5}'
+  })
 
   return (req, res) => {
     const { errorKey } = req.vars
