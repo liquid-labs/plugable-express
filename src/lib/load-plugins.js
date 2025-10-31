@@ -7,7 +7,7 @@ import { registerHandlers } from './register-handlers'
 /**
  * Loads a single plugin.
  */
-const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
+const loadPlugin = async({ app, cache, reporter, registerPathVar, dir, pkg }) => {
   const { main, name: npmName, description, version } = pkg
   // Since we pull the 'summary' from the package.json description, there may be unecessary context which is clear when
   // asking 'describe this plugin'. So, we look for this specific phrase and remove it.
@@ -18,7 +18,7 @@ const loadPlugin = async({ app, cache, reporter, dir, pkg }) => {
   }
 
   if (setup !== undefined) reporter.log(`Running setup for ${npmName}@${version} plugin...`)
-  let setupData = setup?.({ app, cache, reporter, serverConfigRoot : app.ext.serverConfigRoot })
+  let setupData = setup?.({ app, cache, reporter, registerPathVar, serverConfigRoot : app.ext.serverConfigRoot })
   if (setupData?.then !== undefined) {
     setupData = await setupData
   }
@@ -98,12 +98,13 @@ const discoverExplicitPlugins = async(searchPath, explicitPlugins, reporter) => 
  * @param {Object} options - Loading options
  * @param {Object} options.cache - Cache instance
  * @param {Object} options.reporter - Reporter for logging
+ * @param {Function} options.registerPathVar - Function to register path variables
  * @param {string} options.searchPath - Directory to search for plugins
  * @param {Array<string>} options.explicitPlugins - Optional array of package names to explicitly load
  * @param {Set<string>} options.loadedPluginNames - Optional Set to track loaded plugins across multiple calls
  * @returns {Promise<void>}
  */
-const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins, loadedPluginNames }) => {
+const loadPlugins = async(app, { cache, reporter, registerPathVar, searchPath, explicitPlugins, loadedPluginNames }) => {
   // Use provided Set or create a new one for this call
   const pluginNames = loadedPluginNames || new Set()
 
@@ -125,7 +126,7 @@ const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins, l
         continue
       }
 
-      await loadPlugin({ app, cache, reporter, ...plugin })
+      await loadPlugin({ app, cache, reporter, registerPathVar, ...plugin })
       pluginNames.add(pluginName)
     }
   }
@@ -154,7 +155,7 @@ const loadPlugins = async(app, { cache, reporter, searchPath, explicitPlugins, l
     : `Found ${newPlugins.length} keyword-based plugins.`)
 
   for (const plugin of newPlugins) {
-    await loadPlugin({ app, cache, reporter, ...plugin })
+    await loadPlugin({ app, cache, reporter, registerPathVar, ...plugin })
     pluginNames.add(plugin.pkg.name)
   }
 }

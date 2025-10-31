@@ -14,7 +14,7 @@ import { handlers } from './handlers'
 import { findOwnHome } from './lib/find-own-home'
 import { getServerSettings } from './lib/get-server-settings'
 import { loadPlugins, registerHandlers } from './lib'
-import { commonPathResolvers } from './lib/path-resolvers'
+import { clearRegistry, registerPathVar } from './lib/path-var-registry'
 import { Reporter } from './lib/reporter'
 
 const pkgRoot = findRoot(__dirname)
@@ -55,11 +55,23 @@ const appInit = async(initArgs) => {
     version
   } = initArgs
 
+  // Clear and initialize path var registry
+  clearRegistry()
+
   // Find the server package root (where the running server's package.json is)
   // This is where core plugins are loaded from
   const serverPackageRoot = await findOwnHome(process.argv[1])
 
   app = app || express()
+
+  // Register core path variables
+  // Note: optionsFetcher still accesses app.ext.handlerPlugins for now
+  registerPathVar('serverPluginName', {
+    validationRe   : '((?:@|%40)[a-z0-9-~][a-z0-9-._~]*(?:[/]|%2f|%2F))?([a-z0-9-~][a-z0-9-._~]*)',
+    optionsFetcher : ({ app }) => {
+      return app.ext.handlerPlugins.map(({ npmName }) => npmName)
+    }
+  })
 
   app.use(express.json())
   app.use(express.urlencoded({ extended : true })) // handle POST body params
@@ -75,7 +87,6 @@ const appInit = async(initArgs) => {
     handlerPlugins          : [],
     localSettings           : {},
     name,
-    pathResolvers           : commonPathResolvers,
     pendingHandlers         : [],
     dynamicPluginInstallDir : dynamicPluginInstallDir || fsPath.join(serverConfigRoot, 'dynamic-plugins'),
     serverConfigRoot,
@@ -113,19 +124,19 @@ const appInit = async(initArgs) => {
 
     if (skipCorePlugins !== true) {
       reporter.log(`Loading core plugins from '${serverPackageRoot}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot, explicitPlugins, loadedPluginNames })
+      await loadPlugins(app, { cache, reporter, searchPath : serverPackageRoot, explicitPlugins, loadedPluginNames, registerPathVar })
     }
 
     // Also load plugins from dynamicPluginInstallDir if it's different from serverPackageRoot
     if (app.ext.dynamicPluginInstallDir !== serverPackageRoot) {
       reporter.log(`Loading dynamic plugins from '${app.ext.dynamicPluginInstallDir}'...`)
-      await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins, loadedPluginNames })
+      await loadPlugins(app, { cache, reporter, searchPath : app.ext.dynamicPluginInstallDir, explicitPlugins, loadedPluginNames, registerPathVar })
     }
 
     if (pluginPaths?.length > 0) {
       for (const pluginDir of pluginPaths) {
         reporter.log(`Loading additional plugins from '${pluginDir}'...`)
-        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins, loadedPluginNames })
+        await loadPlugins(app, { cache, reporter, searchPath : pluginDir, explicitPlugins, loadedPluginNames, registerPathVar })
       }
     }
 

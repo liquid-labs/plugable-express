@@ -4,6 +4,8 @@ import { pathToRegexp } from 'path-to-regexp'
 
 import { commonOutputParams } from '@liquid-labs/liq-handlers-lib'
 import { sendHelp } from '../handlers/help/lib/send-help'
+import { getVarDef, registerPathVar } from './path-var-registry'
+import { pathToRe } from './path-to-re'
 
 const helpParameters = commonOutputParams()
 
@@ -97,30 +99,25 @@ const processParams = ({ parameters = [], path }) => (req, res, next) => {
 
 const processCommandPath = ({ app, model, pathArr, parameters }) => {
   const commandPath = []
-  let reString = '^'
+
+  // Build command path array for commandPaths tree
   for (const pathBit of pathArr) {
     if (pathBit.startsWith(':')) {
-      const pathVar = pathBit.slice(1)
-      const pathUtils = app.ext.pathResolvers[pathVar]
-      if (pathUtils === undefined) {
-        throw new Error(`Unknown variable path element type '${pathVar}' while processing path ${pathArr.join('/')}.`)
-      }
-      const { bitReString } = pathUtils
       commandPath.push(pathBit) // with leading ':'
-      reString += `/(?<${pathVar}>${bitReString})`
     }
     else if (pathBit.endsWith('?')) {
       const cleanBit = pathBit.slice(0, -1)
       commandPath.push(cleanBit)
-      reString += `(?:/${cleanBit})?`
     }
     else {
       commandPath.push(pathBit)
-      reString += '/' + pathBit
     }
   }
-  reString += '[/#?]?$'
 
+  // Build the regex using the extracted pathToRe function
+  const pathRe = pathToRe(pathArr, getVarDef)
+
+  // Update commandPaths tree
   let frontier = app.ext.commandPaths
   for (const pathBit of commandPath) {
     if (!(pathBit in frontier)) {
@@ -137,7 +134,7 @@ const processCommandPath = ({ app, model, pathArr, parameters }) => {
   // unfreeze and then maybe make copies here to prevent clients from changing the shared parameters data.
   frontier._parameters = () => parameters
 
-  return new RegExp(reString)
+  return pathRe
 }
 
 // express barfs if there are named capture groups in the path RE. However, we really want to use named capture groups
@@ -166,7 +163,7 @@ const registerHandlers = (app, { npmName, handlers, model, reporter, setupData, 
     const methodUpper = method.toUpperCase()
 
     // this must come before processCommandPath to give the function the option of registering variable name parameters
-    const handlerFunc = func({ parameters, app, cache, model, reporter, setupData })
+    const handlerFunc = func({ parameters, app, cache, model, reporter, registerPathVar, setupData })
 
     for (const path of paths) {
       if (!Array.isArray(path)) {

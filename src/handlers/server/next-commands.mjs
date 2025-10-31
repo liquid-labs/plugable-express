@@ -1,3 +1,4 @@
+import { getVarDef } from '../../lib/path-var-registry'
 import { nextOptions } from './_lib/next-options'
 
 const help = {
@@ -69,14 +70,14 @@ const func = ({ app, cache }) => async(req, res) => {
             foundVariablePathElement = fKey
             const typeKey = fKey.slice(1)
             prevElements[typeKey] = commandBit // save the value of the variable
-            const elementConfig = app.ext.pathResolvers[typeKey]
-            const { bitReString, optionsFetcher } = elementConfig
+            const elementConfig = getVarDef(typeKey)
+            const { validationRe, optionsFetcher } = elementConfig
             let myOptions = optionsFetcher({ app, cache, currToken : commandBit, ...prevElements })
             if (myOptions?.then) myOptions = await myOptions
             if (myOptions?.length > 0) finalOptions.push(...myOptions)
 
-            if (bitReString
-                && commandBit.match(new RegExp('^' + bitReString + '$'))
+            if (validationRe
+                && commandBit.match(new RegExp('^' + validationRe + '$'))
                 && finalOptions.includes(commandBit)) {
               frontier = frontier[fKey]
               break // there may be other possibilities, but once we have a match, we move on.
@@ -114,7 +115,7 @@ const func = ({ app, cache }) => async(req, res) => {
         .reduce(async(acc, k) => {
           acc = await acc
           if (k.startsWith(':')) {
-            const elementConfig = app.ext.pathResolvers[k.slice(1)] // this should already be validated
+            const elementConfig = getVarDef(k.slice(1)) // this should already be validated
             const { optionsFetcher } = elementConfig
             let fOpts = optionsFetcher({ app, cache, currToken : '', req, ...prevElements })
             if (fOpts?.then) fOpts = await fOpts
