@@ -67,7 +67,7 @@ const appInit = async(initArgs) => {
   // Register core path variables
   // Note: optionsFetcher still accesses app.ext.handlerPlugins for now
   registerPathVar('serverPluginName', {
-    validationRe : '((?:@|%40)[a-z0-9-~][a-z0-9-._~]*(?:[/]|%2f|%2F))?([a-z0-9-~][a-z0-9-._~]*)',
+    validationRe   : '((?:@|%40)[a-z0-9-~][a-z0-9-._~]*(?:[/]|%2f|%2F))?([a-z0-9-~][a-z0-9-._~]*)',
     optionsFetcher : ({ app }) => {
       return app.ext.handlerPlugins.map(({ npmName }) => npmName)
     }
