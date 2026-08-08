@@ -10,16 +10,6 @@ items:
         - priority:unspecified
         - effort:unspecified
       text: package.json's main field (dist/pluggable-express.js) and the generated make/50-plugable-express-js.mk still reference the double-g dist filename; a full rename of the build-output name requires regenerating that Makefile via its own generator tool, out of this task's scope. Worth a follow-up if make build/publish is exercised before the generator is re-run.
-    - title: Pre-existing, unrelated latent bug in src/han
-      id: 2GL8
-      date: "2026-08-08"
-      tags:
-        - type:ambiguity
-        - plan/phase:framework-rename
-        - plan/slug:modernization-foundation
-        - priority:unspecified
-        - effort:unspecified
-      text: 'Pre-existing, unrelated latent bug in src/handlers/server/version.js: the plain-text response template reads versionInfo.server (line 34), but the object has no server property (always undefined). Predates the rename, not caught by any test, left untouched as a behavior change outside this pure-rename task''s scope.'
     - title: plugable-express-cli's package.json still dep
       id: 4lJu
       date: "2026-08-08"
