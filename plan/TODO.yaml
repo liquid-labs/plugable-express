@@ -13,6 +13,7 @@ phases:
           path: phase-01-framework-rename/001-rename-package-to-single-g.md
           done: false
           tier: sonnet-med
+          digest: Renamed the package from @liquid-labs/pluggable-express to @liquid-labs/plugable-express (single-g) and bumped the version to 1.0.0-alpha.57. Updated every in-repo self-reference confirmed by the task doc plus a fresh case-insensitive re-grep. GitHub org/repo URLs and the main/dist-build-filename chain were deliberately left untouched, per the task's own scoping instructions. All validation checks (grep, name resolution, npm test, npm run lint) pass; no functional behavior changed beyond the naming.
           git:
             branch: plan/modernization-foundation-01-001
             commit:
