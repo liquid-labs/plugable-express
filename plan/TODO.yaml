@@ -23,7 +23,7 @@ phases:
           slug: publish-renamed-package-for-local-consumption
           title: Publish Renamed Package for Local Consumption
           path: phase-01-framework-rename/002-publish-renamed-package-for-local-consumption.md
-          done: false
+          done: true
           tier: sonnet-low
           digest: Ran yalc publish from this repo, publishing the renamed @liquid-labs/plugable-express@1.0.0-alpha.57 into the local yalc store; prepack (make build) succeeded. Checked plugable-express-cli for a local yalc link and found none. Per manager scope narrowing, no changes were made to core-server — that is core-server's own downstream task 002.
           git:
