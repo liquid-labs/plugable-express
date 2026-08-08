@@ -1,0 +1,12 @@
+version: 2
+items:
+    - title: package.json's main field (dist/pluggable-exp
+      id: AYlt
+      date: "2026-08-08"
+      tags:
+        - type:ambiguity
+        - plan/phase:framework-rename
+        - plan/slug:modernization-foundation
+        - priority:unspecified
+        - effort:unspecified
+      text: package.json's main field (dist/pluggable-express.js) and the generated make/50-plugable-express-js.mk still reference the double-g dist filename; a full rename of the build-output name requires regenerating that Makefile via its own generator tool, out of this task's scope. Worth a follow-up if make build/publish is exercised before the generator is re-run.
