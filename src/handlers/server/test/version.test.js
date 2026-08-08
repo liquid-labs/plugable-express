@@ -23,7 +23,7 @@ describe('GET:/server', () => {
       .set('Accept', 'application/json')
     expect(status).toBe(200)
     expect(headers['content-type']).toMatch(/json/)
-    expect(body['pluggable-express']).toBe(CURR_VER)
+    expect(body['plugable-express']).toBe(CURR_VER)
     expect(body.version).toBe('1.1-test.0')
   })
 
