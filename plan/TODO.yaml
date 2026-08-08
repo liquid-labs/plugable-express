@@ -1,0 +1,8 @@
+slug: modernization-foundation
+version: 1
+title: ""
+phases:
+    - number: 1
+      slug: framework-rename
+      title: Canonicalize on the Single-G Package Name
+      tasks: []
