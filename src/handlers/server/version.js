@@ -15,13 +15,13 @@ const parameters = []
 
 const func = ({ app, cache, reporter }) => (req, res) => {
   const versionInfo = {
-    name                : app.ext.name,
-    version             : app.ext.version,
-    'pluggable-express' : app.ext.serverVersion,
-    node                : process.version,
-    fullNode            : process.versions,
-    platform            : `${os.type()} ${os.release()}`,
-    fullPlatform        : {
+    name               : app.ext.name,
+    version            : app.ext.version,
+    'plugable-express' : app.ext.serverVersion,
+    node               : process.version,
+    fullNode           : process.versions,
+    platform           : `${os.type()} ${os.release()}`,
+    fullPlatform       : {
       platform : os.platform(),
       type     : os.type(),
       version  : os.version(),
@@ -31,7 +31,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
   }
 
   const msg = `${app.ext.name}: ${app.ext.version}
-pluggable-express: ${versionInfo.server}
+plugable-express: ${versionInfo.server}
 node: ${versionInfo.node}
 platform:${versionInfo.platform}
 `
