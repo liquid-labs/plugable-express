@@ -16,3 +16,13 @@ phases:
             branch: null
             commit: []
             merge: null
+        - number: 2
+          slug: publish-renamed-package-for-local-consumption
+          title: Publish Renamed Package for Local Consumption
+          path: phase-01-framework-rename/002-publish-renamed-package-for-local-consumption.md
+          done: false
+          tier: sonnet-low
+          git:
+            branch: null
+            commit: []
+            merge: null
