@@ -40,3 +40,13 @@ items:
         - priority:unspecified
         - effort:unspecified
       text: 'src/handlers/server/version.js''s plain-text response template reads `versionInfo.server` (undefined — the object has no `server` key; the actual value lives under the `''plugable-express''` key). Pre-existing bug, predates the framework-rename plan and not introduced by it — the /server/version plain-text response always prints "plugable-express: undefined". Fix: change `versionInfo.server` to `versionInfo[''plugable-express'']` (or similar) at that line.'
+    - title: Add AGENTS.md Yalc Local Dev section
+      id: 53ZB
+      date: "2026-08-08"
+      tags:
+        - plan/phase:framework-rename
+        - plan/slug:modernization-foundation
+        - type:documentation
+        - priority:unspecified
+        - effort:unspecified
+      text: Task 002 of the framework-rename phase instructed its implementer to consult AGENTS.md's "Yalc Local Development" section to choose between `yalc add` and `yalc push` conventions, but no such section exists in AGENTS.md today (only a single generic "use yalc to link local plugin packages" line at AGENTS.md:160). Didn't block the task, but worth adding that section (or fixing the reference) for future yalc-related task-doc authoring.
