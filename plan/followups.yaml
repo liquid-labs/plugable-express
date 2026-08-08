@@ -30,3 +30,13 @@ items:
         - priority:unspecified
         - effort:unspecified
       text: plugable-express-cli's package.json still depends on the old double-g package name @liquid-labs/pluggable-express@^1.0.0-alpha.56, not the renamed single-g @liquid-labs/plugable-express, and has no yalc link to either. Outside this task's scope (a different repo). Consider a follow-up task for plugable-express-cli's own consumer-side rename adoption, parallel to core-server's task 002.
+    - title: Fix versionInfo.server undefined bug
+      id: MRt3
+      date: "2026-08-08"
+      tags:
+        - plan/phase:framework-rename
+        - plan/slug:modernization-foundation
+        - type:bug
+        - priority:unspecified
+        - effort:unspecified
+      text: 'src/handlers/server/version.js''s plain-text response template reads `versionInfo.server` (undefined — the object has no `server` key; the actual value lives under the `''plugable-express''` key). Pre-existing bug, predates the framework-rename plan and not introduced by it — the /server/version plain-text response always prints "plugable-express: undefined". Fix: change `versionInfo.server` to `versionInfo[''plugable-express'']` (or similar) at that line.'
