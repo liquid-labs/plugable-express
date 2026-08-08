@@ -5,6 +5,7 @@ phases:
     - number: 1
       slug: framework-rename
       title: Canonicalize on the Single-G Package Name
+      diff_base: 6bada664d9fc2c1a45c337254451da776f7243d3
       tasks:
         - number: 1
           slug: rename-package-to-single-g
