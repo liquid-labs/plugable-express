@@ -20,3 +20,13 @@ items:
         - priority:unspecified
         - effort:unspecified
       text: 'Pre-existing, unrelated latent bug in src/handlers/server/version.js: the plain-text response template reads versionInfo.server (line 34), but the object has no server property (always undefined). Predates the rename, not caught by any test, left untouched as a behavior change outside this pure-rename task''s scope.'
+    - title: plugable-express-cli's package.json still dep
+      id: 4lJu
+      date: "2026-08-08"
+      tags:
+        - type:ambiguity
+        - plan/phase:framework-rename
+        - plan/slug:modernization-foundation
+        - priority:unspecified
+        - effort:unspecified
+      text: plugable-express-cli's package.json still depends on the old double-g package name @liquid-labs/pluggable-express@^1.0.0-alpha.56, not the renamed single-g @liquid-labs/plugable-express, and has no yalc link to either. Outside this task's scope (a different repo). Consider a follow-up task for plugable-express-cli's own consumer-side rename adoption, parallel to core-server's task 002.
