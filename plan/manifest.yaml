@@ -2,3 +2,6 @@ version: 1
 plans:
     - slug: modernization-foundation
       status: working
+      outstandingQuestions:
+        - Monorepo layout/tooling/location for the eventual framework+core-server+domain-plugins+product workspace is undecided; Phase 0 uses yalc as an interim local-linking mechanism instead of scaffolding a workspace.
+        - Whether this framework should carry a brand independent of SDLCPilot (given the reusability/multi-product goal) is undecided; the single-g rename is the immediate fix, not necessarily the final name.
