@@ -18,7 +18,7 @@ phases:
             branch: plan/modernization-foundation-01-001
             commit:
                 - 7c385de
-            merge: null
+            merge: 8bd36bd
         - number: 2
           slug: publish-renamed-package-for-local-consumption
           title: Publish Renamed Package for Local Consumption
