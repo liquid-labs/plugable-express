@@ -5,4 +5,14 @@ phases:
     - number: 1
       slug: framework-rename
       title: Canonicalize on the Single-G Package Name
-      tasks: []
+      tasks:
+        - number: 1
+          slug: rename-package-to-single-g
+          title: Rename Package to Single-G
+          path: phase-01-framework-rename/001-rename-package-to-single-g.md
+          done: false
+          tier: sonnet-med
+          git:
+            branch: null
+            commit: []
+            merge: null
