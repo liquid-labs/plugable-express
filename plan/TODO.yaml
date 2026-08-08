@@ -30,4 +30,4 @@ phases:
             branch: plan/modernization-foundation-01-002
             commit:
                 - da98426
-            merge: null
+            merge: d7cec25
