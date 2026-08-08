@@ -159,6 +159,21 @@ export const setup = async ({ app, cache, reporter }) => {
 - NPM handles dependency resolution automatically
 - For local development, use `yalc` to link local plugin packages
 
+#### Yalc Local Development
+
+This repo is typically the **producer** side of a yalc link: consumers such as `@sdlcforge/core-server` develop against an unreleased `@liquid-labs/plugable-express` via a local yalc snapshot rather than a published npm version. The same `yalc add` / `yalc push` distinction applies in reverse if this repo is, itself, linking against an unreleased local plugin package for testing.
+
+- **`yalc add <package>`** — run once, in the **consumer** project, to create the initial link to a package's local yalc snapshot (e.g. `core-server` running `yalc add @liquid-labs/plugable-express`). This adds a `file:.yalc/<package>` entry to the consumer's `package.json` and copies the current snapshot into the consumer's `.yalc/` directory. Use this the first time a project starts consuming a local, unreleased build of a package.
+- **`yalc push`** — run from the **producer** repo (this repo, when publishing `plugable-express` itself) after making changes. It republishes the local snapshot and automatically pushes the update into every consumer that has already run `yalc add` for this package, without requiring each consumer to re-add manually. Use this for every iteration after the initial `yalc add` has been done.
+- **`yalc publish`** — publishes a snapshot to the local yalc store without pushing it to any consumer. Useful the first time a package is made available locally, before any consumer has linked to it (a consumer then runs `yalc add` to pick it up).
+
+Typical local-development loop against a consumer like `core-server`:
+
+1. Make changes in this repo.
+2. Run `yalc push` from this repo. `yalc` packs the package the same way `npm pack` would, so this repo's `prepack` script (`make build`) runs automatically first, and the freshly built `dist/` output is what gets pushed.
+3. In the consumer project, run `npm install` to pick up the pushed snapshot and keep transitive dependencies in sync.
+4. Rebuild/restart the consumer as needed.
+
 ### Plugin Discovery & Loading Flow
 
 The plugin system loads plugins from multiple sources in a specific order:

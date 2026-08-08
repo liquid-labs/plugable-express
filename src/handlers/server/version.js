@@ -31,7 +31,7 @@ const func = ({ app, cache, reporter }) => (req, res) => {
   }
 
   const msg = `${app.ext.name}: ${app.ext.version}
-plugable-express: ${versionInfo.server}
+plugable-express: ${versionInfo['plugable-express']}
 node: ${versionInfo.node}
 platform:${versionInfo.platform}
 `
